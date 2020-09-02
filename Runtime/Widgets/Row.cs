@@ -6,29 +6,11 @@ namespace UniMob.UI.Widgets
 {
     public sealed class Row : MultiChildLayoutWidget
     {
-        public Row(
-            [NotNull] List<Widget> children,
-            [CanBeNull] Key key = null,
-            CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-            MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
-            AxisSize crossAxisSize = AxisSize.Min,
-            AxisSize mainAxisSize = AxisSize.Min
-        ) : base(
-            children,
-            key
-        )
-        {
-            CrossAxisAlignment = crossAxisAlignment;
-            MainAxisAlignment = mainAxisAlignment;
-            CrossAxisSize = crossAxisSize;
-            MainAxisSize = mainAxisSize;
-        }
+        public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
+        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
 
-        public CrossAxisAlignment CrossAxisAlignment { get; }
-        public MainAxisAlignment MainAxisAlignment { get; }
-
-        public AxisSize CrossAxisSize { get; }
-        public AxisSize MainAxisSize { get; }
+        public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
+        public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
 
         public override State CreateState() => new RowState();
     }

@@ -6,19 +6,8 @@ namespace UniMob.UI.Widgets
 {
     public class ScrollList : MultiChildLayoutWidget
     {
-        public ScrollList(
-            [NotNull] List<Widget> children,
-            [CanBeNull] Key key = null,
-            CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-            MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start
-        ) : base(children, key)
-        {
-            CrossAxisAlignment = crossAxisAlignment;
-            MainAxisAlignment = mainAxisAlignment;
-        }
-
-        public CrossAxisAlignment CrossAxisAlignment { get; }
-        public MainAxisAlignment MainAxisAlignment { get; }
+        public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
+        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
 
         public override State CreateState() => new ScrollListState();
     }

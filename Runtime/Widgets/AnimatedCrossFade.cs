@@ -1,5 +1,4 @@
 using System;
-using JetBrains.Annotations;
 
 namespace UniMob.UI.Widgets
 {
@@ -10,17 +9,13 @@ namespace UniMob.UI.Widgets
             Widget secondChild,
             CrossFadeState crossFadeState,
             float duration,
-            float? reverseDuration = null,
-            Alignment? alignment = null,
-            [CanBeNull] Key key = null)
-            : base(key)
+            float? reverseDuration = null)
         {
             FirstChild = firstChild;
             SecondChild = secondChild;
             CrossFadeState = crossFadeState;
             Duration = duration;
             ReverseDuration = reverseDuration ?? duration;
-            Alignment = alignment ?? Alignment.Center;
         }
 
         public Widget FirstChild { get; }
@@ -28,7 +23,7 @@ namespace UniMob.UI.Widgets
         public CrossFadeState CrossFadeState { get; }
         public float Duration { get; }
         public float ReverseDuration { get; }
-        public Alignment Alignment { get; }
+        public Alignment Alignment { get; set; } = Alignment.Center;
 
         public override State CreateState() => new AnimatedCrossFadeState();
     }
@@ -39,8 +34,8 @@ namespace UniMob.UI.Widgets
         private readonly Key _secondKey = Key.Of(CrossFadeState.ShowSecond);
 
         private AnimationController _controller;
-        private Atom<IState> _firstChild;
-        private Atom<IState> _secondChild;
+        private StateHolder _firstChild;
+        private StateHolder _secondChild;
         private Atom<WidgetSize> _size;
 
         private IAnimation<float> _firstAnimation;
@@ -55,50 +50,30 @@ namespace UniMob.UI.Widgets
 
             _firstChild = CreateChild(context =>
             {
-                return new FadeTransition(
-                    key: _firstKey,
-                    child: Widget.FirstChild,
-                    opacity: _firstAnimation
-                );
+                return new FadeTransition
+                {
+                    Key = _firstKey,
+                    Child = Widget.FirstChild,
+                    Opacity = _firstAnimation,
+                };
             });
             _secondChild = CreateChild(context =>
             {
-                return new FadeTransition(
-                    key: _secondKey,
-                    child: Widget.SecondChild,
-                    opacity: _secondAnimation
-                );
+                return new FadeTransition
+                {
+                    Key = _secondKey,
+                    Child = Widget.SecondChild,
+                    Opacity = _secondAnimation,
+                };
             });
 
             _size = Atom.Computed(CalculateSizeInternal);
 
             var completed = Widget.CrossFadeState == CrossFadeState.ShowSecond;
             _controller = new AnimationController(Widget.Duration, Widget.ReverseDuration, completed);
-            _controller.AddStatusListener(ControllerStatusChanged);
 
             _firstAnimation = _controller.Drive(new FloatTween(1, 0));
             _secondAnimation = _controller.Drive(new FloatTween(0, 1));
-        }
-
-        public override void Dispose()
-        {
-            _controller.RemoveStatusListener(ControllerStatusChanged);
-
-            base.Dispose();
-        }
-
-        private void ControllerStatusChanged(AnimationStatus status)
-        {
-            Tick();
-        }
-
-        // TODO: implement ticker
-        private void Tick()
-        {
-            if (!_controller.IsAnimating) return;
-
-            _size.Invalidate();
-            Zone.Current.Invoke(Tick);
         }
 
         public override void DidUpdateWidget(AnimatedCrossFade oldWidget)

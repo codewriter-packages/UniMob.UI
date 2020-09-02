@@ -6,31 +6,12 @@ namespace UniMob.UI.Widgets
 {
     public class GridFlow : MultiChildLayoutWidget
     {
-        public GridFlow(
-            [NotNull] List<Widget> children,
-            [CanBeNull] Key key = null,
-            CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-            MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
-            AxisSize crossAxisSize = AxisSize.Min,
-            AxisSize mainAxisSize = AxisSize.Min,
-            [CanBeNull] int? maxCrossAxisCount = null,
-            [CanBeNull] float? maxCrossAxisExtent = null)
-            : base(children, key)
-        {
-            CrossAxisAlignment = crossAxisAlignment;
-            MainAxisAlignment = mainAxisAlignment;
-            CrossAxisSize = crossAxisSize;
-            MainAxisSize = mainAxisSize;
-            MaxCrossAxisCount = Math.Max(maxCrossAxisCount ?? int.MaxValue, 1);
-            MaxCrossAxisExtent = Math.Max(maxCrossAxisExtent ?? float.MaxValue, 1);
-        }
-
-        public CrossAxisAlignment CrossAxisAlignment { get; }
-        public MainAxisAlignment MainAxisAlignment { get; }
-        public AxisSize CrossAxisSize { get; }
-        public AxisSize MainAxisSize { get; }
-        public int MaxCrossAxisCount { get; }
-        public float MaxCrossAxisExtent { get; }
+        public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
+        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
+        public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
+        public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
+        public int MaxCrossAxisCount { get; set; } = int.MaxValue;
+        public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
 
         public override State CreateState() => new GridFlowState();
     }

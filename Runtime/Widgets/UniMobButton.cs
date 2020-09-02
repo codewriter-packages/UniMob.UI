@@ -5,20 +5,9 @@ namespace UniMob.UI.Widgets
 {
     public class UniMobButton : SingleChildLayoutWidget
     {
-        public UniMobButton(
-            [NotNull] Widget child,
-            [NotNull] Action onClick,
-            bool interactable = true,
-            [CanBeNull] Key key = null
-        ) : base(child, key)
-        {
-            OnClick = onClick;
-            Interactable = interactable;
-        }
+        public bool Interactable { get; set; }
 
-        public bool Interactable { get; }
-
-        public Action OnClick { get; }
+        public Action OnClick { get; set; }
 
         public override State CreateState() => new UniMobButtonState();
     }
@@ -32,6 +21,6 @@ namespace UniMob.UI.Widgets
 
         public bool Interactable => Widget.Interactable;
 
-        public void OnClick() => Widget.OnClick();
+        public void OnClick() => Widget.OnClick?.Invoke();
     }
 }

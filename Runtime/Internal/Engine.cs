@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UniMob.UI
+namespace UniMob.UI.Internal
 {
     internal static class Engine
     {

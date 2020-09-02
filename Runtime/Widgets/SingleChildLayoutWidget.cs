@@ -5,21 +5,13 @@ namespace UniMob.UI.Widgets
 {
     public abstract class SingleChildLayoutWidget : StatefulWidget
     {
-        protected SingleChildLayoutWidget(
-            [NotNull] Widget child,
-            [CanBeNull] Key key
-        ) : base(key)
-        {
-            Child = child ?? throw new ArgumentNullException(nameof(child));
-        }
-
-        [NotNull] public Widget Child { get; }
+        [NotNull] public Widget Child { get; set; } = new Empty();
     }
 
     internal abstract class SingleChildLayoutState<TWidget> : ViewState<TWidget>
         where TWidget : SingleChildLayoutWidget
     {
-        private readonly Atom<IState> _child;
+        private readonly StateHolder _child;
 
         protected SingleChildLayoutState()
         {

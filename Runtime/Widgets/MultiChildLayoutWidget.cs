@@ -6,22 +6,13 @@ namespace UniMob.UI.Widgets
 {
     public abstract class MultiChildLayoutWidget : StatefulWidget
     {
-        protected MultiChildLayoutWidget(
-            [NotNull] List<Widget> children,
-            [CanBeNull] Key key
-        ) : base(
-            key)
-        {
-            Children = children ?? throw new ArgumentNullException(nameof(children));
-        }
-
-        [NotNull] public List<Widget> Children { get; }
+        [NotNull] public List<Widget> Children { get; set; } = new List<Widget>();
     }
-    
+
     internal abstract class MultiChildLayoutState<TWidget> : ViewState<TWidget>
         where TWidget : MultiChildLayoutWidget
     {
-        private readonly Atom<IState[]> _children;
+        private readonly StateCollectionHolder _children;
 
         protected MultiChildLayoutState()
         {

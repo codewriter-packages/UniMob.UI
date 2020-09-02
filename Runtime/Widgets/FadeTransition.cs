@@ -4,16 +4,7 @@ namespace UniMob.UI.Widgets
 {
     public class FadeTransition : SingleChildLayoutWidget
     {
-        public FadeTransition(
-            [NotNull] Widget child,
-            [NotNull] IAnimation<float> opacity,
-            [CanBeNull] Key key = null
-        ) : base(child, key)
-        {
-            Opacity = opacity;
-        }
-
-        public IAnimation<float> Opacity { get; }
+        public IAnimation<float> Opacity { get; set; } = new ConstAnimation<float>(1f);
 
         public override State CreateState() => new FadeTransitionState();
     }

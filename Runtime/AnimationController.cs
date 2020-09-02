@@ -1,29 +1,47 @@
-using System.Collections.Generic;
-
 namespace UniMob.UI
 {
     using System;
-    using System.Threading.Tasks;
     using UnityEngine;
 
     public class AnimationController : IAnimation<float>
     {
-        private List<Action<AnimationStatus>> _listeners;
-        private TaskCompletionSource<object> _completer;
         private float _prevDeltaTime;
 
-        public float Duration { get; set; }
-        public float ReverseDuration { get; set; }
+        private MutableAtom<float> _duration = Atom.Value("AnimationController::Duration", 0f);
+        private MutableAtom<float> _reverseDuration = Atom.Value("AnimationController::ReverseDuration", 0f);
+        private MutableAtom<float> _value = Atom.Value("AnimationController::Value", 0f);
 
-        public AnimationStatus Status { get; private set; }
+        private MutableAtom<AnimationStatus> _status = Atom.Value("AnimationController::Duration",
+            AnimationStatus.Dismissed);
+
+        public float Duration
+        {
+            get => _duration.Value;
+            set => _duration.Value = value;
+        }
+
+        public float ReverseDuration
+        {
+            get => _reverseDuration.Value;
+            set => _reverseDuration.Value = value;
+        }
+
+        public float Value
+        {
+            get => _value.Value;
+            private set => _value.Value = value;
+        }
+
+        public AnimationStatus Status
+        {
+            get => _status.Value;
+            private set => _status.Value = value;
+        }
 
         public bool IsCompleted => Status == AnimationStatus.Completed;
         public bool IsDismissed => Status == AnimationStatus.Dismissed;
 
-        public bool IsAnimating =>
-            Status == AnimationStatus.Forward || Status == AnimationStatus.Reverse;
-
-        public float Value { get; private set; }
+        public bool IsAnimating => Status == AnimationStatus.Forward || Status == AnimationStatus.Reverse;
 
         public IAnimation<float> View => this;
 
@@ -46,53 +64,31 @@ namespace UniMob.UI
             Value = completed ? 1f : 0f;
         }
 
-        public void AddStatusListener(Action<AnimationStatus> listener)
+        public void Forward()
         {
-            if (_listeners == null)
-            {
-                _listeners = new List<Action<AnimationStatus>>();
-            }
-
-            _listeners.Add(listener);
+            StartInternal(AnimationStatus.Forward, AnimationStatus.Completed, Duration);
         }
 
-        public void RemoveStatusListener(Action<AnimationStatus> listener)
+        public void Reverse()
         {
-            _listeners?.Remove(listener);
+            StartInternal(AnimationStatus.Reverse, AnimationStatus.Dismissed, ReverseDuration);
         }
 
-        public Task Forward()
+        private void StartInternal(AnimationStatus status, AnimationStatus endStatus, float d)
         {
-            return StartInternal(AnimationStatus.Forward, AnimationStatus.Completed, Duration);
-        }
-
-        public Task Reverse()
-        {
-            return StartInternal(AnimationStatus.Reverse, AnimationStatus.Dismissed, ReverseDuration);
-        }
-
-        private Task StartInternal(AnimationStatus status, AnimationStatus endStatus, float d)
-        {
-            var completer = _completer;
-            _completer = null;
-            completer?.TrySetResult(null);
-
-            UpdateStatus(status);
+            Status = status;
 
             if (Mathf.Approximately(d, 0))
             {
                 Value = endStatus == AnimationStatus.Completed ? 1f : 0f;
-                UpdateStatus(endStatus);
-                return Task.CompletedTask;
+                Status = endStatus;
+                return;
             }
 
             _prevDeltaTime = Time.unscaledDeltaTime;
-            _completer = new TaskCompletionSource<object>();
 
             Zone.Current.RemoveTicker(Tick);
             Zone.Current.AddTicker(Tick);
-
-            return _completer.Task;
         }
 
         private void Tick()
@@ -131,29 +127,12 @@ namespace UniMob.UI
             switch (Status)
             {
                 case AnimationStatus.Forward:
-                    UpdateStatus(AnimationStatus.Completed);
+                    Status = AnimationStatus.Completed;
                     break;
 
                 case AnimationStatus.Reverse:
-                    UpdateStatus(AnimationStatus.Dismissed);
+                    Status = AnimationStatus.Dismissed;
                     break;
-            }
-
-            var completer = _completer;
-            _completer = null;
-            completer?.TrySetResult(null);
-        }
-
-        private void UpdateStatus(AnimationStatus status)
-        {
-            Status = status;
-
-            if (_listeners != null)
-            {
-                foreach (var listener in _listeners)
-                {
-                    listener.Invoke(status);
-                }
             }
         }
     }
@@ -174,12 +153,6 @@ namespace UniMob.UI
         public bool IsDismissed => _controller.IsDismissed;
         public AnimationStatus Status => _controller.Status;
         public T Value => _tween.Transform(_controller.Value);
-
-        public void AddStatusListener(Action<AnimationStatus> listener)
-            => _controller.AddStatusListener(listener);
-
-        public void RemoveStatusListener(Action<AnimationStatus> listener) =>
-            _controller.RemoveStatusListener(listener);
     }
 
     public static class AnimatableExtensions
@@ -210,14 +183,6 @@ namespace UniMob.UI
             Value = value;
         }
 
-        public void AddStatusListener(Action<AnimationStatus> listener)
-        {
-        }
-
-        public void RemoveStatusListener(Action<AnimationStatus> listener)
-        {
-        }
-
         public static implicit operator ConstAnimation<T>(T value) => new ConstAnimation<T>(value);
     }
 
@@ -235,9 +200,6 @@ namespace UniMob.UI
         AnimationStatus Status { get; }
 
         T Value { get; }
-
-        void AddStatusListener(Action<AnimationStatus> listener);
-        void RemoveStatusListener(Action<AnimationStatus> listener);
     }
 
     public enum AnimationStatus

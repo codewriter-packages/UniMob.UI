@@ -10,7 +10,7 @@ namespace UniMob.UI.Widgets
 
     public class NavigatorState : ViewState<Navigator>, INavigatorState
     {
-        private readonly Atom<IState[]> _states;
+        private readonly StateCollectionHolder _states;
         private readonly NavigatorStack _stack;
 
         private readonly Queue<NavigatorCommand[]> _pendingCommands = new Queue<NavigatorCommand[]>();

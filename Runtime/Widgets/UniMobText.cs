@@ -5,32 +5,20 @@ namespace UniMob.UI.Widgets
 {
     public class UniMobText : StatefulWidget
     {
-        public UniMobText(
-            WidgetSize size,
-            [NotNull] string value,
-            int? fontSize = null,
-            Color? color = null,
-            CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-            MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
-            [CanBeNull] Key key = null)
-            : base(key)
+        public UniMobText(WidgetSize size, [NotNull] string value)
         {
             Size = size;
             Value = value;
-            Color = color ?? Color.black;
-            CrossAxisAlignment = crossAxisAlignment;
-            MainAxisAlignment = mainAxisAlignment;
-            FontSize = fontSize ?? 12;
         }
 
         public WidgetSize Size { get; }
 
         public string Value { get; }
-        public Color Color { get; }
-        public CrossAxisAlignment CrossAxisAlignment { get; }
-        public MainAxisAlignment MainAxisAlignment { get; }
+        public Color Color { get; set; } = Color.black;
+        public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
+        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
 
-        public int FontSize { get; }
+        public int FontSize { get; set; } = 12;
 
         public override State CreateState() => new UniMobTextState();
     }

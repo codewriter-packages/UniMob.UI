@@ -5,22 +5,9 @@ namespace UniMob.UI.Widgets
 {
     public sealed class Container : SingleChildLayoutWidget
     {
-        public Container(
-            [CanBeNull] Widget child = null,
-            [CanBeNull] Key key = null,
-            [CanBeNull] Color? backgroundColor = null,
-            [CanBeNull] WidgetSize? size = null,
-            [CanBeNull] Alignment? alignment = null)
-            : base(child ?? new Empty(), key)
-        {
-            BackgroundColor = backgroundColor ?? Color.clear;
-            Alignment = alignment ?? Alignment.Center;
-            Size = size;
-        }
-
-        public Color BackgroundColor { get; }
-        public Alignment Alignment { get; }
-        public WidgetSize? Size { get; }
+        public Color BackgroundColor { get; set; } = Color.clear;
+        public Alignment Alignment { get; set; } = Alignment.Center;
+        public WidgetSize? Size { get; set; }
 
         public override State CreateState() => new ContainerState();
     }

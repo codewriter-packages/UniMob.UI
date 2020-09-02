@@ -7,10 +7,9 @@ namespace UniMob.UI
     public abstract class HocState<TWidget> : State
         where TWidget : Widget
     {
-        private readonly MutableAtom<TWidget> _widget = Atom.Value("widget", default(TWidget));
-        private readonly Atom<IState> _child;
+        private readonly StateHolder _child;
 
-        protected TWidget Widget => _widget.Value;
+        protected TWidget Widget { get; private set; }
 
         public sealed override WidgetSize Size => InnerViewState.Size;
 
@@ -18,7 +17,7 @@ namespace UniMob.UI
 
         protected HocState()
         {
-            _child = Create(new BuildContext(null, Context), Build);
+            _child = Create(new BuildContext(this, Context), Build);
         }
 
         internal sealed override void Update(Widget widget)
@@ -29,11 +28,11 @@ namespace UniMob.UI
 
             if (widget is TWidget typedWidget)
             {
-                _widget.Value = typedWidget;
+                Widget = typedWidget;
             }
             else
             {
-                throw new Exception($"Trying to pass {widget.GetType()}, but expected {typeof(TWidget)}");
+                throw new WrongStateTypeException(GetType(), typeof(TWidget), widget.GetType());
             }
 
             if (oldWidget != null)

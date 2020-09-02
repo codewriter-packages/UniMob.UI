@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniMob.UI.Internal;
-using UnityEngine.Assertions;
 
 namespace UniMob.UI
 {
@@ -20,7 +19,6 @@ namespace UniMob.UI
 
         protected State()
         {
-            Assert.IsNull(Atom.CurrentScope);
             _context = new MutableBuildContext(this, null);
         }
 
@@ -31,69 +29,108 @@ namespace UniMob.UI
 
         internal void Mount(BuildContext context)
         {
-            Assert.IsNull(Atom.CurrentScope);
-
             if (Context.Parent != null)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("State already mounted");
 
             _context.SetParent(context);
         }
 
         public virtual void InitState()
         {
-            Assert.IsNull(Atom.CurrentScope);
         }
 
         public virtual void Dispose()
         {
-            Assert.IsNull(Atom.CurrentScope);
         }
 
-        internal static Atom<IState> Create(BuildContext context, WidgetBuilder builder)
+        internal static StateHolder Create(BuildContext context, WidgetBuilder builder)
         {
-            Assert.IsNull(Atom.CurrentScope);
-
-            State state = null;
-            return Atom.Computed<IState>(() =>
-            {
-                var newWidget = builder(context);
-                using (Atom.NoWatch)
-                {
-                    state = StateUtilities.UpdateChild(context, state, newWidget);
-                }
-
-                return state;
-            }, callbacks: new ActionAtomCallbacks(
-                onActive: () => { },
-                onInactive: () => StateUtilities.DeactivateChild(state)
-            ), requiresReaction: true);
+            return new StateHolder(context, builder);
         }
 
-        internal static Atom<IState[]> CreateList(BuildContext context, Func<BuildContext, List<Widget>> builder)
+        internal static StateCollectionHolder CreateList(BuildContext context, Func<BuildContext, List<Widget>> builder)
         {
-            Assert.IsNull(Atom.CurrentScope);
+            return new StateCollectionHolder(context, builder);
+        }
+    }
 
-            var states = new State[0];
-            return Atom.Computed<IState[]>(() =>
+    public class StateCollectionHolder : IAtomCallbacks
+    {
+        private readonly BuildContext _context;
+        private readonly Func<BuildContext, List<Widget>> _builder;
+        private readonly Atom<IState[]> _statesAtom;
+
+        private State[] _states = new State[0];
+
+        public IState[] Value => _statesAtom.Value;
+
+        public StateCollectionHolder(BuildContext context, Func<BuildContext, List<Widget>> builder)
+        {
+            _context = context;
+            _builder = builder;
+            _statesAtom = Atom.Computed(ComputeStates, callbacks: this, requiresReaction: true);
+        }
+
+        private State[] ComputeStates()
+        {
+            var newWidgets = _builder.Invoke(_context);
+            using (Atom.NoWatch)
             {
-                var newWidgets = builder.Invoke(context);
-                using (Atom.NoWatch)
-                {
-                    states = StateUtilities.UpdateChildren(context, states, newWidgets);
-                }
+                _states = StateUtilities.UpdateChildren(_context, _states, newWidgets);
+            }
 
-                // ReSharper disable once CoVariantArrayConversion
-                return states.ToArray();
-            }, callbacks: new ActionAtomCallbacks(
-                onActive: () => { },
-                onInactive: () =>
-                {
-                    foreach (var state in states)
-                    {
-                        StateUtilities.DeactivateChild(state);
-                    }
-                }
-            ), requiresReaction: true);
+            // ReSharper disable once CoVariantArrayConversion
+            return _states.ToArray();
+        }
+
+        void IAtomCallbacks.OnActive()
+        {
+        }
+
+        void IAtomCallbacks.OnInactive()
+        {
+            foreach (var state in _states)
+            {
+                StateUtilities.DeactivateChild(state);
+            }
+        }
+    }
+
+    public class StateHolder : IAtomCallbacks
+    {
+        private readonly BuildContext _context;
+        private readonly WidgetBuilder _builder;
+        private readonly Atom<IState> _stateAtom;
+
+        private State _state;
+
+        public StateHolder(BuildContext context, WidgetBuilder builder)
+        {
+            _context = context;
+            _builder = builder;
+            _stateAtom = Atom.Computed(ComputeState, callbacks: this, requiresReaction: true);
+        }
+
+        public IState Value => _stateAtom.Value;
+
+        private IState ComputeState()
+        {
+            var newWidget = _builder(_context);
+            using (Atom.NoWatch)
+            {
+                _state = StateUtilities.UpdateChild(_context, _state, newWidget);
+            }
+
+            return _state;
+        }
+
+        void IAtomCallbacks.OnActive()
+        {
+        }
+
+        void IAtomCallbacks.OnInactive()
+        {
+            StateUtilities.DeactivateChild(_state);
         }
     }
 }

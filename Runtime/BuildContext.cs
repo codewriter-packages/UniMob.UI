@@ -12,7 +12,7 @@ namespace UniMob.UI
             Parent = parent;
         }
 
-        public virtual TState AncestorStateOfType<TState>()
+        public TState AncestorStateOfType<TState>()
             where TState : IState
         {
             var ancestor = this;
@@ -30,7 +30,7 @@ namespace UniMob.UI
             return default;
         }
 
-        public virtual TState RootAncestorStateOfType<TState>()
+        public TState RootAncestorStateOfType<TState>()
             where TState : IState
         {
             var ancestor = this;

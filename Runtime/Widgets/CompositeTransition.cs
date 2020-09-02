@@ -5,30 +5,10 @@ namespace UniMob.UI.Widgets
 {
     public class CompositeTransition : SingleChildLayoutWidget
     {
-        private static readonly ConstAnimation<float> NormalOpacity = 1f;
-        private static readonly ConstAnimation<Vector2> NormalPosition = Vector2.zero;
-        private static readonly ConstAnimation<Vector3> NormalScale = Vector3.one;
-        private static readonly ConstAnimation<Quaternion> NormalRotation = Quaternion.identity;
-
-        public CompositeTransition(
-            Widget child,
-            [CanBeNull] IAnimation<float> opacity = null,
-            [CanBeNull] IAnimation<Vector2> position = null,
-            [CanBeNull] IAnimation<Vector3> scale = null,
-            [CanBeNull] IAnimation<Quaternion> rotation = null,
-            [CanBeNull] Key key = null
-        ) : base(child, key)
-        {
-            Opacity = opacity ?? NormalOpacity;
-            Position = position ?? NormalPosition;
-            Scale = scale ?? NormalScale;
-            Rotation = rotation ?? NormalRotation;
-        }
-
-        public IAnimation<float> Opacity { get; }
-        public IAnimation<Vector2> Position { get; }
-        public IAnimation<Vector3> Scale { get; }
-        public IAnimation<Quaternion> Rotation { get; }
+        public IAnimation<float> Opacity { get; set; } = new ConstAnimation<float>(1f);
+        public IAnimation<Vector2> Position { get; set; } = new ConstAnimation<Vector2>(Vector2.zero);
+        public IAnimation<Vector3> Scale { get; set; } = new ConstAnimation<Vector3>(Vector3.one);
+        public IAnimation<Quaternion> Rotation { get; set; } = new ConstAnimation<Quaternion>(Quaternion.identity);
 
         public override State CreateState() => new CompositeTransitionState();
     }

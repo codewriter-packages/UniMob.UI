@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using UniMob.UI.Internal;
 using UniMob.UI.Widgets;
 
 namespace UniMob.UI
@@ -13,8 +14,8 @@ namespace UniMob.UI
 
             IView view = root;
             var context = new BuildContext(null, null);
-            var state = State.Create(context, builder);
-            var render = Atom.Reaction(debugName, () => root.Render(state.Value));
+            var stateHolder = State.Create(context, builder);
+            var render = Atom.Reaction(debugName, () => root.Render(stateHolder.Value));
 
             // ReSharper disable once ImplicitlyCapturedClosure
             return new ActionDisposable(() =>

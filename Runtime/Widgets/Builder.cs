@@ -5,9 +5,8 @@ namespace UniMob.UI.Widgets
     public class Builder : StatefulWidget
     {
         public Builder(
-            [NotNull] WidgetBuilder build,
-            [CanBeNull] Key key = null
-        ) : base(key)
+            [NotNull] WidgetBuilder build
+        )
         {
             Build = build;
         }

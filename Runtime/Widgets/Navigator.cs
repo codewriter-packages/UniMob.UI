@@ -12,12 +12,11 @@ namespace UniMob.UI.Widgets
 
         public Navigator(
             string initialRoute,
-            Dictionary<string, Func<Route>> routes,
-            Key key = null
-        ) : base(key)
+            Dictionary<string, Func<Route>> routes
+        )
         {
             InitialRoute = initialRoute;
-            Routes       = routes;
+            Routes = routes;
         }
 
         public override State CreateState() => new NavigatorState();
@@ -32,7 +31,8 @@ namespace UniMob.UI.Widgets
                 ? context.RootAncestorStateOfType<NavigatorState>()
                 : context.AncestorStateOfType<NavigatorState>();
 
-            if (!nullOk && navigator == null) {
+            if (!nullOk && navigator == null)
+            {
                 throw new Exception(
                     "Navigator operation requested with a context that does not include a Navigator.\n" +
                     "The context used to push or pop routes from the Navigator must be that of a " +
@@ -44,7 +44,7 @@ namespace UniMob.UI.Widgets
         }
 
         public static Task Push(BuildContext context, Route route) => Of(context).Push(route);
-        
+
         public static Task PushNamed(BuildContext context, string routeName) => Of(context).PushNamed(routeName);
 
         public static void Pop(BuildContext context) => Of(context).Pop();

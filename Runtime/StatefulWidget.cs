@@ -7,14 +7,9 @@ namespace UniMob.UI
     {
         private Type _type;
 
-        protected StatefulWidget([CanBeNull] Key key = null)
-        {
-            Key = key;
-        }
-
         public Type Type => _type ?? (_type = GetType());
 
-        [CanBeNull] public Key Key { get; }
+        [CanBeNull] public Key Key { get; set; }
 
         [NotNull]
         public abstract State CreateState();

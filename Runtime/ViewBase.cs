@@ -21,7 +21,7 @@ namespace UniMob.UI
         private TState _state;
 
         private bool _hasSource;
-        private readonly MutableAtom<TState> _source = Atom.Value("viewSource", default(TState));
+        private readonly MutableAtom<TState> _source;
 
         private ReactionAtom _renderAtom;
         private CustomSampler _renderSampler;
@@ -35,6 +35,12 @@ namespace UniMob.UI
         public WidgetViewReference ViewReference { get; set; }
 
         public BuildContext Context => State?.Context;
+
+        protected ViewBase()
+        {
+            var debugName = $"UniMob.ViewBase<{typeof(TState).Name}>::Source";
+            _source = Atom.Value(debugName, default(TState));
+        }
 
         void IView.SetSource(IViewState newSource)
         {
