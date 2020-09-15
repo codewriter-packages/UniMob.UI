@@ -24,8 +24,9 @@ namespace UniMob.UI
         private readonly MutableAtom<TState> _source;
 
         private ReactionAtom _renderAtom;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private CustomSampler _renderSampler;
-
+#endif
         protected bool HasState => _hasState;
         protected TState State => _state;
 
@@ -192,7 +193,9 @@ namespace UniMob.UI
 
                     try
                     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                         _renderSampler.Begin();
+#endif
                         Render();
                         OnAfterRender();
                     }
@@ -200,11 +203,9 @@ namespace UniMob.UI
                     {
                         Zone.Current.HandleUncaughtException(ex);
                     }
-                    finally
-                    {
-                        _renderSampler.End();
-                    }
-
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    _renderSampler.End();
+#endif
                     if (!_mounted)
                     {
                         _mounted = true;
@@ -231,10 +232,12 @@ namespace UniMob.UI
         {
             base.OnEnable();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (_renderSampler == null || !_renderSampler.name.EndsWith(name))
             {
                 _renderSampler = CustomSampler.Create($"Render {name}");
             }
+#endif
 
             if (_hasSource)
             {
