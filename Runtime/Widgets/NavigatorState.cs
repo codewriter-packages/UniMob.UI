@@ -3,7 +3,6 @@ namespace UniMob.UI.Widgets
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using JetBrains.Annotations;
     using UnityEngine;
@@ -25,8 +24,8 @@ namespace UniMob.UI.Widgets
 
         public NavigatorState()
         {
-            _stack = new NavigatorStack(new BuildContext(null, Context));
-            _states = CreateChildren(_ => _stack.Widgets.Select(w => w.Value).ToList());
+            _stack = new NavigatorStack();
+            _states = CreateChildren(_ => _stack.Widgets);
         }
 
         public bool AutoFocus { get; set; } = true;
@@ -379,14 +378,13 @@ namespace UniMob.UI.Widgets
 
     internal class NavigatorStack : IEnumerable<Route>
     {
-        private readonly BuildContext _context;
         private readonly Stack<Route> _stack = new Stack<Route>();
-        private readonly List<Atom<Widget>> _widgets = new List<Atom<Widget>>();
+        private readonly List<Widget> _widgets = new List<Widget>();
         private readonly MutableAtom<int> _version = Atom.Value("Navigator version", int.MinValue);
 
         public int Count => _stack.Count;
 
-        public List<Atom<Widget>> Widgets
+        public List<Widget> Widgets
         {
             get
             {
@@ -394,8 +392,6 @@ namespace UniMob.UI.Widgets
                 return _widgets;
             }
         }
-
-        public NavigatorStack(BuildContext context) => _context = context;
 
         public Route Peek() => _stack.Peek();
 
@@ -409,7 +405,10 @@ namespace UniMob.UI.Widgets
 
         public void Push(Route screen)
         {
-            _widgets.Add(Atom.Computed(() => screen.Build(_context)));
+            _widgets.Add(new Builder(screen.Build)
+            {
+                Key = Key.Of(screen)
+            });
             _stack.Push(screen);
             _version.Value++;
         }
