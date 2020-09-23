@@ -43,12 +43,6 @@ namespace UniMob.UI
     public sealed class GlobalKey<T> : GlobalKey, IEquatable<GlobalKey<T>>
         where T : class, IState
     {
-        public static readonly GlobalKey<T> Instance = new GlobalKey<T>();
-
-        private GlobalKey()
-        {
-        }
-
         public override bool Equals(Key other) => Equals(other as GlobalKey<T>);
         public override int GetHashCode() => typeof(T).GetHashCode();
         public override string ToString() => $"[GlobalKey: {typeof(T)}]";
@@ -60,8 +54,6 @@ namespace UniMob.UI
 
     public abstract class GlobalKey : Key
     {
-        public static GlobalKey<T> Of<T>() where T : class, IState => GlobalKey<T>.Instance;
-
         internal State UntypedCurrentState { get; set; }
 
         public Widget CurrentRawWidget => UntypedCurrentState?.RawWidget;
