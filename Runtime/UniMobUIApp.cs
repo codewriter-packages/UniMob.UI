@@ -22,7 +22,9 @@ namespace UniMob.UI
             _render.Dispose();
         }
 
-        protected abstract void Initialize();
+        protected virtual void Initialize()
+        {
+        }
 
         protected abstract Widget Build(BuildContext context);
     }
