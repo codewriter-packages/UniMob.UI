@@ -5,7 +5,7 @@ namespace UniMob.UI.Widgets
 {
     public class UniMobButton : SingleChildLayoutWidget
     {
-        public bool Interactable { get; set; }
+        public bool Interactable { get; set; } = true;
 
         public Action OnClick { get; set; }
 
