@@ -27,7 +27,7 @@ namespace UniMob.UI.Internal.ViewLoaders
             }
 
             var path = viewReference.Path;
-            
+
             var identifier = path ?? viewReference.Reference.RuntimeKey.ToString();
 
             if (_viewPrefabCache.TryGetValue(identifier, out var cachedView))
@@ -40,8 +40,7 @@ namespace UniMob.UI.Internal.ViewLoaders
                 var op = path != null
                     ? Addressables.LoadAssetAsync<GameObject>(path)
                     : viewReference.Reference.LoadAssetAsync<GameObject>();
-                var tempReference = Atom.Value($"temp loading {identifier}",
-                    WidgetViewReference.Resource("ADDR__loading__"));
+                var tempReference = Atom.Value(WidgetViewReference.Resource("ADDR__loading__"));
 
                 data = new Data
                 {
@@ -63,8 +62,9 @@ namespace UniMob.UI.Internal.ViewLoaders
                     var view = prefab.GetComponent<IView>();
                     if (view == null)
                     {
-                        Debug.LogError($"Failed to get IView from addressable '{identifier}' for '{viewState.GetType().Name}'. " +
-                                       "Missing view component?");
+                        Debug.LogError(
+                            $"Failed to get IView from addressable '{identifier}' for '{viewState.GetType().Name}'. " +
+                            "Missing view component?");
                         return;
                     }
 

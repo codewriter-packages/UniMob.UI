@@ -15,7 +15,7 @@ namespace UniMob.UI.Widgets
         private readonly Queue<NavigatorCommand[]> _pendingCommands = new Queue<NavigatorCommand[]>();
         private readonly Stack<Route> _pendingPause = new Stack<Route>();
 
-        private readonly MutableAtom<bool> _interactable = Atom.Value("Navigator interactable", true);
+        private readonly MutableAtom<bool> _interactable = Atom.Value(true);
 
         private Task _task = Task.CompletedTask;
 
@@ -380,7 +380,7 @@ namespace UniMob.UI.Widgets
     {
         private readonly Stack<Route> _stack = new Stack<Route>();
         private readonly List<Widget> _widgets = new List<Widget>();
-        private readonly MutableAtom<int> _version = Atom.Value("Navigator version", int.MinValue);
+        private readonly MutableAtom<int> _version = Atom.Value(int.MinValue);
 
         public int Count => _stack.Count;
 

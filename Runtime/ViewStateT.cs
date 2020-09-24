@@ -8,7 +8,7 @@ namespace UniMob.UI
     public abstract class ViewState<TWidget> : ViewState
         where TWidget : Widget
     {
-        private readonly MutableAtom<TWidget> _widget = Atom.Value("widget", default(TWidget));
+        private readonly MutableAtom<TWidget> _widget = Atom.Value(default(TWidget));
 
         protected TWidget Widget => _widget.Value;
 

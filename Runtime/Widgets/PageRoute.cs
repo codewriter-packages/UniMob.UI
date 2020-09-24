@@ -84,7 +84,7 @@ namespace UniMob.UI.Widgets
         protected override async Task OnDestroy()
         {
             _tweenController.Reverse();
-            await Atom.When("Route OnDestroy wait tween", () => _tweenController.Status != AnimationStatus.Reverse);
+            await Atom.When(() => _tweenController.Status != AnimationStatus.Reverse);
             await base.OnDestroy();
         }
 

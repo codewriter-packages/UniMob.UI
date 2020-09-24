@@ -7,12 +7,11 @@ namespace UniMob.UI
     {
         private float _prevDeltaTime;
 
-        private MutableAtom<float> _duration = Atom.Value("AnimationController::Duration", 0f);
-        private MutableAtom<float> _reverseDuration = Atom.Value("AnimationController::ReverseDuration", 0f);
-        private MutableAtom<float> _value = Atom.Value("AnimationController::Value", 0f);
+        private readonly MutableAtom<float> _duration = Atom.Value(0f);
+        private readonly MutableAtom<float> _reverseDuration = Atom.Value(0f);
+        private readonly MutableAtom<float> _value = Atom.Value(0f);
 
-        private MutableAtom<AnimationStatus> _status = Atom.Value("AnimationController::Duration",
-            AnimationStatus.Dismissed);
+        private readonly MutableAtom<AnimationStatus> _status = Atom.Value(AnimationStatus.Dismissed);
 
         public float Duration
         {

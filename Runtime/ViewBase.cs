@@ -40,7 +40,7 @@ namespace UniMob.UI
         protected ViewBase()
         {
             var debugName = $"UniMob.ViewBase<{typeof(TState).Name}>::Source";
-            _source = Atom.Value(debugName, default(TState));
+            _source = Atom.Value(default(TState), debugName: debugName);
         }
 
         void IView.SetSource(IViewState newSource)

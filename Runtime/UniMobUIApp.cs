@@ -14,7 +14,7 @@ namespace UniMob.UI
         {
             Initialize();
 
-            _render = UniMobUI.RunApp(name, root, Build);
+            _render = UniMobUI.RunApp(root, Build, name);
         }
 
         protected virtual void OnDisable()
