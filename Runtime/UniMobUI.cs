@@ -21,7 +21,7 @@ namespace UniMob.UI
             // ReSharper disable once ImplicitlyCapturedClosure
             return new ActionDisposable(() =>
             {
-                render.Dispose();
+                render.Deactivate();
 
                 if (!Engine.IsApplicationQuiting)
                 {

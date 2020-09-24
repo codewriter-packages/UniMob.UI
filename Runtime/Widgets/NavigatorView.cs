@@ -35,12 +35,12 @@ namespace UniMob.UI.Widgets
             if (_mapper == null)
                 _mapper = new PooledViewMapper(transform);
 
-            _interactableReaction.Get();
+            _interactableReaction.Activate();
         }
 
         protected override void Deactivate()
         {
-            _interactableReaction.Dispose();
+            _interactableReaction.Deactivate();
 
             base.Deactivate();
         }

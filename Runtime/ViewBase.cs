@@ -73,7 +73,7 @@ namespace UniMob.UI
 
             if (!_renderAtom.IsActive)
             {
-                _renderAtom.Get();
+                _renderAtom.Activate();
             }
         }
 
