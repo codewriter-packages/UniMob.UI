@@ -1,19 +1,17 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace UniMob.UI.Widgets
 {
     public class UniMobText : StatefulWidget
     {
-        public UniMobText(WidgetSize size, [NotNull] string value)
+        public UniMobText(WidgetSize size)
         {
             Size = size;
-            Value = value;
         }
 
         public WidgetSize Size { get; }
 
-        public string Value { get; }
+        public string Value { get; set; }
         public Color Color { get; set; } = Color.black;
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
         public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
@@ -28,7 +26,7 @@ namespace UniMob.UI.Widgets
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("UniMob.Text");
 
-        public string Value => Widget.Value;
+        public string Value => Widget.Value ?? string.Empty;
 
         public int FontSize => Widget.FontSize;
         public Color Color => Widget.Color;
