@@ -55,6 +55,8 @@ namespace UniMob.UI.Widgets
 
         public static Task Replace(BuildContext context, Route route) => Of(context).Replace(route);
 
+        public static Task ReplaceNamed(BuildContext context, string routeName) => Of(context).ReplaceNamed(routeName);
+
         public static void PopTo(BuildContext context, Route route) => Of(context).PopTo(route);
     }
 }

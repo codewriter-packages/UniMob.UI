@@ -50,7 +50,7 @@ namespace UniMob.UI.Widgets
 
             _firstChild = CreateChild(context =>
             {
-                return new FadeTransition
+                return new CompositeTransition
                 {
                     Key = _firstKey,
                     Child = Widget.FirstChild,
@@ -59,7 +59,7 @@ namespace UniMob.UI.Widgets
             });
             _secondChild = CreateChild(context =>
             {
-                return new FadeTransition
+                return new CompositeTransition
                 {
                     Key = _secondKey,
                     Child = Widget.SecondChild,

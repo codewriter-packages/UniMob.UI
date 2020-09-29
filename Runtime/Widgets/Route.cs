@@ -8,13 +8,13 @@ namespace UniMob.UI.Widgets
 
     public abstract class Route
     {
-        private readonly ScreenSettings _settings;
+        private readonly RouteSettings _settings;
         private readonly TriggerStateMachine<ScreenState, ScreenEvent, Task> _machine;
         private readonly TaskCompletionSource<object> _popCompleter = new TaskCompletionSource<object>();
 
         internal NavigatorState NavigatorState { get; set; }
 
-        protected Route(ScreenSettings settings)
+        protected Route(RouteSettings settings)
         {
             _settings = settings;
             _machine = BuildStateMachine();
@@ -96,7 +96,7 @@ namespace UniMob.UI.Widgets
             }
         }
 
-        public Task ApplyScreenEvent(ScreenEvent screenEvent)
+        public virtual Task ApplyScreenEvent(ScreenEvent screenEvent)
         {
             if (_machine.CanTrigger(screenEvent))
             {
@@ -160,13 +160,13 @@ namespace UniMob.UI.Widgets
         Popup,
     }
 
-    public class ScreenSettings
+    public class RouteSettings
     {
         public string Name { get; }
 
         public RouteModalType ModalType { get; }
 
-        public ScreenSettings(string name, RouteModalType modalType)
+        public RouteSettings(string name, RouteModalType modalType)
         {
             Name = name;
             ModalType = modalType;

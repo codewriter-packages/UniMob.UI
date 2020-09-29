@@ -88,6 +88,12 @@ namespace UniMob.UI.Widgets
             return route.PopTask;
         }
 
+        public Task ReplaceNamed(string routeName)
+        {
+            var route = CreateRoute(routeName);
+            return Replace(route);
+        }
+
         public Task Replace(Route route)
         {
             if (route == null) throw new ArgumentNullException(nameof(route));
@@ -212,23 +218,23 @@ namespace UniMob.UI.Widgets
             switch (command)
             {
                 case NavigatorCommand.Pop _:
-                    return BackInternal();
+                    return PopInternal();
 
                 case NavigatorCommand.PopTo backTo:
-                    return BackToInternal(backTo);
+                    return PopToInternal(backTo);
 
                 case NavigatorCommand.Push forward:
-                    return ForwardScreenInternal(forward);
+                    return PushInternal(forward);
 
                 case NavigatorCommand.Replace replace:
-                    return ReplaceScreenInternal(replace);
+                    return ReplaceInternal(replace);
             }
 
             Debug.LogWarning($"Unexpected navigator command: {command.GetType().Name}");
             return Task.CompletedTask;
         }
 
-        private async Task ForwardScreenInternal(NavigatorCommand.Push push)
+        private async Task PushInternal(NavigatorCommand.Push push)
         {
             if (push.Route.ModalType == RouteModalType.Fullscreen)
             {
@@ -246,7 +252,7 @@ namespace UniMob.UI.Widgets
             await screen.ApplyScreenEvent(ScreenEvent.Create);
         }
 
-        private async Task ReplaceScreenInternal(NavigatorCommand.Replace replace)
+        private async Task ReplaceInternal(NavigatorCommand.Replace replace)
         {
             if (_stack.Count > 0)
             {
@@ -276,37 +282,45 @@ namespace UniMob.UI.Widgets
             await screen.ApplyScreenEvent(ScreenEvent.Create);
         }
 
-        private async Task BackToInternal(NavigatorCommand.PopTo popTo)
+        private async Task PopToInternal(NavigatorCommand.PopTo popTo)
         {
             while (_stack.Count > 1)
             {
                 if (popTo.Route != null && _stack.Peek().Key == popTo.Route.Key)
-                    break;
-
-                await _stack.Peek().ApplyScreenEvent(ScreenEvent.Destroy);
-                var removed = _stack.Pop();
-
-                if (removed.ModalType == RouteModalType.Fullscreen)
                 {
-                    await UnpauseScreens();
+                    break;
                 }
+
+                var first = _stack.Peek();
+                var destroyTask = first.ApplyScreenEvent(ScreenEvent.Destroy);
+
+                if (first.ModalType == RouteModalType.Fullscreen)
+                {
+                    await UnpauseScreens(skip: 1);
+                }
+
+                await destroyTask;
+                _stack.Pop();
             }
         }
 
-        private async Task BackInternal()
+        private async Task PopInternal()
         {
             if (_stack.Count <= 1)
             {
                 return;
             }
 
-            await _stack.Peek().ApplyScreenEvent(ScreenEvent.Destroy);
-            var removed = _stack.Pop();
+            var first = _stack.Peek();
+            var destroyTask = first.ApplyScreenEvent(ScreenEvent.Destroy);
 
-            if (removed.ModalType == RouteModalType.Fullscreen)
+            if (first.ModalType == RouteModalType.Fullscreen)
             {
-                await UnpauseScreens();
+                await UnpauseScreens(skip: 1);
             }
+
+            await destroyTask;
+            _stack.Pop();
         }
 
         private async Task PauseScreens()
@@ -328,10 +342,15 @@ namespace UniMob.UI.Widgets
             }
         }
 
-        private async Task UnpauseScreens()
+        private async Task UnpauseScreens(int skip = 0)
         {
             foreach (var screen in _stack)
             {
+                if (skip-- != 0)
+                {
+                    continue;
+                }
+
                 await screen.ApplyScreenEvent(ScreenEvent.Resume);
 
                 if (screen.ModalType == RouteModalType.Fullscreen)

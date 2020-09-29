@@ -1,108 +1,136 @@
+using System;
+using System.Threading.Tasks;
+using UnityEngine;
+
 namespace UniMob.UI.Widgets
 {
-    using System.Threading.Tasks;
-    using JetBrains.Annotations;
-
-    public class PageRoute : Route
+    public abstract class PageRoute : Route
     {
-        [NotNull] private readonly WidgetBuilder _builder;
+        private readonly AnimationController _animation;
+        private readonly AnimationController _secondaryAnimation;
 
-        internal BuildContext Context { get; set; }
+        private bool _destroying;
+        private bool _paused;
 
-        public PageRoute(
-            [NotNull] string name,
-            [NotNull] WidgetBuilder builder,
-            RouteModalType modalType = RouteModalType.Popup
-        ) : base(new ScreenSettings(name, modalType))
+        protected PageRoute(
+            RouteSettings routeSettings,
+            float transitionDuration,
+            float reverseTransitionDuration
+        ) : base(routeSettings)
         {
-            _builder = builder;
+            _animation = new AnimationController(transitionDuration, reverseTransitionDuration);
+            _secondaryAnimation = new AnimationController(transitionDuration, reverseTransitionDuration, true);
         }
 
-        public override Widget Build(BuildContext context)
+        public sealed override Widget Build(BuildContext context)
         {
-            Context = context;
-            return _builder(context);
+            var child = BuildPage(context, _animation, _secondaryAnimation);
+            return BuildTransitions(context, _animation, _secondaryAnimation, child);
         }
+
+        protected abstract Widget BuildPage(BuildContext context, AnimationController animation,
+            AnimationController secondaryAnimation);
+
+        protected abstract Widget BuildTransitions(BuildContext context, AnimationController animation,
+            AnimationController secondaryAnimation, Widget child);
 
         public override bool HandleBack()
         {
-            if (Context == null)
+            if (NavigatorState == null)
             {
                 return base.HandleBack();
             }
 
-            var navigator = Navigator.Of(Context, false, true);
-            if (navigator == null)
-            {
-                return base.HandleBack();
-            }
-
-            navigator.Pop();
+            NavigatorState.Pop();
             return true;
         }
-    }
 
-    public delegate Widget AnimatedWidgetBuilder(BuildContext context, IAnimation<float> animation);
-
-    public class AnimatedPageRoute : Route
-    {
-        private readonly AnimationController _tweenController;
-        private readonly AnimatedWidgetBuilder _builder;
-
-        internal BuildContext Context { get; set; }
-
-        public AnimatedPageRoute(
-            [NotNull] string name,
-            [NotNull] AnimatedWidgetBuilder builder,
-            float duration,
-            float? reverseDuration = null,
-            RouteModalType modalType = RouteModalType.Popup
-        ) : base(new ScreenSettings(name, modalType))
+        public override Task ApplyScreenEvent(ScreenEvent screenEvent)
         {
-            _builder = builder;
-            _tweenController = new AnimationController(duration, reverseDuration);
-        }
+            _destroying = screenEvent == ScreenEvent.Destroy;
 
-        public override Widget Build(BuildContext context)
-        {
-            Context = context;
-            return _builder(context, _tweenController.View);
+            return base.ApplyScreenEvent(screenEvent);
         }
 
         protected override Task OnResume()
         {
-            _tweenController.Forward();
+            if (_paused)
+            {
+                _secondaryAnimation.Forward();
+                _animation.Complete();
+            }
+            else
+            {
+                _animation.Forward();
+                _secondaryAnimation.Complete();
+            }
+
+            _paused = false;
+
             return base.OnResume();
         }
 
         protected override Task OnPause()
         {
-            _tweenController.Reverse();
+            _paused = true;
+
+            if (_destroying)
+            {
+                _animation.Reverse();
+                _secondaryAnimation.Complete();
+            }
+            else
+            {
+                _animation.Complete();
+                _secondaryAnimation.Reverse();
+            }
+
             return base.OnPause();
         }
 
         protected override async Task OnDestroy()
         {
-            _tweenController.Reverse();
-            await Atom.When(() => _tweenController.Status != AnimationStatus.Reverse);
+            await Atom.When(() => !_animation.IsAnimating);
             await base.OnDestroy();
         }
+    }
 
-        public override bool HandleBack()
+    public delegate Widget PageBuilder(BuildContext context, AnimationController animation,
+        AnimationController secondaryAnimation);
+
+    public delegate Widget PageTransitionsBuilder(BuildContext context, AnimationController animation,
+        AnimationController secondaryAnimation, Widget child);
+
+    public class PageRouteBuilder : PageRoute
+    {
+        private readonly PageBuilder _pageBuilder;
+        private readonly PageTransitionsBuilder _transitionsBuilder;
+
+        public PageRouteBuilder(
+            RouteSettings settings,
+            PageBuilder pageBuilder,
+            PageTransitionsBuilder transitionsBuilder = null,
+            float transitionDuration = 0f,
+            float reverseTransitionDuration = 0f
+        ) : base(settings, transitionDuration, reverseTransitionDuration)
         {
-            if (Context == null)
-            {
-                return base.HandleBack();
-            }
+            _pageBuilder = pageBuilder;
+            _transitionsBuilder = transitionsBuilder ?? DefaultTransitionsBuilder;
+        }
 
-            var navigator = Navigator.Of(Context, false, true);
-            if (navigator == null)
-            {
-                return base.HandleBack();
-            }
+        private static readonly PageTransitionsBuilder DefaultTransitionsBuilder =
+            (context, animation, secondaryAnimation, child) => child;
 
-            navigator.Pop();
-            return true;
+        protected override Widget BuildPage(BuildContext context, AnimationController animation,
+            AnimationController secondaryAnimation)
+        {
+            return _pageBuilder(context, animation, secondaryAnimation);
+        }
+
+        protected override Widget BuildTransitions(BuildContext context, AnimationController animation,
+            AnimationController secondaryAnimation, Widget child)
+        {
+            return _transitionsBuilder(context, animation, secondaryAnimation, child);
         }
     }
 }

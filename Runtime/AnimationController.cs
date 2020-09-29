@@ -7,11 +7,11 @@ namespace UniMob.UI
     {
         private float _prevDeltaTime;
 
+        private readonly MutableAtom<AnimationDirection> _direction = Atom.Value(AnimationDirection.Reverse);
+
         private readonly MutableAtom<float> _duration = Atom.Value(0f);
         private readonly MutableAtom<float> _reverseDuration = Atom.Value(0f);
         private readonly MutableAtom<float> _value = Atom.Value(0f);
-
-        private readonly MutableAtom<AnimationStatus> _status = Atom.Value(AnimationStatus.Dismissed);
 
         public float Duration
         {
@@ -25,22 +25,20 @@ namespace UniMob.UI
             set => _reverseDuration.Value = value;
         }
 
-        public float Value
-        {
-            get => _value.Value;
-            private set => _value.Value = value;
-        }
+        public float Value => _value.Value;
 
-        public AnimationStatus Status
-        {
-            get => _status.Value;
-            private set => _status.Value = value;
-        }
+        public AnimationDirection Direction => _direction.Value;
 
-        public bool IsCompleted => Status == AnimationStatus.Completed;
-        public bool IsDismissed => Status == AnimationStatus.Dismissed;
+        public AnimationStatus Status => Direction == AnimationDirection.Reverse
+            ? (Mathf.Approximately(Value, 0f) ? AnimationStatus.Dismissed : AnimationStatus.Reverse)
+            : (Mathf.Approximately(Value, 1f) ? AnimationStatus.Completed : AnimationStatus.Forward);
 
-        public bool IsAnimating => Status == AnimationStatus.Forward || Status == AnimationStatus.Reverse;
+        public bool IsCompleted => Direction == AnimationDirection.Forward && Mathf.Approximately(Value, 1f);
+        public bool IsDismissed => Direction == AnimationDirection.Reverse && Mathf.Approximately(Value, 0f);
+
+        public bool IsAnimating =>
+            Direction == AnimationDirection.Forward && !Mathf.Approximately(Value, 1f) ||
+            Direction == AnimationDirection.Reverse && !Mathf.Approximately(Value, 0f);
 
         public IAnimation<float> View => this;
 
@@ -59,35 +57,63 @@ namespace UniMob.UI
 
             Duration = duration;
             ReverseDuration = reverseDuration ?? duration;
-            Status = completed ? AnimationStatus.Completed : AnimationStatus.Dismissed;
-            Value = completed ? 1f : 0f;
+            _direction.Value = completed ? AnimationDirection.Forward : AnimationDirection.Reverse;
+            _value.Value = completed ? 1f : 0f;
         }
 
         public void Forward()
         {
-            StartInternal(AnimationStatus.Forward, AnimationStatus.Completed, Duration);
+            _direction.Value = AnimationDirection.Forward;
+
+            if (Mathf.Approximately(Duration, 0))
+            {
+                _value.Value = 1f;
+                return;
+            }
+
+            AddAnimationTicker();
         }
 
         public void Reverse()
         {
-            StartInternal(AnimationStatus.Reverse, AnimationStatus.Dismissed, ReverseDuration);
-        }
+            _direction.Value = AnimationDirection.Reverse;
 
-        private void StartInternal(AnimationStatus status, AnimationStatus endStatus, float d)
-        {
-            Status = status;
-
-            if (Mathf.Approximately(d, 0))
+            if (Mathf.Approximately(Duration, 0))
             {
-                Value = endStatus == AnimationStatus.Completed ? 1f : 0f;
-                Status = endStatus;
+                _value.Value = 0f;
                 return;
             }
 
+            AddAnimationTicker();
+        }
+
+        public void Complete()
+        {
+            RemoveAnimationTicker();
+
+            _direction.Value = AnimationDirection.Forward;
+            _value.Value = 1f;
+        }
+
+        public void Dismiss()
+        {
+            RemoveAnimationTicker();
+
+            _direction.Value = AnimationDirection.Reverse;
+            _value.Value = 0f;
+        }
+
+        private void AddAnimationTicker()
+        {
             _prevDeltaTime = Time.unscaledDeltaTime;
 
             Zone.Current.RemoveTicker(Tick);
             Zone.Current.AddTicker(Tick);
+        }
+
+        private void RemoveAnimationTicker()
+        {
+            Zone.Current.RemoveTicker(Tick);
         }
 
         private void Tick()
@@ -96,43 +122,30 @@ namespace UniMob.UI
             var dt = Mathf.Min(nextDeltaTime * 0.8f + _prevDeltaTime * 0.2f, 1 / 5f);
             _prevDeltaTime = nextDeltaTime;
 
-            switch (Status)
+            switch (Direction)
             {
-                case AnimationStatus.Forward:
+                case AnimationDirection.Forward:
                     if (!Mathf.Approximately(Value, 1f))
                     {
-                        Value += dt / Duration;
-                        Value = Mathf.Clamp01(Value);
+                        _value.Value = Mathf.Clamp01(_value.Value + dt / Duration);
                         return;
                     }
 
-                    Value = 1f;
+                    _value.Value = 1f;
                     break;
-
-                case AnimationStatus.Reverse:
+                case AnimationDirection.Reverse:
                     if (!Mathf.Approximately(Value, 0f))
                     {
-                        Value -= dt / ReverseDuration;
-                        Value = Mathf.Clamp01(Value);
+                        _value.Value = Mathf.Clamp01(_value.Value - dt / ReverseDuration);
                         return;
                     }
 
-                    Value = 0f;
+                    _value.Value = 0f;
                     break;
             }
 
-            Zone.Current.RemoveTicker(Tick);
 
-            switch (Status)
-            {
-                case AnimationStatus.Forward:
-                    Status = AnimationStatus.Completed;
-                    break;
-
-                case AnimationStatus.Reverse:
-                    Status = AnimationStatus.Dismissed;
-                    break;
-            }
+            RemoveAnimationTicker();
         }
     }
 
@@ -207,5 +220,11 @@ namespace UniMob.UI
         Forward = 1,
         Reverse = 2,
         Completed = 3,
+    }
+
+    public enum AnimationDirection
+    {
+        Forward,
+        Reverse,
     }
 }
