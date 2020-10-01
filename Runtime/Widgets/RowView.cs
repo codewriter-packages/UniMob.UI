@@ -60,7 +60,7 @@ namespace UniMob.UI.Widgets
 
             var childAlignment = new Alignment(alignX, alignY);
             var corner = childAlignment.WithLeft();
-            var cornerPosition = new Vector2(-rowWidth * offsetMultiplierX, 0);
+            var cornerPosition = new Vector2(-childrenWidth * offsetMultiplierX, 0);
 
             using (var render = _mapper.CreateRender())
             {
