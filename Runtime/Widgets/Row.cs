@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using UnityEngine;
-
 namespace UniMob.UI.Widgets
 {
     public sealed class Row : MultiChildLayoutWidget
@@ -33,50 +29,31 @@ namespace UniMob.UI.Widgets
 
         public override WidgetSize CalculateSize()
         {
-            var wStretch = Widget.MainAxisSize == AxisSize.Max;
-            var hStretch = Widget.CrossAxisSize == AxisSize.Max;
+            var (minWidth, minHeight, maxWidth, maxHeight) = _innerSize.Value;
 
-            if (wStretch && hStretch)
+            if (Widget.MainAxisSize == AxisSize.Max)
             {
-                return WidgetSize.Stretched;
+                maxWidth = float.PositiveInfinity;
             }
 
-            var size = _innerSize.Value;
+            if (Widget.CrossAxisSize == AxisSize.Max)
+            {
+                maxHeight = float.PositiveInfinity;
+            }
 
-            float? width = null;
-            float? height = null;
-
-            if (size.IsWidthFixed && !wStretch) width = size.Width;
-            if (size.IsHeightFixed && !hStretch) height = size.Height;
-
-            return new WidgetSize(width, height);
+            return new WidgetSize(minWidth, minHeight, maxWidth, maxHeight);
         }
 
         private WidgetSize CalculateInnerSize()
         {
-            float width = 0;
-            float? height = 0;
+            var size = default(WidgetSize?);
 
             foreach (var child in Children)
             {
-                var childSize = child.Size;
-
-                if (childSize.IsWidthFixed)
-                {
-                    width += childSize.Width;
-                }
-
-                if (height.HasValue && childSize.IsHeightFixed)
-                {
-                    height = Mathf.Max(height.Value, childSize.Height);
-                }
-                else
-                {
-                    height = null;
-                }
+                size = size.HasValue ? WidgetSize.StackX(size.Value, child.Size) : child.Size;
             }
 
-            return new WidgetSize(width, height);
+            return size.GetValueOrDefault(WidgetSize.Zero);
         }
     }
 }

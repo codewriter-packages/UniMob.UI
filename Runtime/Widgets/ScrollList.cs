@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-
 namespace UniMob.UI.Widgets
 {
     public class ScrollList : MultiChildLayoutWidget
@@ -35,29 +31,14 @@ namespace UniMob.UI.Widgets
 
         private WidgetSize CalculateInnerSize()
         {
-            float height = 0;
-            float? width = 0;
+            var size = WidgetSize.Zero;
 
             foreach (var child in Children)
             {
-                var childSize = child.Size;
-
-                if (childSize.IsHeightFixed)
-                {
-                    height += childSize.Height;
-                }
-
-                if (width.HasValue && childSize.IsWidthFixed)
-                {
-                    width = Math.Max(width.Value, childSize.Width);
-                }
-                else
-                {
-                    width = null;
-                }
+                size = WidgetSize.StackY(size, child.Size);
             }
 
-            return new WidgetSize(width, height);
+            return size;
         }
     }
 }

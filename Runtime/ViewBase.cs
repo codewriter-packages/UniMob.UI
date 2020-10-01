@@ -15,6 +15,8 @@ namespace UniMob.UI
         [NotNull] private readonly ViewRenderScope _renderScope = new ViewRenderScope();
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
 
+        private readonly MutableAtom<Vector2> _bounds = Atom.Value(Vector2.zero);
+
         private bool _mounted;
 
         private bool _hasState;
@@ -36,6 +38,8 @@ namespace UniMob.UI
         public WidgetViewReference ViewReference { get; set; }
 
         public BuildContext Context => State?.Context;
+
+        public Vector2 Bounds => _bounds.Value;
 
         protected ViewBase()
         {
@@ -73,6 +77,7 @@ namespace UniMob.UI
 
             if (!_renderAtom.IsActive)
             {
+                RefreshBounds();
                 _renderAtom.Activate();
             }
         }
@@ -215,6 +220,11 @@ namespace UniMob.UI
             }
         }
 
+        private void RefreshBounds()
+        {
+            _bounds.Value = rectTransform.rect.size;
+        }
+
         protected virtual void DidStateAttached(TState state)
         {
         }
@@ -242,8 +252,23 @@ namespace UniMob.UI
             if (_hasSource)
             {
                 Assert.IsNotNull(_renderAtom, "renderAtom == null");
+                RefreshBounds();
                 _renderAtom.Actualize();
             }
+        }
+
+        protected override void OnRectTransformDimensionsChange()
+        {
+            base.OnRectTransformDimensionsChange();
+            
+            RefreshBounds();
+        }
+
+        protected override void OnTransformParentChanged()
+        {
+            base.OnTransformParentChanged();
+            
+            RefreshBounds();
         }
 
         protected virtual void Activate()

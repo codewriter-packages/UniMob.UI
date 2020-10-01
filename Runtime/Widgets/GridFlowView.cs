@@ -24,7 +24,7 @@ namespace UniMob.UI.Widgets
             var children = State.Children;
             var crossAxis = State.CrossAxisAlignment;
             var mainAxis = State.MainAxisAlignment;
-            var gridSize = State.InnerSize;
+            var gridSize = State.InnerSize.GetSize(Bounds);
 
             var alignX = crossAxis == CrossAxisAlignment.Start ? Alignment.TopLeft.X
                 : crossAxis == CrossAxisAlignment.End ? Alignment.TopRight.X
@@ -44,8 +44,8 @@ namespace UniMob.UI.Widgets
 
             var childAlignment = new Alignment(alignX, alignY);
             var cornerPosition = new Vector2(
-                -gridSize.Width * offsetMultiplierX,
-                -gridSize.Height * offsetMultiplierY);
+                -gridSize.x * offsetMultiplierX,
+                -gridSize.y * offsetMultiplierY);
 
             using (var render = _mapper.CreateRender())
             {
@@ -58,30 +58,24 @@ namespace UniMob.UI.Widgets
                 for (var childIndex = 0; childIndex < children.Length; childIndex++)
                 {
                     var child = children[childIndex];
-                    var childSize = child.Size;
-
-                    if (childSize.IsWidthStretched)
-                    {
-                        Debug.LogError("Cannot render stretched widgets inside Grid.");
-                        continue;
-                    }
+                    var childSize = child.Size.GetSize(Bounds);
 
                     if (newLine)
                     {
                         newLine = false;
-                        lineHeight = childSize.Height;
-                        var lineWidth = childSize.Width;
+                        lineHeight = childSize.y;
+                        var lineWidth = childSize.x;
                         var lineChildCount = 1;
 
                         for (int i = childIndex + 1; i < children.Length; i++)
                         {
-                            var nextChildSize = children[i].Size;
+                            var nextChildSize = children[i].Size.GetSize(Bounds);
                             if (lineChildCount + 1 <= lineMaxChildCount &&
-                                lineWidth + nextChildSize.Width <= lineMaxWidth)
+                                lineWidth + nextChildSize.x <= lineMaxWidth)
                             {
                                 lineChildCount++;
-                                lineWidth += nextChildSize.Width;
-                                lineHeight = Math.Max(lineHeight, nextChildSize.Height);
+                                lineWidth += nextChildSize.x;
+                                lineHeight = Math.Max(lineHeight, nextChildSize.y);
                             }
                             else
                             {
@@ -109,7 +103,7 @@ namespace UniMob.UI.Widgets
                     }
                     else
                     {
-                        cornerPosition.x += childSize.Width;
+                        cornerPosition.x += childSize.x;
                     }
                 }
             }

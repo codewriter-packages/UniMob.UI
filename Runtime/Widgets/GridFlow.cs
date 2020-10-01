@@ -36,29 +36,25 @@ namespace UniMob.UI.Widgets
 
         public override WidgetSize CalculateSize()
         {
-            var wStretch = Widget.CrossAxisSize == AxisSize.Max;
-            var hStretch = Widget.MainAxisSize == AxisSize.Max;
+            var (minWidth, minHeight, maxWidth, maxHeight) = _innerSize.Value;
 
-            if (wStretch && hStretch)
+            if (Widget.CrossAxisSize == AxisSize.Max)
             {
-                return WidgetSize.Stretched;
+                maxWidth = float.PositiveInfinity;
             }
 
-            var size = _innerSize.Value;
+            if (Widget.MainAxisSize == AxisSize.Max)
+            {
+                maxHeight = float.PositiveInfinity;
+            }
 
-            float? width = null;
-            float? height = null;
-
-            if (size.IsWidthFixed && !wStretch) width = size.Width;
-            if (size.IsHeightFixed && !hStretch) height = size.Height;
-
-            return new WidgetSize(width, height);
+            return new WidgetSize(minWidth, minHeight, maxWidth, maxHeight);
         }
 
         private WidgetSize CalculateInnerSize()
         {
-            var width = 0.0f;
-            var height = 0.0f;
+            var width = 0f;
+            var height = 0f;
 
             var lineWidth = 0.0f;
             var lineHeight = 0.0f;
@@ -71,17 +67,17 @@ namespace UniMob.UI.Widgets
             {
                 var childSize = child.Size;
 
-                if (childSize.IsWidthStretched || childSize.IsHeightStretched)
+                if (float.IsInfinity(childSize.MaxWidth) || float.IsInfinity(childSize.MaxHeight))
                 {
                     continue;
                 }
 
                 if (lineChildNum + 1 <= maxLineChildNum &&
-                    lineWidth + childSize.Width <= maxLineWidth)
+                    lineWidth + childSize.MaxWidth <= maxLineWidth)
                 {
                     lineChildNum++;
-                    lineWidth += childSize.Width;
-                    lineHeight = Math.Max(lineHeight, childSize.Height);
+                    lineWidth += childSize.MaxWidth;
+                    lineHeight = Math.Max(lineHeight, childSize.MaxHeight);
                 }
                 else
                 {
@@ -89,8 +85,8 @@ namespace UniMob.UI.Widgets
                     height += lineHeight;
 
                     lineChildNum = 1;
-                    lineWidth = childSize.Width;
-                    lineHeight = childSize.Height;
+                    lineWidth = childSize.MaxWidth;
+                    lineHeight = childSize.MaxHeight;
                 }
             }
 
@@ -99,7 +95,7 @@ namespace UniMob.UI.Widgets
 
             width = Math.Min(width, MaxCrossAxisExtent);
 
-            return new WidgetSize(width, height);
+            return WidgetSize.Fixed(width, height);
         }
     }
 }

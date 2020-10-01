@@ -10,6 +10,6 @@ namespace UniMob.UI.Widgets
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("$$_Empty");
 
-        public override WidgetSize CalculateSize() => WidgetSize.Fixed(0, 0);
+        public override WidgetSize CalculateSize() => WidgetSize.Zero;
     }
 }

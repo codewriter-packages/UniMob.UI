@@ -24,7 +24,6 @@ namespace UniMob.UI.Widgets
             var children = State.Children;
             var crossAxis = State.CrossAxisAlignment;
             var mainAxis = State.MainAxisAlignment;
-            var columnSize = State.InnerSize;
 
             var alignX = mainAxis == MainAxisAlignment.Start ? Alignment.TopLeft.X
                 : mainAxis == MainAxisAlignment.End ? Alignment.TopRight.X
@@ -38,21 +37,36 @@ namespace UniMob.UI.Widgets
                 : mainAxis == MainAxisAlignment.End ? 1f
                 : 0.5f;
 
+            var childrenWidth = 0f;
+            var unboundedChildCount = 0;
+
+            foreach (var child in children)
+            {
+                var childSize = child.Size;
+
+                if (float.IsInfinity(childSize.MaxWidth))
+                {
+                    unboundedChildCount += 1;
+                }
+                else
+                {
+                    childrenWidth += childSize.MaxWidth;
+                }
+            }
+
+            var rowWidth = Mathf.Max(Bounds.x, childrenWidth);
+            var flexWidth = Mathf.Max(0, (rowWidth - childrenWidth) / Mathf.Max(1, unboundedChildCount));
+            var childBound = new Vector2(flexWidth, float.PositiveInfinity);
+
             var childAlignment = new Alignment(alignX, alignY);
             var corner = childAlignment.WithLeft();
-            var cornerPosition = new Vector2(-columnSize.Width * offsetMultiplierX, 0);
+            var cornerPosition = new Vector2(-rowWidth * offsetMultiplierX, 0);
 
             using (var render = _mapper.CreateRender())
             {
                 foreach (var child in children)
                 {
-                    var childSize = child.Size;
-
-                    if (childSize.IsWidthStretched)
-                    {
-                        Debug.LogError("Cannot render horizontally stretched widgets inside Row.");
-                        continue;
-                    }
+                    var childSize = child.Size.GetSize(childBound);
 
                     var childView = render.RenderItem(child);
 
@@ -63,7 +77,7 @@ namespace UniMob.UI.Widgets
                     layout.CornerPosition = cornerPosition;
                     ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
 
-                    cornerPosition += new Vector2(childSize.Width, 0);
+                    cornerPosition += new Vector2(childSize.x, 0);
                 }
             }
         }

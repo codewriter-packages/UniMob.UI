@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-
 namespace UniMob.UI.Widgets
 {
     public class ZStack : MultiChildLayoutWidget
     {
+        public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
+        public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
+        
         public Alignment Alignment { get; set; } = Alignment.Center;
 
         public override State CreateState() => new ZStackState();
@@ -27,28 +26,31 @@ namespace UniMob.UI.Widgets
 
         public override WidgetSize CalculateSize()
         {
-            return _innerSize.Value;
+            var (minWidth, minHeight, maxWidth, maxHeight) = _innerSize.Value;
+
+            if (Widget.CrossAxisSize == AxisSize.Max)
+            {
+                maxWidth = float.PositiveInfinity;
+            }
+
+            if (Widget.MainAxisSize == AxisSize.Max)
+            {
+                maxHeight = float.PositiveInfinity;
+            }
+
+            return new WidgetSize(minWidth, minHeight, maxWidth, maxHeight);
         }
 
         private WidgetSize CalculateInnerSize()
         {
-            float? height = 0;
-            float? width = 0;
+            var size = default(WidgetSize?);
 
             foreach (var child in Children)
             {
-                var childSize = child.Size;
-
-                height = height.HasValue && childSize.IsHeightFixed
-                    ? Math.Max(height.Value, childSize.Height)
-                    : default(float?);
-
-                width = width.HasValue && childSize.IsWidthFixed
-                    ? Math.Max(width.Value, childSize.Width)
-                    : default(float?);
+                size = size.HasValue ? WidgetSize.StackZ(size.Value, child.Size) : child.Size;
             }
 
-            return new WidgetSize(width, height);
+            return size.GetValueOrDefault(WidgetSize.Zero);
         }
     }
 }

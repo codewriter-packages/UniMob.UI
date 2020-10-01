@@ -24,7 +24,6 @@ namespace UniMob.UI.Widgets
             var children = State.Children;
             var crossAxis = State.CrossAxisAlignment;
             var mainAxis = State.MainAxisAlignment;
-            var columnSize = State.InnerSize;
 
             var alignX = crossAxis == CrossAxisAlignment.Start ? Alignment.TopLeft.X
                 : crossAxis == CrossAxisAlignment.End ? Alignment.TopRight.X
@@ -38,22 +37,36 @@ namespace UniMob.UI.Widgets
                 : mainAxis == MainAxisAlignment.End ? 1f
                 : 0.5f;
 
+            var childrenHeight = 0f;
+            var unboundedChildCount = 0;
+
+            foreach (var child in children)
+            {
+                var childHeight = child.Size.GetSizeUnbounded().y;
+
+                if (float.IsInfinity(childHeight))
+                {
+                    unboundedChildCount += 1;
+                }
+                else
+                {
+                    childrenHeight += childHeight;
+                }
+            }
+
+            var columnHeight = Mathf.Max(Bounds.y, childrenHeight);
+            var flexHeight = Mathf.Max(0, (columnHeight - childrenHeight) / Mathf.Max(1, unboundedChildCount));
+            var childBound = new Vector2(float.PositiveInfinity, flexHeight);
+
             var childAlignment = new Alignment(alignX, alignY);
             var corner = childAlignment.WithTop();
-            var cornerPosition = new Vector2(0, -columnSize.Height * offsetMultiplierY);
+            var cornerPosition = new Vector2(0, -columnHeight * offsetMultiplierY);
 
             using (var render = _mapper.CreateRender())
             {
                 foreach (var child in children)
                 {
-                    var childSize = child.Size;
-
-                    if (childSize.IsHeightStretched)
-                    {
-                        Debug.LogError("Cannot render vertically stretched widgets inside Column.\n" +
-                                       $"Try to wrap '{child.GetType().Name}' into another widget with fixed height");
-                        continue;
-                    }
+                    var childSize = child.Size.GetSize(childBound);
 
                     var childView = render.RenderItem(child);
 
@@ -64,7 +77,7 @@ namespace UniMob.UI.Widgets
                     layout.CornerPosition = cornerPosition;
                     ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
 
-                    cornerPosition += new Vector2(0, childSize.Height);
+                    cornerPosition += new Vector2(0, childSize.y);
                 }
             }
         }

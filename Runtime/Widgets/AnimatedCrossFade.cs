@@ -109,36 +109,8 @@ namespace UniMob.UI.Widgets
 
         private WidgetSize CalculateSizeInternal()
         {
-            if (!_controller.IsAnimating)
-            {
-                return _controller.IsCompleted ? SecondChild.Size : FirstChild.Size;
-            }
-
-            var size1 = FirstChild.Size;
-            var size2 = SecondChild.Size;
-
-            var t = _controller.Value;
-
-            float? w = null, h = null;
-
-            if (size1.IsWidthFixed || size2.IsWidthFixed)
-            {
-                var w1 = size1.IsWidthFixed ? size1.Width : size2.Width;
-                var w2 = size2.IsWidthFixed ? size2.Width : size1.Width;
-                w = Lerp(w1, w2, t);
-            }
-
-            if (size1.IsHeightFixed || size2.IsHeightFixed)
-            {
-                var h1 = size1.IsHeightFixed ? size1.Height : size2.Height;
-                var h2 = size2.IsHeightFixed ? size2.Height : size1.Height;
-                h = Lerp(h1, h2, t);
-            }
-
-            return new WidgetSize(w, h);
+            return WidgetSize.Lerp(FirstChild.Size, SecondChild.Size, _controller.Value);
         }
-
-        private static float Lerp(float a, float b, float t) => a + (b - a) * t;
 
         public IState FirstChild => _firstChild.Value;
         public IState SecondChild => _secondChild.Value;

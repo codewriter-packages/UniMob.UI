@@ -8,8 +8,8 @@ namespace UniMob.UI.Widgets
         {
             var size = layoutData.Size;
             var sizeDelta = new Vector2(
-                size.IsWidthFixed ? size.Width : 0,
-                size.IsHeightFixed ? size.Height : 0
+                float.IsInfinity(size.x) ? 0 : size.x,
+                float.IsInfinity(size.y) ? 0 : size.y
             );
 
             var corner = layoutData.Corner;
@@ -17,14 +17,14 @@ namespace UniMob.UI.Widgets
             var anchorMin = anchor;
             var anchorMax = anchor;
 
-            if (size.IsWidthStretched)
+            if (float.IsInfinity(size.x))
             {
                 corner = corner.WithCenterX();
                 anchorMin.x = 0;
                 anchorMax.x = 1;
             }
 
-            if (size.IsHeightStretched)
+            if (float.IsInfinity(size.y))
             {
                 corner = corner.WithCenterY();
                 anchorMin.y = 0;
@@ -46,7 +46,7 @@ namespace UniMob.UI.Widgets
 
     public struct LayoutData
     {
-        public WidgetSize Size;
+        public Vector2 Size;
         public Vector2 CornerPosition;
         public Alignment Corner;
         public Alignment Alignment;

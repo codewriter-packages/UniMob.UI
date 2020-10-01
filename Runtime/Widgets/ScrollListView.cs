@@ -28,7 +28,21 @@ namespace UniMob.UI.Widgets
             var children = State.Children;
             var mainAxis = State.MainAxisAlignment;
             var crossAxis = State.CrossAxisAlignment;
-            var listSize = State.InnerSize;
+            var listSize = State.InnerSize.GetSizeUnbounded();
+
+            if (float.IsInfinity(listSize.y))
+            {
+                foreach (var child in State.Children)
+                {
+                    if (float.IsInfinity(child.Size.MaxHeight))
+                    {
+                        Debug.LogError("Cannot render vertically stretched widgets inside ScrollList.\n" +
+                                       $"Try to wrap '{child.GetType().Name}' into another widget with fixed height");
+                    }
+                }
+
+                return;
+            }
 
             var alignX = crossAxis == CrossAxisAlignment.Start ? Alignment.TopLeft.X
                 : crossAxis == CrossAxisAlignment.End ? Alignment.TopRight.X
@@ -51,7 +65,7 @@ namespace UniMob.UI.Widgets
                 _contentRoot.pivot = new Vector2(contentPivotX, contentPivotY);
 
                 LayoutData contentLayout;
-                contentLayout.Size = WidgetSize.FixedHeight(listSize.Height);
+                contentLayout.Size = new Vector2(float.PositiveInfinity, listSize.y);
                 contentLayout.Alignment = childAlignment;
                 contentLayout.Corner = childAlignment;
                 contentLayout.CornerPosition = Vector2.zero;
@@ -62,14 +76,7 @@ namespace UniMob.UI.Widgets
             {
                 foreach (var child in children)
                 {
-                    var childSize = child.Size;
-
-                    if (childSize.IsHeightStretched)
-                    {
-                        Debug.LogError("Cannot render vertically stretched widgets inside ScrollList.\n" +
-                                       $"Try to wrap '{child.GetType().Name}' into another widget with fixed height");
-                        continue;
-                    }
+                    var childSize = child.Size.GetSizeUnbounded();
 
                     var childView = render.RenderItem(child);
 
@@ -80,7 +87,7 @@ namespace UniMob.UI.Widgets
                     layout.CornerPosition = cornerPosition;
                     ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
 
-                    cornerPosition += new Vector2(0, childSize.Height);
+                    cornerPosition += new Vector2(0, childSize.y);
                 }
             }
         }

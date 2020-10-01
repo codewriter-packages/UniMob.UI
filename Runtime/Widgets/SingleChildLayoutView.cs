@@ -33,7 +33,7 @@ namespace UniMob.UI.Widgets
             {
                 var child = State.Child;
                 ChildView = render.RenderItem(child);
-                var childSize = child.Size;
+                var childSize = child.Size.GetSizeUnbounded();
 
                 LayoutData layout;
                 layout.Size = childSize;

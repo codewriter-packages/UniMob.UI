@@ -32,9 +32,13 @@ namespace UniMob.UI
             var (prefab, viewRef) = ViewContext.Loader.LoadViewPrefab(this);
             viewRef.LinkAtomToScope();
             var size = prefab.rectTransform.sizeDelta;
+
             return new WidgetSize(
-                size.x > 0 ? size.x : default(float?),
-                size.y > 0 ? size.y : default(float?));
+                size.x > 0 ? size.x : 0,
+                size.y > 0 ? size.y : 0,
+                size.x > 0 ? size.x : float.PositiveInfinity,
+                size.y > 0 ? size.y : float.PositiveInfinity
+            );
         }
     }
 }

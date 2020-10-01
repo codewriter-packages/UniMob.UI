@@ -56,7 +56,7 @@ namespace UniMob.UI.Widgets
                     var childSize = child.Size;
 
                     LayoutData layout;
-                    layout.Size = childSize;
+                    layout.Size = childSize.GetSizeUnbounded();
                     layout.Alignment = Alignment.Center;
                     layout.Corner = Alignment.Center;
                     layout.CornerPosition = Vector2.zero;

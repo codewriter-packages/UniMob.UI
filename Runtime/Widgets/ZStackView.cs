@@ -32,7 +32,7 @@ namespace UniMob.UI.Widgets
                     var childView = render.RenderItem(child);
 
                     LayoutData layout;
-                    layout.Size = childSize;
+                    layout.Size = childSize.GetSizeUnbounded();
                     layout.Alignment = alignment;
                     layout.Corner = alignment;
                     layout.CornerPosition = Vector2.zero;
