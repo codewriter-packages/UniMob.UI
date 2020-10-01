@@ -4,28 +4,16 @@ namespace UniMob.UI.Widgets
 {
     public class AnimatedCrossFade : StatefulWidget
     {
-        public AnimatedCrossFade(
-            Widget firstChild,
-            Widget secondChild,
-            CrossFadeState crossFadeState,
-            float duration,
-            float? reverseDuration = null)
-        {
-            FirstChild = firstChild;
-            SecondChild = secondChild;
-            CrossFadeState = crossFadeState;
-            Duration = duration;
-            ReverseDuration = reverseDuration ?? duration;
-        }
-
-        public Widget FirstChild { get; }
-        public Widget SecondChild { get; }
-        public CrossFadeState CrossFadeState { get; }
-        public float Duration { get; }
-        public float ReverseDuration { get; }
+        public Widget FirstChild { get; set; } = new Empty();
+        public Widget SecondChild { get; set; } = new Empty();
+        public CrossFadeState CrossFadeState { get; set; } = CrossFadeState.ShowFirst;
+        public float Duration { get; set; } = 0f;
+        public float? ReverseDuration { get; set; } = null;
         public Alignment Alignment { get; set; } = Alignment.Center;
 
         public override State CreateState() => new AnimatedCrossFadeState();
+
+        internal float GetReverseDuration() => ReverseDuration ?? Duration;
     }
 
     internal class AnimatedCrossFadeState : ViewState<AnimatedCrossFade>, IAnimatedCrossFadeState
@@ -85,9 +73,9 @@ namespace UniMob.UI.Widgets
                 _controller.Duration = Widget.Duration;
             }
 
-            if (Math.Abs(oldWidget.ReverseDuration - Widget.ReverseDuration) > float.Epsilon)
+            if (Math.Abs(oldWidget.GetReverseDuration() - Widget.GetReverseDuration()) > float.Epsilon)
             {
-                _controller.ReverseDuration = Widget.ReverseDuration;
+                _controller.ReverseDuration = Widget.GetReverseDuration();
             }
 
             if (oldWidget.CrossFadeState != Widget.CrossFadeState)
