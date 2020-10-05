@@ -1,8 +1,6 @@
-# UniMob.UI &middot; [![Github license](https://img.shields.io/github/license/codewriter-packages/UniMob.UI.svg?style=flat-square)](#) [![Unity 2019.3](https://img.shields.io/badge/Unity-2019.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/UniMob.UI?style=flat-square)
+# UniMob.UI [![Github license](https://img.shields.io/github/license/codewriter-packages/UniMob.UI.svg?style=flat-square)](#) [![Unity 2019.3](https://img.shields.io/badge/Unity-2019.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/UniMob.UI?style=flat-square)
 
-
-A declarative library for building reactive user interface
-
+A declarative library for building reactive user interface. Built over [UniMob](https://github.com/codewriter-packages/UniMob).
 
 ## A quick example
 
@@ -14,9 +12,9 @@ using UniMob.UI;
 using UniMob.UI.Widgets;
 using UnityEngine;
 
-public class SimpleCounterApp : UniMobUIApp
+public class CounterApp : UniMobUIApp
 {
-    [Atom] private int Counter { get; set; } = 0;
+    [Atom] private int Counter { get; set; }
 
     protected override Widget Build(BuildContext context)
     {
@@ -38,6 +36,8 @@ public class SimpleCounterApp : UniMobUIApp
     }
 }
 ```
+
+More code samples are located in  [UniMob.UI Samples](https://github.com/codewriter-packages/UniMob.UI-Samples) repository.
 
 ## How to Install
 Minimal Unity Version is 2019.3.
