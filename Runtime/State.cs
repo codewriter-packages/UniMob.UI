@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UniMob.UI.Internal;
 
 namespace UniMob.UI
@@ -8,8 +9,11 @@ namespace UniMob.UI
     public abstract class State : IState, IDisposable
     {
         private readonly MutableBuildContext _context;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public BuildContext Context => _context;
+
+        public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
         internal Widget RawWidget { get; private set; }
 
@@ -20,6 +24,7 @@ namespace UniMob.UI
         protected State()
         {
             _context = new MutableBuildContext(this, null);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         internal virtual void Update(Widget widget)
@@ -41,6 +46,7 @@ namespace UniMob.UI
 
         public virtual void Dispose()
         {
+            _cancellationTokenSource.Dispose();
         }
 
         internal static StateHolder Create(BuildContext context, WidgetBuilder builder)
