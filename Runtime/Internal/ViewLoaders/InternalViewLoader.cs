@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace UniMob.UI.Internal.ViewLoaders
 {
-    public class InternalViewLoader : IViewLoader
+    internal class InternalViewLoader : IViewLoader
     {
         private readonly Dictionary<string, Func<GameObject>> _builders = new Dictionary<string, Func<GameObject>>();
         private readonly Dictionary<string, IView> _cache = new Dictionary<string, IView>();

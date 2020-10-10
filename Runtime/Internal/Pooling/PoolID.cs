@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UniMob.UI.Internal.Pooling
 {
-    public sealed class PoolID : MonoBehaviour
+    internal sealed class PoolID : MonoBehaviour
     {
         [SerializeField] private int prefabInstanceID;
 

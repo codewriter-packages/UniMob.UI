@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace UniMob.UI.Internal.Pooling
 {
-    public static class GameObjectPool
+    internal static class GameObjectPool
     {
         private static readonly Dictionary<int, Pool> Pools = new Dictionary<int, Pool>();
 
