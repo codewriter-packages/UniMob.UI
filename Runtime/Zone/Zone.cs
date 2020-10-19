@@ -1,18 +1,56 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace UniMob
 {
-    public abstract class Zone
+    internal class Zone : MonoBehaviour
     {
-        public static IZone Current { get; set; }
-    }
+        private readonly List<Action> _tickers = new List<Action>();
 
-    public interface IZone
-    {
-        void HandleUncaughtException(Exception exception);
-        void Invoke(Action action);
+        public static Zone Current { get; set; }
 
-        void AddTicker(Action action);
-        void RemoveTicker(Action action);
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        internal static void Init()
+        {
+            if (!ReferenceEquals(Current, null)) return;
+
+            var go = new GameObject(nameof(Zone));
+            var zone = go.AddComponent<Zone>();
+            DontDestroyOnLoad(go);
+            DontDestroyOnLoad(zone);
+
+            Current = zone;
+        }
+
+        private void Update()
+        {
+            for (var i = _tickers.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _tickers[i].Invoke();
+                }
+                catch (Exception ex)
+                {
+                    HandleUncaughtException(ex);
+                }
+            }
+        }
+
+        public void HandleUncaughtException(Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+
+        public void AddTicker(Action action)
+        {
+            _tickers.Add(action);
+        }
+
+        public void RemoveTicker(Action action)
+        {
+            _tickers.Remove(action);
+        }
     }
 }
