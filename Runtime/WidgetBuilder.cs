@@ -2,5 +2,6 @@ using JetBrains.Annotations;
 
 namespace UniMob.UI
 {
-    public delegate Widget WidgetBuilder([NotNull] BuildContext context);
+    public delegate TWidget WidgetBuilder<out TWidget>([NotNull] BuildContext context)
+        where TWidget : Widget;
 }

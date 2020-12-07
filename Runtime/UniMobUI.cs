@@ -7,7 +7,7 @@ namespace UniMob.UI
 {
     public static class UniMobUI
     {
-        public static IDisposable RunApp([NotNull] ViewPanel root, [NotNull] WidgetBuilder builder,
+        public static IDisposable RunApp([NotNull] ViewPanel root, [NotNull] WidgetBuilder<Widget> builder,
             string debugName = null)
         {
             if (root == null) throw new ArgumentNullException(nameof(root));
@@ -15,7 +15,7 @@ namespace UniMob.UI
 
             IView view = root;
             var context = new BuildContext(null, null);
-            var stateHolder = State.Create(context, builder);
+            var stateHolder = State.Create<Widget, IState>(context, builder);
             var render = Atom.Reaction(() => root.Render(stateHolder.Value), debugName: debugName);
 
             // ReSharper disable once ImplicitlyCapturedClosure

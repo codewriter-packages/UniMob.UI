@@ -38,10 +38,21 @@ namespace UniMob.UI
             Assert.IsNull(Atom.CurrentScope);
         }
 
-        protected StateHolder CreateChild(WidgetBuilder builder)
-            => Create(new BuildContext(this, Context), builder);
+        protected StateHolder<TChildState> CreateChild<TChildWidget, TChildState>(WidgetBuilder<TChildWidget> builder)
+            where TChildWidget : Widget
+            where TChildState : ViewState<TChildWidget>
+        {
+            return Create<TChildWidget, TChildState>(new BuildContext(this, Context), builder);
+        }
+
+        protected StateHolder CreateChild(WidgetBuilder<Widget> builder)
+        {
+            return Create<Widget, IState>(new BuildContext(this, Context), builder);
+        }
 
         protected StateCollectionHolder CreateChildren(Func<BuildContext, List<Widget>> builder)
-            => CreateList(new BuildContext(this, Context), builder);
+        {
+            return CreateList(new BuildContext(this, Context), builder);
+        }
     }
 }

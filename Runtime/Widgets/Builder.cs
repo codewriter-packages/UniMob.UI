@@ -5,13 +5,13 @@ namespace UniMob.UI.Widgets
     public class Builder : StatefulWidget
     {
         public Builder(
-            [NotNull] WidgetBuilder build
+            [NotNull] WidgetBuilder<Widget> build
         )
         {
             Build = build;
         }
 
-        public WidgetBuilder Build { get; }
+        public WidgetBuilder<Widget> Build { get; }
 
         public override State CreateState() => new BuilderState();
     }

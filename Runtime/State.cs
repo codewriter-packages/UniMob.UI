@@ -49,9 +49,12 @@ namespace UniMob.UI
             _cancellationTokenSource.Dispose();
         }
 
-        internal static StateHolder Create(BuildContext context, WidgetBuilder builder)
+        internal static StateHolder<TState> Create<TWidget, TState>(BuildContext context,
+            WidgetBuilder<TWidget> builder)
+            where TWidget : Widget
+            where TState : class, IState
         {
-            return new StateHolder(context, builder);
+            return new StateHolder<TWidget, TState>(context, builder);
         }
 
         internal static StateCollectionHolder CreateList(BuildContext context, Func<BuildContext, List<Widget>> builder)
@@ -102,24 +105,39 @@ namespace UniMob.UI
         }
     }
 
-    public class StateHolder : IAtomCallbacks
+    // ReSharper disable once InconsistentNaming
+    public interface StateHolder
+    {
+        IState Value { get; }
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public interface StateHolder<out TState> : StateHolder
+    {
+        new TState Value { get; }
+    }
+
+    public sealed class StateHolder<TWidget, TState> : StateHolder<TState>, IAtomCallbacks
+        where TWidget : Widget
+        where TState : class, IState
     {
         private readonly BuildContext _context;
-        private readonly WidgetBuilder _builder;
-        private readonly Atom<IState> _stateAtom;
+        private readonly WidgetBuilder<TWidget> _builder;
+        private readonly Atom<TState> _stateAtom;
 
         private State _state;
 
-        public StateHolder(BuildContext context, WidgetBuilder builder)
+        public StateHolder(BuildContext context, WidgetBuilder<TWidget> builder)
         {
             _context = context;
             _builder = builder;
             _stateAtom = Atom.Computed(ComputeState, callbacks: this, requiresReaction: true);
         }
 
-        public IState Value => _stateAtom.Value;
+        IState StateHolder.Value => _stateAtom.Value;
+        TState StateHolder<TState>.Value => _stateAtom.Value;
 
-        private IState ComputeState()
+        private TState ComputeState()
         {
             var newWidget = _builder(_context);
             using (Atom.NoWatch)
@@ -127,7 +145,7 @@ namespace UniMob.UI
                 _state = StateUtilities.UpdateChild(_context, _state, newWidget);
             }
 
-            return _state;
+            return _state as TState;
         }
 
         void IAtomCallbacks.OnActive()
