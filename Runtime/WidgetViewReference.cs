@@ -10,12 +10,14 @@ namespace UniMob.UI
         private WidgetViewReferenceType _type;
         private string _path;
         private AssetReferenceGameObject _reference;
+        private GameObject _prefab;
 
-        private WidgetViewReference(WidgetViewReferenceType type, string path, AssetReferenceGameObject reference)
+        private WidgetViewReference(WidgetViewReferenceType type, string path, AssetReferenceGameObject reference, GameObject prefab)
         {
             _type = type;
             _path = path;
             _reference = reference;
+            _prefab = prefab;
             _source = null;
         }
 
@@ -24,6 +26,7 @@ namespace UniMob.UI
             _type = WidgetViewReferenceType.Resource;
             _path = null;
             _reference = null;
+            _prefab = null;
             _source = source;
         }
 
@@ -35,6 +38,7 @@ namespace UniMob.UI
         public WidgetViewReferenceType Type => _source?.Value.Type ?? _type;
         public string Path => _source?.Value.Path ?? _path;
         public AssetReferenceGameObject Reference => _source?.Value.Reference ?? _reference;
+        public GameObject Prefab => _source?.Value.Prefab is var p && p != null ? p : _prefab;
 
         public bool Equals(WidgetViewReference other)
         {
@@ -58,17 +62,22 @@ namespace UniMob.UI
 
         public static WidgetViewReference Addressable(string path)
         {
-            return new WidgetViewReference(WidgetViewReferenceType.Addressable, path, null);
+            return new WidgetViewReference(WidgetViewReferenceType.Addressable, path, null, null);
         }
         
         public static WidgetViewReference Addressable(AssetReferenceGameObject reference)
         {
-            return new WidgetViewReference(WidgetViewReferenceType.Addressable, null, reference);
+            return new WidgetViewReference(WidgetViewReferenceType.Addressable, null, reference, null);
         }
 
         public static WidgetViewReference Resource(string path)
         {
-            return new WidgetViewReference(WidgetViewReferenceType.Resource, path, null);
+            return new WidgetViewReference(WidgetViewReferenceType.Resource, path, null, null);
+        }
+
+        public static WidgetViewReference FromPrefab(GameObject prefab)
+        {
+            return new WidgetViewReference(WidgetViewReferenceType.Prefab, null, null, prefab);
         }
 
         public static implicit operator WidgetViewReference(AssetReferenceGameObject reference)
@@ -81,5 +90,6 @@ namespace UniMob.UI
     {
         Resource,
         Addressable,
+        Prefab,
     }
 }
