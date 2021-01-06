@@ -12,6 +12,8 @@ namespace UniMob.UI.Widgets
         private readonly TriggerStateMachine<ScreenState, ScreenEvent, Task> _machine;
         private readonly TaskCompletionSource<object> _popCompleter = new TaskCompletionSource<object>();
 
+        private object _popResult = null;
+
         internal NavigatorState NavigatorState { get; set; }
 
         protected Route(RouteSettings settings)
@@ -24,7 +26,7 @@ namespace UniMob.UI.Widgets
 
         public RouteModalType ModalType => _settings.ModalType;
 
-        public Task PopTask => _popCompleter.Task;
+        public Task<object> PopTask => _popCompleter.Task;
 
         public string Key => _settings.Name;
 
@@ -126,13 +128,18 @@ namespace UniMob.UI.Widgets
 
         protected virtual Task OnDestroy()
         {
-            _popCompleter.SetResult(null);
+            _popCompleter.SetResult(this._popResult);
             return Task.CompletedTask;
         }
 
         public virtual bool HandleBack() => true;
 
         public abstract Widget Build(BuildContext context);
+
+        public void SetResult(object result) {
+
+            _popResult = result;
+        }
     }
 
     public enum ScreenEvent

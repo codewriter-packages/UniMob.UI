@@ -71,6 +71,15 @@ namespace UniMob.UI.Widgets
             ApplyCommands(new NavigatorCommand.Push(route));
             return route.PopTask;
         }
+        
+        public async Task<TResult> Push<TResult>(Route route)
+        {
+            if (route == null) throw new ArgumentNullException(nameof(route));
+
+            ApplyCommands(new NavigatorCommand.Push(route));
+            var result = await route.PopTask;
+            return result is TResult tResult ? tResult : default;
+        }
 
         public Task NewRootNamed(string routeName)
         {
@@ -109,9 +118,9 @@ namespace UniMob.UI.Widgets
             ApplyCommands(new NavigatorCommand.PopTo(route));
         }
 
-        public void Pop()
+        public void Pop(object result = null)
         {
-            ApplyCommands(new NavigatorCommand.Pop());
+            ApplyCommands(new NavigatorCommand.Pop(result));
         }
 
         public bool HandleBack()
@@ -217,8 +226,8 @@ namespace UniMob.UI.Widgets
 
             switch (command)
             {
-                case NavigatorCommand.Pop _:
-                    return PopInternal();
+                case NavigatorCommand.Pop pop:
+                    return PopInternal(pop.Result);
 
                 case NavigatorCommand.PopTo backTo:
                     return PopToInternal(backTo);
@@ -304,7 +313,7 @@ namespace UniMob.UI.Widgets
             }
         }
 
-        private async Task PopInternal()
+        private async Task PopInternal(object result)
         {
             if (_stack.Count <= 1)
             {
@@ -312,6 +321,9 @@ namespace UniMob.UI.Widgets
             }
 
             var first = _stack.Peek();
+
+            first.SetResult(result);
+            
             var destroyTask = first.ApplyScreenEvent(ScreenEvent.Destroy);
 
             if (first.ModalType == RouteModalType.Fullscreen)
@@ -371,6 +383,9 @@ namespace UniMob.UI.Widgets
     {
         public sealed class Pop : NavigatorCommand
         {
+            public object Result { get; }
+
+            public Pop(object result) => this.Result = result;
         }
 
         public sealed class PopTo : NavigatorCommand
