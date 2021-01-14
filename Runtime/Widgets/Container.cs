@@ -1,10 +1,10 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace UniMob.UI.Widgets
 {
     public sealed class Container : SingleChildLayoutWidget
     {
+        public Sprite BackgroundImage { get; set; } = null;
         public Color BackgroundColor { get; set; } = Color.clear;
         public Alignment Alignment { get; set; } = Alignment.Center;
         public WidgetSize? Size { get; set; }
@@ -16,6 +16,10 @@ namespace UniMob.UI.Widgets
     {
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("$$_Container");
+
+        public Sprite BackgroundImage => Widget.BackgroundImage != null
+            ? Widget.BackgroundImage
+            : ViewContext.DefaultWhiteImage;
 
         public Color BackgroundColor => Widget.BackgroundColor;
 

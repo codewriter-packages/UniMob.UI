@@ -16,16 +16,16 @@ namespace UniMob.UI.Widgets
         {
             base.Awake();
 
+            var canvasRenderer = GetComponent<CanvasRenderer>();
+            canvasRenderer.cullTransparentMesh = true;
+
             _backgroundImage = GetComponent<Image>();
         }
 
         protected override void Render()
         {
-            var backgroundColor = State.BackgroundColor;
-            var transparent = backgroundColor == Color.clear;
-
-            _backgroundImage.enabled = !transparent;
-            _backgroundImage.color = backgroundColor;
+            _backgroundImage.sprite = State.BackgroundImage;
+            _backgroundImage.color = State.BackgroundColor;
 
             base.Render();
         }
@@ -33,6 +33,8 @@ namespace UniMob.UI.Widgets
 
     internal interface IContainerState : ISingleChildLayoutState
     {
+        Sprite BackgroundImage { get; }
+
         Color BackgroundColor { get; }
     }
 }
