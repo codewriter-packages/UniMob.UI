@@ -42,7 +42,7 @@ namespace UniMob.UI
 
         public bool Equals(WidgetViewReference other)
         {
-            return Type == other.Type && Path == other.Path;
+            return Type == other.Type && Path == other.Path && Reference == other.Reference && Prefab == other.Prefab;
         }
 
         public override bool Equals(object obj)
