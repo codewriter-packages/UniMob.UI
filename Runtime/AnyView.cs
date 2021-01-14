@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UniMob.UI
 {
-    public class AddressableLoadingView : MonoBehaviour, IView
+    public class AnyView : MonoBehaviour, IView
     {
         public RectTransform rectTransform => (RectTransform) transform;
 

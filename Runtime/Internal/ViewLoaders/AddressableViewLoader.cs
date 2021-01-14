@@ -75,8 +75,8 @@ namespace UniMob.UI.Internal.ViewLoaders
 
             if (_loadingViewPrefab == null)
             {
-                var go = new GameObject(nameof(AddressableLoadingView),
-                    typeof(RectTransform), typeof(AddressableLoadingView));
+                var go = new GameObject(nameof(AnyView),
+                    typeof(RectTransform), typeof(AnyView));
                 Object.DontDestroyOnLoad(go);
 
                 _loadingViewPrefab = go.GetComponent<IView>();
