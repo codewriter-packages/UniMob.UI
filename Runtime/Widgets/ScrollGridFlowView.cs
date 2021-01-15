@@ -72,6 +72,9 @@ namespace UniMob.UI.Widgets
 
             if (_mapper == null)
                 _mapper = new PooledViewMapper(_contentRoot);
+            
+            _scroll.horizontalNormalizedPosition = 0f;
+            _scroll.verticalNormalizedPosition   = 1f;
 
             _countersUpdater.Activate();
         }
