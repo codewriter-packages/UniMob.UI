@@ -8,7 +8,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new ScrollListState();
     }
 
-    internal class ScrollListState : MultiChildLayoutState<ScrollList>, IScrollListState
+    public class ScrollListState : MultiChildLayoutState<ScrollList>, IScrollListState
     {
         private readonly Atom<WidgetSize> _innerSize;
 

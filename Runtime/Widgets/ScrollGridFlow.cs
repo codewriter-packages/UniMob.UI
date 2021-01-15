@@ -13,7 +13,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new ScrollGridFlowState();
     }
 
-    internal class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
+    public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
         private readonly Atom<WidgetSize> _innerSize;
 
