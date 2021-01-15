@@ -31,7 +31,12 @@ namespace UniMob.UI.Widgets
                 anchorMax.y = 1;
             }
 
-            rt.anchoredPosition = CornerPositionToAnchored(layoutData.CornerPosition, rt.pivot, sizeDelta, corner);
+            if (layoutData.CornerPosition.HasValue)
+            {
+                rt.anchoredPosition =
+                    CornerPositionToAnchored(layoutData.CornerPosition.Value, rt.pivot, sizeDelta, corner);
+            }
+
             rt.anchorMin = anchorMin;
             rt.anchorMax = anchorMax;
             rt.sizeDelta = sizeDelta;
@@ -47,7 +52,7 @@ namespace UniMob.UI.Widgets
     public struct LayoutData
     {
         public Vector2 Size;
-        public Vector2 CornerPosition;
+        public Vector2? CornerPosition;
         public Alignment Corner;
         public Alignment Alignment;
     }
