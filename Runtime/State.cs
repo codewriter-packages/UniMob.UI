@@ -21,6 +21,8 @@ namespace UniMob.UI
 
         public abstract WidgetSize Size { get; }
 
+        public Key Key => RawWidget.Key;
+
         protected State()
         {
             _context = new MutableBuildContext(this, null);

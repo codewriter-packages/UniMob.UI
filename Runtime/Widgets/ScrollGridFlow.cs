@@ -6,7 +6,6 @@ namespace UniMob.UI.Widgets
     public class ScrollGridFlow : MultiChildLayoutWidget
     {
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
-        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
 
@@ -16,6 +15,8 @@ namespace UniMob.UI.Widgets
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
         private readonly Atom<WidgetSize> _innerSize;
+
+        private ScrollGridFlowView gridView;
 
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("UniMob.ScrollGridFlow");
@@ -27,7 +28,6 @@ namespace UniMob.UI.Widgets
 
         public WidgetSize InnerSize => _innerSize.Value;
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
-        public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
 
@@ -81,6 +81,30 @@ namespace UniMob.UI.Widgets
             width = Math.Min(width, MaxCrossAxisExtent);
 
             return WidgetSize.Fixed(width, height);
+        }
+
+        public override void DidViewMount(IView view)
+        {
+            base.DidViewMount(view);
+
+            gridView = view as ScrollGridFlowView;
+        }
+
+        public override void DidViewUnmount(IView view)
+        {
+            base.DidViewUnmount(view);
+
+            gridView = null;
+        }
+
+        public void ScrollTo(Key key, float duration)
+        {
+            if (gridView == null)
+            {
+                return;
+            }
+
+            gridView.ScrollTo(key, duration);
         }
     }
 }

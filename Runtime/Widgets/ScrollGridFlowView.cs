@@ -1,6 +1,8 @@
 namespace UniMob.UI.Widgets
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using Internal;
     using UnityEngine;
     using UnityEngine.UI;
@@ -18,6 +20,8 @@ namespace UniMob.UI.Widgets
         private readonly MutableAtom<int> _scrollValue = Atom.Value(0);
 
         private Reaction _countersUpdater;
+
+        private readonly Dictionary<Key, Vector2> _childPositions = new Dictionary<Key, Vector2>();
 
         protected override void Awake()
         {
@@ -84,6 +88,8 @@ namespace UniMob.UI.Widgets
             var startIndex = _firstVisibleChildIndex.Value;
             var endIndex = _lastVisibleChildIndex.Value;
 
+            _childPositions.Clear();
+
             using (var render = _mapper.CreateRender())
             {
                 DoLayout(State,
@@ -100,6 +106,11 @@ namespace UniMob.UI.Widgets
                     },
                     renderChild: (childIndex, child, childSize, childAlignment, cornerPosition) =>
                     {
+                        if (child.Key != null)
+                        {
+                            _childPositions.Add(child.Key, cornerPosition);
+                        }
+
                         if (childIndex < startIndex || childIndex > endIndex)
                         {
                             return;
@@ -124,7 +135,6 @@ namespace UniMob.UI.Widgets
         {
             var children = state.Children;
             var crossAxis = state.CrossAxisAlignment;
-            var mainAxis = state.MainAxisAlignment;
             var gridSize = state.InnerSize.GetSizeUnbounded();
 
             if (float.IsInfinity(gridSize.y))
@@ -145,22 +155,15 @@ namespace UniMob.UI.Widgets
                 : crossAxis == CrossAxisAlignment.End ? Alignment.TopRight.X
                 : Alignment.Center.X;
 
-            var alignY = mainAxis == MainAxisAlignment.Start ? Alignment.TopCenter.Y
-                : mainAxis == MainAxisAlignment.End ? Alignment.BottomCenter.Y
-                : Alignment.Center.Y;
+            var alignY = Alignment.TopCenter.Y;
 
             var offsetMultiplierX = crossAxis == CrossAxisAlignment.Start ? 0.0f
                 : crossAxis == CrossAxisAlignment.End ? 1.0f
                 : 0.5f;
 
-            var offsetMultiplierY = mainAxis == MainAxisAlignment.Start ? 0.0f
-                : mainAxis == MainAxisAlignment.End ? 1.0f
-                : 0.5f;
 
             var childAlignment = new Alignment(alignX, alignY);
-            var cornerPosition = new Vector2(
-                -gridSize.x * offsetMultiplierX,
-                -gridSize.y * offsetMultiplierY);
+            var cornerPosition = new Vector2(-gridSize.x * offsetMultiplierX, 0.0f);
 
             // content root
             {
@@ -168,9 +171,7 @@ namespace UniMob.UI.Widgets
                     : crossAxis == CrossAxisAlignment.End ? 1.0f
                     : 0.5f;
 
-                var contentPivotY = mainAxis == MainAxisAlignment.Start ? 1.0f
-                    : mainAxis == MainAxisAlignment.End ? 0.0f
-                    : 0.5f;
+                var contentPivotY = 1.0f;
 
                 var contentPivot = new Vector2(contentPivotX, contentPivotY);
                 renderContentPanel(contentPivot, gridSize, childAlignment);
@@ -214,8 +215,7 @@ namespace UniMob.UI.Widgets
                     cornerPosition.x = -lineWidth * offsetMultiplierX;
                 }
 
-                renderChild(childIndex, child, childSize, childAlignment,
-                    cornerPosition + new Vector2(0, lineHeight * offsetMultiplierY));
+                renderChild(childIndex, child, childSize, childAlignment, cornerPosition);
 
                 if (childIndex == lineLastChildIndex)
                 {
@@ -233,6 +233,42 @@ namespace UniMob.UI.Widgets
 
         private delegate void ChildRenderDelegate(int childIndex, IState child, Vector2 childSize,
             Alignment childAlignment, Vector2 connerPosition);
+
+        public void ScrollTo(Key key, float duration)
+        {
+            if (_childPositions.TryGetValue(key, out var position))
+            {
+                StartCoroutine(ScrollTo(Vector2.up * position.y, duration));
+            }
+        }
+
+        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration)
+        {
+            var time = 0f;
+
+            while (time < duration)
+            {
+                time += Time.unscaledDeltaTime;
+
+                _contentRoot.anchoredPosition = Vector2.LerpUnclamped(
+                    _contentRoot.anchoredPosition,
+                    anchoredPosition,
+                    CircEaseInOut(time, duration)
+                );
+
+                yield return null;
+            }
+
+            _contentRoot.anchoredPosition = anchoredPosition;
+        }
+
+        public static float CircEaseInOut(float t, float d)
+        {
+            if ((t /= d / 2) < 1)
+                return -0.5f * (Mathf.Sqrt(1 - t * t) - 1);
+
+            return 0.5f * (Mathf.Sqrt(1 - (t -= 2) * t) + 1);
+        }
     }
 
     public interface IScrollGridFlowState : IViewState
@@ -240,7 +276,6 @@ namespace UniMob.UI.Widgets
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
-        MainAxisAlignment MainAxisAlignment { get; }
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
     }
