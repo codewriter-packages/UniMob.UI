@@ -17,10 +17,8 @@ namespace UniMob.UI.Internal.ViewLoaders
 
         private IView _loadingViewPrefab;
 
-        public (IView, WidgetViewReference) LoadViewPrefab(IViewState viewState)
+        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
         {
-            var viewReference = viewState.View;
-
             if (viewReference.Type != WidgetViewReferenceType.Addressable)
             {
                 return (null, default);
@@ -53,8 +51,7 @@ namespace UniMob.UI.Internal.ViewLoaders
                 {
                     if (handle.Result == null)
                     {
-                        Debug.LogError($"Failed to load addressable '{identifier}' for '{viewState.GetType().Name}'. " +
-                                       "Invalid path?");
+                        Debug.LogError($"Failed to load addressable '{identifier}'. Invalid path?");
                         return;
                     }
 
@@ -63,8 +60,7 @@ namespace UniMob.UI.Internal.ViewLoaders
                     if (view == null)
                     {
                         Debug.LogError(
-                            $"Failed to get IView from addressable '{identifier}' for '{viewState.GetType().Name}'. " +
-                            "Missing view component?");
+                            $"Failed to get IView from addressable '{identifier}'. Missing view component?");
                         return;
                     }
 

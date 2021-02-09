@@ -35,10 +35,8 @@ namespace UniMob.UI.Internal.ViewLoaders
             }
         }
 
-        public (IView, WidgetViewReference) LoadViewPrefab(IViewState state)
+        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
         {
-            var viewReference = state.View;
-
             if (viewReference.Type != WidgetViewReferenceType.Resource ||
                 !viewReference.Path.StartsWith("$$_"))
             {

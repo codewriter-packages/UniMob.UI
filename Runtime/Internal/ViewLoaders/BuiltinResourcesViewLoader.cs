@@ -7,10 +7,8 @@ namespace UniMob.UI.Internal.ViewLoaders
     {
         private readonly Dictionary<string, IView> _viewPrefabCache = new Dictionary<string, IView>();
 
-        public (IView, WidgetViewReference) LoadViewPrefab(IViewState viewState)
+        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
         {
-            var viewReference = viewState.View;
-
             if (viewReference.Type != WidgetViewReferenceType.Resource)
             {
                 return (null, default);
@@ -26,16 +24,14 @@ namespace UniMob.UI.Internal.ViewLoaders
             var prefab = Resources.Load(path) as GameObject;
             if (prefab == null)
             {
-                Debug.LogError($"Failed to load prefab '{path}' for '{viewState.GetType().Name}'. " +
-                               "Invalid path?");
+                Debug.LogError($"Failed to load prefab '{path}'. Invalid path?");
                 return (null, default);
             }
 
             view = prefab.GetComponent<IView>();
             if (view == null)
             {
-                Debug.LogError($"Failed to get IView from prefab '{path}' for '{viewState.GetType().Name}'. " +
-                               "Missing view component?");
+                Debug.LogError($"Failed to get IView from prefab '{path}'. Missing view component?");
                 return (null, default);
             }
 
