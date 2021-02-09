@@ -15,7 +15,7 @@ namespace UniMob.UI
         [NotNull] private readonly ViewRenderScope _renderScope = new ViewRenderScope();
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
 
-        private readonly MutableAtom<Vector2> _bounds = Atom.Value(Vector2.zero);
+        private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero);
 
         private bool _mounted;
 
@@ -39,7 +39,7 @@ namespace UniMob.UI
 
         public BuildContext Context => State?.Context;
 
-        public Vector2 Bounds => _bounds.Value;
+        public Vector2Int Bounds => _bounds.Value;
 
         protected ViewBase()
         {
@@ -222,7 +222,8 @@ namespace UniMob.UI
 
         private void RefreshBounds()
         {
-            _bounds.Value = rectTransform.rect.size;
+            var size = rectTransform.rect.size;
+            _bounds.Value = new Vector2Int((int) size.x, (int) size.y);
         }
 
         protected virtual void DidStateAttached(TState state)
@@ -260,14 +261,14 @@ namespace UniMob.UI
         protected override void OnRectTransformDimensionsChange()
         {
             base.OnRectTransformDimensionsChange();
-            
+
             RefreshBounds();
         }
 
         protected override void OnTransformParentChanged()
         {
             base.OnTransformParentChanged();
-            
+
             RefreshBounds();
         }
 
