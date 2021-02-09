@@ -92,6 +92,7 @@ namespace UniMob.UI.Internal
             }
 
             item.View.ViewReference.LinkAtomToScope();
+            item.View.rectTransform.SetAsLastSibling();
 
             _next.Add(item);
 
