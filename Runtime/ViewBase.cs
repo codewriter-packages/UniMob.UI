@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
 
@@ -10,27 +9,25 @@ namespace UniMob.UI
 {
     [RequireComponent(typeof(RectTransform))]
     public abstract class ViewBase<TState> : UIBehaviour, IView, IViewTreeElement
-        where TState : IState
+        where TState : class, IState
     {
         [NotNull] private readonly ViewRenderScope _renderScope = new ViewRenderScope();
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
 
         private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero);
 
-        private bool _mounted;
+        private TState _currentState;
 
-        private bool _hasState;
-        private TState _state;
+        private readonly MutableAtom<object> _nextStateRaw;
+        private readonly Atom<TState> _nextStateTyped;
+        private readonly Atom<object> _doRebind;
+        private readonly Atom<object> _doRender;
 
-        private bool _hasSource;
-        private readonly MutableAtom<TState> _source;
-
-        private ReactionAtom _renderAtom;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private CustomSampler _renderSampler;
 #endif
-        protected bool HasState => _hasState;
-        protected TState State => _state;
+        protected bool HasState => _currentState != null;
+        protected TState State => _currentState;
 
         // ReSharper disable once InconsistentNaming
         public RectTransform rectTransform => (RectTransform) transform;
@@ -43,83 +40,64 @@ namespace UniMob.UI
 
         protected ViewBase()
         {
-            var debugName = $"UniMob.ViewBase<{typeof(TState).Name}>::Source";
-            _source = Atom.Value(default(TState), debugName: debugName);
+            _nextStateRaw = Atom.Value<object>(null, debugName: "ViewBase.nextStateRaw");
+            _nextStateTyped = Atom.Computed(GetNextStateTyped, debugName: "ViewBase.nextStateTyped");
+            _doRebind = Atom.Computed(DoRebind, debugName: "ViwBase.DoRebind()", keepAlive: true);
+            _doRender = Atom.Computed(DoRender, debugName: "ViewBase.DoRender()", keepAlive: true);
+        }
+
+        private TState GetNextStateTyped()
+        {
+            var state = _nextStateRaw.Value;
+            if (state is TState typedState)
+            {
+                return typedState;
+            }
+
+            var expected = typeof(TState).Name;
+            var actual = state.GetType().Name;
+            Debug.LogError($"Wrong model type at '{name}': expected={expected}, actual={actual}");
+            return null;
         }
 
         void IView.SetSource(IViewState newSource)
         {
-            using (Atom.NoWatch)
-            {
-                if (ReferenceEquals(_source.Value, newSource))
-                {
-                    return;
-                }
-            }
-
-            if (!(newSource is TState nextState))
-            {
-                var expected = typeof(TState).Name;
-                var actual = newSource.GetType().Name;
-                Debug.LogError($"Wrong model type at '{name}': expected={expected}, actual={actual}");
-                return;
-            }
-
             _renderScope.Link(this);
 
-            if (_renderAtom == null)
+            if (!ReferenceEquals(newSource, _currentState))
             {
-                _renderAtom = new ReactionAtom(name, DoRender, OnRenderFailed);
-            }
+                _nextStateRaw.Value = newSource;
 
-            _hasSource = true;
-            _source.Value = nextState;
-
-            if (!_renderAtom.IsActive)
-            {
                 RefreshBounds();
-                _renderAtom.Activate();
             }
+
+            _doRebind.Get();
         }
 
         protected void Unmount()
         {
-            if (!_hasSource)
+            using (Atom.NoWatch)
             {
-                Assert.IsFalse(_hasState, "hasModel");
-                Assert.IsFalse(_mounted, "mounted");
-                return;
-            }
+                _doRebind.Deactivate();
+                _doRender.Deactivate();
 
-            Assert.IsNotNull(_renderAtom, "renderAtom == null");
-            _renderAtom.Deactivate();
-
-            _source.Value = default;
-            _hasSource = false;
-
-            if (!_hasState)
-            {
-                Assert.IsFalse(_mounted, "mounted");
-                return;
-            }
-
-            try
-            {
-                using (Atom.NoWatch)
+                if (_currentState != null)
                 {
-                    Deactivate();
-                    OnAfterDeactivate();
-                }
-            }
-            catch (Exception ex)
-            {
-                Zone.Current.HandleUncaughtException(ex);
-            }
+                    try
+                    {
+                        using (Atom.NoWatch)
+                        {
+                            Deactivate();
+                            OnAfterDeactivate();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Zone.Current.HandleUncaughtException(ex);
+                    }
 
-            if (_mounted)
-            {
-                _mounted = false;
-                DidStateDetached(_state);
+                    DidStateDetached(_currentState);
+                }
             }
 
             foreach (var child in _children)
@@ -127,8 +105,8 @@ namespace UniMob.UI
                 child.Unmount();
             }
 
-            _state = default;
-            _hasState = false;
+            _nextStateRaw.Value = null;
+            _currentState = null;
         }
 
         void IView.ResetSource()
@@ -146,78 +124,81 @@ namespace UniMob.UI
             Unmount();
         }
 
-        private void DoRender()
+        private object DoRebind()
         {
-            Assert.IsTrue(_hasSource, "!hasSource");
-
-            var nextState = _source.Value;
-            if (nextState == null)
-            {
-                Debug.LogWarning("Model == null", this);
-                return;
-            }
+            var nextState = _nextStateTyped.Value;
 
             using (Atom.NoWatch)
             {
-                if (!_hasState || !nextState.Equals(_state))
+                var currentState = _currentState;
+                if (currentState != null)
                 {
-                    if (_hasState)
-                    {
-                        try
-                        {
-                            Deactivate();
-                            OnAfterDeactivate();
-                        }
-                        catch (Exception ex)
-                        {
-                            Zone.Current.HandleUncaughtException(ex);
-                        }
-                    }
-
-                    _hasState = true;
-                    _state = nextState;
-
                     try
                     {
-                        Activate();
-                        OnAfterActivate();
+                        Deactivate();
+                        OnAfterDeactivate();
                     }
                     catch (Exception ex)
                     {
                         Zone.Current.HandleUncaughtException(ex);
                     }
                 }
+
+                _currentState = nextState;
+
+                try
+                {
+                    Activate();
+                    OnAfterActivate();
+                }
+                catch (Exception ex)
+                {
+                    Zone.Current.HandleUncaughtException(ex);
+                }
             }
 
-            Assert.IsNotNull(_renderScope, "renderScope == null");
+            ((AtomBase) _doRender).Actualize(true);
+            _doRender.Get();
+
+            using (Atom.NoWatch)
+            {
+                DidStateAttached(nextState);
+            }
+
+            return null;
+        }
+
+        private object DoRender()
+        {
+            var currentState = _currentState;
+
+            if (currentState == null)
+            {
+                return null;
+            }
+
             using (_renderScope.Enter(this))
             {
-                if (isActiveAndEnabled && gameObject.activeSelf)
-                {
-                    _children.Clear();
+                _children.Clear();
 
-                    try
-                    {
+                try
+                {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                        _renderSampler.Begin();
+                    _renderSampler.Begin();
 #endif
-                        Render();
-                        OnAfterRender();
-                    }
-                    catch (Exception ex)
-                    {
-                        Zone.Current.HandleUncaughtException(ex);
-                    }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    _renderSampler.End();
-#endif
-                    if (!_mounted)
-                    {
-                        _mounted = true;
-                        DidStateAttached(_state);
-                    }
+                    Render();
+                    OnAfterRender();
                 }
+                catch (Exception ex)
+                {
+                    Zone.Current.HandleUncaughtException(ex);
+                }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                _renderSampler.End();
+#endif
             }
+
+            return null;
         }
 
         private void RefreshBounds()
@@ -234,11 +215,6 @@ namespace UniMob.UI
         {
         }
 
-        protected virtual void OnRenderFailed(Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -250,12 +226,9 @@ namespace UniMob.UI
             }
 #endif
 
-            if (_hasSource)
-            {
-                Assert.IsNotNull(_renderAtom, "renderAtom == null");
-                RefreshBounds();
-                _renderAtom.Actualize();
-            }
+            RefreshBounds();
+
+            ((AtomBase) _doRebind).Actualize();
         }
 
         protected override void OnRectTransformDimensionsChange()

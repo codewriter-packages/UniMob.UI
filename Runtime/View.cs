@@ -3,7 +3,7 @@ using System;
 namespace UniMob.UI
 {
     public abstract class View<TState> : ViewBase<TState>
-        where TState : IViewState
+        where TState : class, IViewState
     {
         public void Render(TState state)
         {

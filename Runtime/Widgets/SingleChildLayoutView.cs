@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UniMob.UI.Widgets
 {
     internal class SingleChildLayoutView<TState> : View<TState>
-        where TState : ISingleChildLayoutState
+        where TState : class, ISingleChildLayoutState
     {
         private ViewMapperBase _mapper;
 
