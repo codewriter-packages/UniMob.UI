@@ -60,7 +60,7 @@ namespace UniMob.UI
             return null;
         }
 
-        void IView.SetSource(IViewState newSource)
+        void IView.SetSource(IViewState newSource, bool link)
         {
             _renderScope.Link(this);
 
@@ -71,7 +71,14 @@ namespace UniMob.UI
                 RefreshBounds();
             }
 
-            _doRebind.Get();
+            if (link)
+            {
+                _doRebind.Get();
+            }
+            else
+            {
+                ((AtomBase) _doRebind).Actualize();
+            }
         }
 
         protected void Unmount()

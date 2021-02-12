@@ -5,6 +5,8 @@ namespace UniMob.UI.Internal
 {
     public abstract class ViewMapperBase : IViewTreeElement
     {
+        private readonly bool _link;
+
         private List<Item> _items = new List<Item>();
         private List<Item> _next = new List<Item>();
 
@@ -15,6 +17,11 @@ namespace UniMob.UI.Internal
         {
             public IView View;
             public IState State;
+        }
+
+        protected ViewMapperBase(bool link)
+        {
+            _link = link;
         }
 
         protected abstract IView ResolveView(IViewState state);
@@ -73,7 +80,7 @@ namespace UniMob.UI.Internal
             {
                 var view = ResolveView(viewState);
 
-                view.SetSource(viewState);
+                view.SetSource(viewState, _link);
                 item = new Item {State = viewState, View = view};
             }
             else
@@ -87,7 +94,7 @@ namespace UniMob.UI.Internal
                     item.View = ResolveView(viewState);
                 }
 
-                item.View.SetSource(viewState);
+                item.View.SetSource(viewState, _link);
                 item.State = viewState;
             }
 

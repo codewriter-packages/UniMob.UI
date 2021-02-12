@@ -8,7 +8,7 @@ namespace UniMob.UI.Widgets
     {
         private ViewMapperBase _mapper;
 
-        public void Render(IState state) => ((IView) this).SetSource(state.InnerViewState);
+        public void Render(IState state, bool link = false) => ((IView) this).SetSource(state.InnerViewState, link);
 
         protected override void Activate()
         {

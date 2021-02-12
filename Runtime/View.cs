@@ -5,10 +5,10 @@ namespace UniMob.UI
     public abstract class View<TState> : ViewBase<TState>
         where TState : class, IViewState
     {
-        public void Render(TState state)
+        public void Render(TState state, bool link = false)
         {
             var self = (IView) this;
-            self.SetSource(state);
+            self.SetSource(state, link);
         }
 
         protected sealed override void DidStateAttached(TState state)

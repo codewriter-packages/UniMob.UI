@@ -33,7 +33,7 @@ namespace UniMob.UI.Widgets
             base.Activate();
 
             if (_mapper == null)
-                _mapper = new PooledViewMapper(transform);
+                _mapper = new PooledViewMapper(transform, link: false);
 
             _interactableReaction.Activate();
         }
