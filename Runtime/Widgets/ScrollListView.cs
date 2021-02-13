@@ -1,5 +1,6 @@
 using UniMob.UI.Internal;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UniMob.UI.Widgets
 {
@@ -7,12 +8,14 @@ namespace UniMob.UI.Widgets
     {
         private RectTransform _contentRoot;
         private ViewMapperBase _mapper;
+        private RectMask2D _rectMask;
 
         protected override void Awake()
         {
             base.Awake();
 
             _contentRoot = (RectTransform) transform.GetChild(0);
+            _rectMask = GetComponent<RectMask2D>();
         }
 
         protected override void Activate()
@@ -25,6 +28,12 @@ namespace UniMob.UI.Widgets
 
         protected override void Render()
         {
+            var useMask = State.UseMask;
+            if (_rectMask.enabled != useMask)
+            {
+                _rectMask.enabled = useMask;
+            }
+
             var children = State.Children;
             var mainAxis = State.MainAxisAlignment;
             var crossAxis = State.CrossAxisAlignment;
@@ -99,5 +108,6 @@ namespace UniMob.UI.Widgets
         IState[] Children { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
         MainAxisAlignment MainAxisAlignment { get; }
+        bool UseMask { get; }
     }
 }

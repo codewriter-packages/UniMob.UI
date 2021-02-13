@@ -8,6 +8,7 @@ namespace UniMob.UI.Widgets
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
+        public bool UseMask { get; set; } = true;
 
         public override State CreateState() => new ScrollGridFlowState();
     }
@@ -30,6 +31,7 @@ namespace UniMob.UI.Widgets
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
+        public bool UseMask => Widget.UseMask;
 
         public override WidgetSize CalculateSize()
         {

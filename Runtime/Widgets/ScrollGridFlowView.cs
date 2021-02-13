@@ -11,6 +11,7 @@ namespace UniMob.UI.Widgets
     {
         private RectTransform _contentRoot;
 
+        private RectMask2D _rectMask;
         private ScrollRect _scroll;
 
         private ViewMapperBase _mapper;
@@ -29,6 +30,8 @@ namespace UniMob.UI.Widgets
 
             _contentRoot = (RectTransform) transform.GetChild(0);
 
+            _rectMask = GetComponent<RectMask2D>();
+            
             _scroll = GetComponent<ScrollRect>();
             _scroll.onValueChanged.AddListener(OnScrollChanged);
 
@@ -72,9 +75,9 @@ namespace UniMob.UI.Widgets
 
             if (_mapper == null)
                 _mapper = new PooledViewMapper(_contentRoot);
-            
+
             _scroll.horizontalNormalizedPosition = 0f;
-            _scroll.verticalNormalizedPosition   = 1f;
+            _scroll.verticalNormalizedPosition = 1f;
 
             _countersUpdater.Activate();
         }
@@ -88,6 +91,12 @@ namespace UniMob.UI.Widgets
 
         protected override void Render()
         {
+            var useMask = State.UseMask;
+            if (_rectMask.enabled != useMask)
+            {
+                _rectMask.enabled = useMask;
+            }
+            
             var startIndex = _firstVisibleChildIndex.Value;
             var endIndex = _lastVisibleChildIndex.Value;
 
@@ -281,5 +290,6 @@ namespace UniMob.UI.Widgets
         CrossAxisAlignment CrossAxisAlignment { get; }
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
+        bool UseMask { get; }
     }
 }
