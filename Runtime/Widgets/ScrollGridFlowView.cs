@@ -299,23 +299,28 @@ namespace UniMob.UI.Widgets
         {
             var time = 0f;
 
+            var lastAnchoredPosition = _contentRoot.anchoredPosition;
             while (time < duration)
             {
+                yield return null;
+
+                if (Vector2.SqrMagnitude(lastAnchoredPosition - _contentRoot.anchoredPosition) > 0.1f)
+                {
+                    yield break;
+                }
+
                 time += Time.unscaledDeltaTime;
 
-                _contentRoot.anchoredPosition = Vector2.LerpUnclamped(
+                lastAnchoredPosition = Vector2.LerpUnclamped(
                     _contentRoot.anchoredPosition,
                     anchoredPosition,
                     CircEaseInOut(time, duration)
                 );
 
-                OnContentAnchoredPositionChanged();
-
-                yield return null;
+                _contentRoot.anchoredPosition = lastAnchoredPosition;
             }
 
             _contentRoot.anchoredPosition = anchoredPosition;
-            OnContentAnchoredPositionChanged();
         }
 
         public static float CircEaseInOut(float t, float d)

@@ -17,7 +17,7 @@ namespace UniMob.UI.Widgets
     {
         private readonly Atom<WidgetSize> _innerSize;
 
-        private ScrollGridFlowView gridView;
+        private ScrollGridFlowView _gridView;
 
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("UniMob.ScrollGridFlow");
@@ -89,24 +89,24 @@ namespace UniMob.UI.Widgets
         {
             base.DidViewMount(view);
 
-            gridView = view as ScrollGridFlowView;
+            _gridView = view as ScrollGridFlowView;
         }
 
         public override void DidViewUnmount(IView view)
         {
             base.DidViewUnmount(view);
 
-            gridView = null;
+            _gridView = null;
         }
 
         public void ScrollTo(Key key, float duration)
         {
-            if (gridView == null)
+            if (_gridView == null)
             {
                 return;
             }
 
-            gridView.ScrollTo(key, duration);
+            _gridView.ScrollTo(key, duration);
         }
     }
 }
