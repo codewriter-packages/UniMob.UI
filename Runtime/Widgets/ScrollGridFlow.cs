@@ -9,6 +9,7 @@ namespace UniMob.UI.Widgets
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
         public bool UseMask { get; set; } = true;
+        public Key Sticky { get; set; } = null;
 
         public override State CreateState() => new ScrollGridFlowState();
     }
@@ -32,6 +33,7 @@ namespace UniMob.UI.Widgets
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;
+        public Key Sticky => Widget.Sticky;
 
         public override WidgetSize CalculateSize()
         {

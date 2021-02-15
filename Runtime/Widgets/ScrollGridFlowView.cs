@@ -17,6 +17,7 @@ namespace UniMob.UI.Widgets
         private ViewMapperBase _mapper;
 
         private readonly MutableAtom<int> _scrollValue = Atom.Value(0);
+        private readonly MutableAtom<bool> _sticked = Atom.Value(false);
         private readonly List<ChildData> _nextChildren = new List<ChildData>();
 
         private Atom<Vector2Int> _visibilityIndices;
@@ -41,6 +42,7 @@ namespace UniMob.UI.Widgets
             var bounds = Vector2Int.zero;
             var hidden = 0;
             var visible = 0;
+            var sticky = default(Key);
 
             void ContentRender(Vector2 contentPivot, Vector2 gridSize, Alignment childAlignment)
             {
@@ -57,6 +59,11 @@ namespace UniMob.UI.Widgets
                 {
                     visible++;
                 }
+
+                if (sticky != null && data.child.Key == sticky)
+                {
+                    _sticked.Value = contentPosition > data.cornerPosition.y;
+                }
             }
 
             _visibilityIndices = Atom.Computed(() =>
@@ -67,6 +74,7 @@ namespace UniMob.UI.Widgets
                 bounds = Bounds;
                 hidden = 0;
                 visible = 0;
+                sticky = State.Sticky;
 
                 DoLayout(State, ContentRender, ChildRender);
 
@@ -100,6 +108,7 @@ namespace UniMob.UI.Widgets
 
         protected override void Render()
         {
+            var sticky = State.Sticky;
             var useMask = State.UseMask;
             if (_rectMask.enabled != useMask)
             {
@@ -129,7 +138,9 @@ namespace UniMob.UI.Widgets
 
                 foreach (var data in _nextChildren)
                 {
-                    if (data.childIndex < startIndex || data.childIndex > endIndex)
+                    var isSticky = data.child.Key != null && data.child.Key == sticky;
+
+                    if ((data.childIndex < startIndex || data.childIndex > endIndex) && !isSticky)
                     {
                         continue;
                     }
@@ -141,6 +152,22 @@ namespace UniMob.UI.Widgets
                     layout.Alignment = data.childAlignment;
                     layout.Corner = data.childAlignment.WithLeft();
                     layout.CornerPosition = data.cornerPosition;
+
+                    Transform childParent = _contentRoot;
+
+                    if (isSticky && _sticked.Value)
+                    {
+                        childParent = transform;
+
+                        layout.Corner = Alignment.TopCenter;
+                        layout.CornerPosition = Vector2.zero;
+                    }
+
+                    if (childView.rectTransform.parent != childParent)
+                    {
+                        childView.rectTransform.SetParent(childParent, false);
+                    }
+
                     ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
                 }
             }
@@ -340,5 +367,6 @@ namespace UniMob.UI.Widgets
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
         bool UseMask { get; }
+        Key Sticky { get; }
     }
 }
