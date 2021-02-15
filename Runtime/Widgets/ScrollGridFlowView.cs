@@ -30,6 +30,7 @@ namespace UniMob.UI.Widgets
             _contentRoot = (RectTransform) transform.GetChild(0);
             _rectMask = GetComponent<RectMask2D>();
             _scroll = GetComponent<ScrollRect>();
+            _scroll.onValueChanged.AddListener(_ => OnContentAnchoredPositionChanged());
 
             SetupVirtualization();
         }
@@ -73,11 +74,9 @@ namespace UniMob.UI.Widgets
             });
         }
 
-        internal void OnContentAnchoredPositionChanged()
+        private void OnContentAnchoredPositionChanged()
         {
             _scrollValue.Value = (int) _contentRoot.anchoredPosition.y;
-
-            ActualizeRender();
         }
 
         protected override void Activate()

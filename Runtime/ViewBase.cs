@@ -18,9 +18,8 @@ namespace UniMob.UI
 
         private TState _currentState;
 
-        private readonly MutableAtom<object> _nextStateRaw;
-        private readonly Atom<TState> _nextStateTyped;
-        private readonly Atom<object> _doRebind;
+        private readonly MutableAtom<TState> _nextState;
+        private readonly Atom<TState> _doRebind;
         private readonly Atom<object> _doRender;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -40,33 +39,35 @@ namespace UniMob.UI
 
         protected ViewBase()
         {
-            _nextStateRaw = Atom.Value<object>(null, debugName: "ViewBase.nextStateRaw");
-            _nextStateTyped = Atom.Computed(GetNextStateTyped, debugName: "ViewBase.nextStateTyped");
+            _nextState = Atom.Value<TState>(null, debugName: "ViewBase.nextState");
             _doRebind = Atom.Computed(DoRebind, debugName: "ViwBase.DoRebind()", keepAlive: true);
             _doRender = Atom.Computed(DoRender, debugName: "ViewBase.DoRender()", keepAlive: true);
-        }
-
-        private TState GetNextStateTyped()
-        {
-            var state = _nextStateRaw.Value;
-            if (state is TState typedState)
-            {
-                return typedState;
-            }
-
-            var expected = typeof(TState).Name;
-            var actual = state.GetType().Name;
-            Debug.LogError($"Wrong model type at '{name}': expected={expected}, actual={actual}");
-            return null;
         }
 
         void IView.SetSource(IViewState newSource, bool link)
         {
             _renderScope.Link(this);
 
+            var doRebindAtom = ((AtomBase) _doRebind);
+
+            if (!doRebindAtom.IsActive)
+            {
+                doRebindAtom.Actualize();
+            }
+
             if (!ReferenceEquals(newSource, _currentState))
             {
-                _nextStateRaw.Value = newSource;
+                if (newSource is TState typedState)
+                {
+                    _nextState.Value = typedState;
+                }
+                else
+                {
+                    var expected = typeof(TState).Name;
+                    var actual = newSource.GetType().Name;
+                    Debug.LogError($"Wrong model type at '{name}': expected={expected}, actual={actual}");
+                    return;
+                }
 
                 RefreshBounds();
             }
@@ -77,7 +78,7 @@ namespace UniMob.UI
             }
             else
             {
-                ((AtomBase) _doRebind).Actualize();
+                doRebindAtom.Actualize();
             }
         }
 
@@ -112,7 +113,7 @@ namespace UniMob.UI
                 child.Unmount();
             }
 
-            _nextStateRaw.Value = null;
+            _nextState.Value = null;
             _currentState = null;
         }
 
@@ -131,17 +132,16 @@ namespace UniMob.UI
             Unmount();
         }
 
-        private object DoRebind()
+        private TState DoRebind()
         {
-            var nextState = _nextStateTyped.Value;
+            var nextState = _nextState.Value;
 
             using (Atom.NoWatch)
             {
                 var currentState = _currentState;
-
                 if (ReferenceEquals(currentState, nextState))
                 {
-                    return null;
+                    return nextState;
                 }
 
                 if (currentState != null)
@@ -178,7 +178,7 @@ namespace UniMob.UI
                 DidStateAttached(nextState);
             }
 
-            return null;
+            return nextState;
         }
 
         private object DoRender()
@@ -194,11 +194,17 @@ namespace UniMob.UI
             {
                 _children.Clear();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (_renderSampler == null)
+                {
+                    _renderSampler = CustomSampler.Create($"Render {name}");
+                }
+
+                _renderSampler.Begin();
+#endif
+
                 try
                 {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    _renderSampler.Begin();
-#endif
                     Render();
                     OnAfterRender();
                 }
@@ -220,32 +226,12 @@ namespace UniMob.UI
             _bounds.Value = new Vector2Int((int) size.x, (int) size.y);
         }
 
-        protected void ActualizeRender(bool force = false)
-        {
-            ((AtomBase) _doRender).Actualize(force);
-        }
-        
         protected virtual void DidStateAttached(TState state)
         {
         }
 
         protected virtual void DidStateDetached(TState state)
         {
-        }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (_renderSampler == null || !_renderSampler.name.EndsWith(name))
-            {
-                _renderSampler = CustomSampler.Create($"Render {name}");
-            }
-#endif
-
-            RefreshBounds();
-            ((AtomBase) _doRebind).Actualize();
         }
 
         protected override void OnRectTransformDimensionsChange()
