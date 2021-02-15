@@ -138,6 +138,12 @@ namespace UniMob.UI
             using (Atom.NoWatch)
             {
                 var currentState = _currentState;
+
+                if (ReferenceEquals(currentState, nextState))
+                {
+                    return null;
+                }
+
                 if (currentState != null)
                 {
                     try
@@ -214,6 +220,11 @@ namespace UniMob.UI
             _bounds.Value = new Vector2Int((int) size.x, (int) size.y);
         }
 
+        protected void ActualizeRender(bool force = false)
+        {
+            ((AtomBase) _doRender).Actualize(force);
+        }
+        
         protected virtual void DidStateAttached(TState state)
         {
         }
@@ -234,7 +245,6 @@ namespace UniMob.UI
 #endif
 
             RefreshBounds();
-
             ((AtomBase) _doRebind).Actualize();
         }
 

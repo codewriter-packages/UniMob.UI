@@ -16,11 +16,10 @@ namespace UniMob.UI.Widgets
 
         private ViewMapperBase _mapper;
 
-        private readonly MutableAtom<int> _firstVisibleChildIndex = Atom.Value(0);
-        private readonly MutableAtom<int> _lastVisibleChildIndex = Atom.Value(0);
         private readonly MutableAtom<int> _scrollValue = Atom.Value(0);
+        private readonly List<ChildData> _nextChildren = new List<ChildData>();
 
-        private Reaction _countersUpdater;
+        private Atom<Vector2Int> _visibilityIndices;
 
         private readonly Dictionary<Key, Vector2> _childPositions = new Dictionary<Key, Vector2>();
 
@@ -29,44 +28,56 @@ namespace UniMob.UI.Widgets
             base.Awake();
 
             _contentRoot = (RectTransform) transform.GetChild(0);
-
             _rectMask = GetComponent<RectMask2D>();
-            
             _scroll = GetComponent<ScrollRect>();
-            _scroll.onValueChanged.AddListener(OnScrollChanged);
 
-            _countersUpdater = new ReactionAtom(null, () =>
+            SetupVirtualization();
+        }
+
+        private void SetupVirtualization()
+        {
+            var contentPosition = 0f;
+            var bounds = Vector2Int.zero;
+            var hidden = 0;
+            var visible = 0;
+
+            void ContentRender(Vector2 contentPivot, Vector2 gridSize, Alignment childAlignment)
+            {
+            }
+
+            void ChildRender(ChildData data)
+            {
+                if (contentPosition > data.cornerPosition.y + data.childSize.y)
+                {
+                    hidden++;
+                }
+
+                if (data.cornerPosition.y < contentPosition + bounds.y)
+                {
+                    visible++;
+                }
+            }
+
+            _visibilityIndices = Atom.Computed(() =>
             {
                 _scrollValue.Get();
 
-                int hidden = 0, visible = 0;
-                var bounds = Bounds;
-                var pos = _contentRoot.anchoredPosition.y;
+                contentPosition = _contentRoot.anchoredPosition.y;
+                bounds = Bounds;
+                hidden = 0;
+                visible = 0;
 
-                DoLayout(State,
-                    renderContentPanel: (contentPivot, gridSize, childAlignment) => { },
-                    renderChild: (childIndex, child, childSize, childAlignment, cornerPosition) =>
-                    {
-                        if (pos > cornerPosition.y + childSize.y)
-                        {
-                            hidden++;
-                        }
+                DoLayout(State, ContentRender, ChildRender);
 
-                        if (cornerPosition.y < pos + bounds.y)
-                        {
-                            visible++;
-                        }
-                    }
-                );
-
-                _firstVisibleChildIndex.Value = hidden;
-                _lastVisibleChildIndex.Value = visible - 1;
+                return new Vector2Int(hidden, visible - 1);
             });
         }
 
-        private void OnScrollChanged(Vector2 value)
+        internal void OnContentAnchoredPositionChanged()
         {
             _scrollValue.Value = (int) _contentRoot.anchoredPosition.y;
+
+            ActualizeRender();
         }
 
         protected override void Activate()
@@ -78,15 +89,14 @@ namespace UniMob.UI.Widgets
 
             _scroll.horizontalNormalizedPosition = 0f;
             _scroll.verticalNormalizedPosition = 1f;
-
-            _countersUpdater.Activate();
         }
 
         protected override void Deactivate()
         {
-            _countersUpdater.Deactivate();
-
             base.Deactivate();
+
+            _childPositions.Clear();
+            _nextChildren.Clear();
         }
 
         protected override void Render()
@@ -96,50 +106,67 @@ namespace UniMob.UI.Widgets
             {
                 _rectMask.enabled = useMask;
             }
-            
-            var startIndex = _firstVisibleChildIndex.Value;
-            var endIndex = _lastVisibleChildIndex.Value;
+
+            var visibilityIndices = _visibilityIndices.Value;
+            var startIndex = visibilityIndices.x;
+            var endIndex = visibilityIndices.y;
 
             _childPositions.Clear();
+            _nextChildren.Clear();
 
             using (var render = _mapper.CreateRender())
             {
-                DoLayout(State,
-                    renderContentPanel: (contentPivot, gridSize, childAlignment) =>
+                DoLayout(State, RenderContent, RenderChild);
+
+                foreach (var data in _nextChildren)
+                {
+                    if (data.childIndex >= startIndex && data.childIndex <= endIndex)
                     {
-                        _contentRoot.pivot = contentPivot;
-
-                        LayoutData contentLayout;
-                        contentLayout.Size = new Vector2(float.PositiveInfinity, gridSize.y);
-                        contentLayout.Alignment = childAlignment;
-                        contentLayout.Corner = childAlignment;
-                        contentLayout.CornerPosition = null;
-                        ViewLayoutUtility.SetLayout(_contentRoot, contentLayout);
-                    },
-                    renderChild: (childIndex, child, childSize, childAlignment, cornerPosition) =>
-                    {
-                        if (child.Key != null)
-                        {
-                            _childPositions.Add(child.Key, cornerPosition);
-                        }
-
-                        if (childIndex < startIndex || childIndex > endIndex)
-                        {
-                            return;
-                        }
-
-                        // ReSharper disable once AccessToDisposedClosure
-                        var childView = render.RenderItem(child);
-
-                        LayoutData layout;
-                        layout.Size = childSize;
-                        layout.Alignment = childAlignment;
-                        layout.Corner = childAlignment.WithLeft();
-                        layout.CornerPosition = cornerPosition;
-                        ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
+                        continue;
                     }
-                );
+
+                    render.Reuse(data.child);
+                }
+
+                foreach (var data in _nextChildren)
+                {
+                    if (data.childIndex < startIndex || data.childIndex > endIndex)
+                    {
+                        continue;
+                    }
+
+                    var childView = render.RenderItem(data.child);
+
+                    LayoutData layout;
+                    layout.Size = data.childSize;
+                    layout.Alignment = data.childAlignment;
+                    layout.Corner = data.childAlignment.WithLeft();
+                    layout.CornerPosition = data.cornerPosition;
+                    ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
+                }
             }
+        }
+
+        private void RenderContent(Vector2 contentPivot, Vector2 gridSize, Alignment childAlignment)
+        {
+            _contentRoot.pivot = contentPivot;
+
+            LayoutData contentLayout;
+            contentLayout.Size = new Vector2(float.PositiveInfinity, gridSize.y);
+            contentLayout.Alignment = childAlignment;
+            contentLayout.Corner = childAlignment;
+            contentLayout.CornerPosition = null;
+            ViewLayoutUtility.SetLayout(_contentRoot, contentLayout);
+        }
+
+        private void RenderChild(ChildData data)
+        {
+            if (data.child.Key != null)
+            {
+                _childPositions.Add(data.child.Key, data.cornerPosition);
+            }
+
+            _nextChildren.Add(data);
         }
 
         private static void DoLayout(IScrollGridFlowState state, ContentRenderDelegate renderContentPanel,
@@ -227,7 +254,13 @@ namespace UniMob.UI.Widgets
                     cornerPosition.x = -lineWidth * offsetMultiplierX;
                 }
 
-                renderChild(childIndex, child, childSize, childAlignment, cornerPosition);
+                ChildData data;
+                data.childIndex = childIndex;
+                data.child = child;
+                data.childSize = childSize;
+                data.childAlignment = childAlignment;
+                data.cornerPosition = cornerPosition;
+                renderChild(data);
 
                 if (childIndex == lineLastChildIndex)
                 {
@@ -243,8 +276,17 @@ namespace UniMob.UI.Widgets
 
         private delegate void ContentRenderDelegate(Vector2 contentPivot, Vector2 gridSize, Alignment childAlignment);
 
-        private delegate void ChildRenderDelegate(int childIndex, IState child, Vector2 childSize,
-            Alignment childAlignment, Vector2 connerPosition);
+        private delegate void ChildRenderDelegate(ChildData data);
+
+        [Serializable]
+        private struct ChildData
+        {
+            public int childIndex;
+            public IState child;
+            public Vector2 childSize;
+            public Alignment childAlignment;
+            public Vector2 cornerPosition;
+        }
 
         public void ScrollTo(Key key, float duration)
         {
@@ -268,10 +310,13 @@ namespace UniMob.UI.Widgets
                     CircEaseInOut(time, duration)
                 );
 
+                OnContentAnchoredPositionChanged();
+
                 yield return null;
             }
 
             _contentRoot.anchoredPosition = anchoredPosition;
+            OnContentAnchoredPositionChanged();
         }
 
         public static float CircEaseInOut(float t, float d)

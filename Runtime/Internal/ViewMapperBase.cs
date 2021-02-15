@@ -1,19 +1,22 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace UniMob.UI.Internal
 {
     public abstract class ViewMapperBase : IViewTreeElement
     {
+        private readonly ViewMapperRenderScope _mapperScope;
+        private readonly ViewRenderScope _renderScope;
         private readonly bool _link;
 
+        private readonly List<Item> _reuse = new List<Item>();
         private List<Item> _items = new List<Item>();
         private List<Item> _next = new List<Item>();
 
-        private readonly ViewRenderScope _renderScope = new ViewRenderScope();
         private IDisposable _activeRender;
 
-        class Item
+        private class Item
         {
             public IView View;
             public IState State;
@@ -22,9 +25,11 @@ namespace UniMob.UI.Internal
         protected ViewMapperBase(bool link)
         {
             _link = link;
+            _mapperScope = new ViewMapperRenderScope(this);
+            _renderScope = new ViewRenderScope();
         }
 
-        protected abstract IView ResolveView(IViewState state);
+        protected abstract IView ResolveView(WidgetViewReference state);
         protected abstract void RecycleView(IView view);
 
         void IViewTreeElement.AddChild(IViewTreeElement view)
@@ -33,158 +38,156 @@ namespace UniMob.UI.Internal
 
         void IViewTreeElement.Unmount()
         {
-            RemoveAll();
-        }
-
-        private void RenderItems(IState[] states, int startIndex, int count, Action<IView, IState> postRender = null)
-        {
-            if (states == null)
-                throw new ArgumentNullException(nameof(states));
-
-            if (_activeRender == null)
-                throw new InvalidOperationException("Must call BeginRender() before RenderArray()");
-
-            for (int i = 0; i < count; i++)
-            {
-                var state = states[startIndex + i];
-                var item = RenderItemInternal(state);
-                postRender?.Invoke(item.View, item.State);
-            }
-        }
-
-        private IView RenderItem(IState state)
-        {
-            if (_activeRender == null)
-                throw new InvalidOperationException("Must call BeginRender() before RenderItem()");
-
-            return RenderItemInternal(state).View;
-        }
-
-        private Item RenderItemInternal(IState state)
-        {
-            var viewState = state.InnerViewState;
-
-            var nextViewReference = viewState.View;
-
-            Item item = null;
-            for (var index = 0; index < _items.Count; index++)
-            {
-                if (ReferenceEquals(_items[index].State, viewState))
-                {
-                    item = _items[index];
-                    break;
-                }
-            }
-
-            if (item == null)
-            {
-                var view = ResolveView(viewState);
-
-                view.SetSource(viewState, _link);
-                item = new Item {State = viewState, View = view};
-            }
-            else
-            {
-                _items.Remove(item);
-
-                if (!item.View.ViewReference.Equals(nextViewReference))
-                {
-                    item.View.ResetSource();
-                    RecycleView(item.View);
-                    item.View = ResolveView(viewState);
-                }
-
-                item.View.SetSource(viewState, _link);
-                item.State = viewState;
-            }
-
-            item.View.ViewReference.LinkAtomToScope();
-            item.View.rectTransform.SetAsLastSibling();
-
-            _next.Add(item);
-
-            return item;
-        }
-
-        public class ViewMapperRenderScope : IDisposable
-        {
-            internal ViewMapperBase Mapper { get; set; }
-
-            public bool AutoRecycle { get; set; } = true;
-
-            public void Initialize()
-            {
-                Mapper.BeginRender();
-            }
-
-            void IDisposable.Dispose()
-            {
-                Mapper.EndRender();
-
-                if (AutoRecycle)
-                {
-                    Pools.ViewMapperRenderScope.Recycle(this);
-                }
-            }
-
-            public void RenderItems(IState[] states, Action<IView, IState> postRender = null)
-                => Mapper.RenderItems(states, 0, states.Length, postRender);
-
-            public void RenderItems(IState[] states, int startIndex, int count, Action<IView, IState> postRender = null)
-                => Mapper.RenderItems(states, startIndex, count, postRender);
-
-            public IView RenderItem(IState state)
-                => Mapper.RenderItem(state);
+            RecycleItemsAndClear(_items);
+            RecycleItemsAndClear(_reuse);
+            Assert.AreEqual(0, _next.Count);
         }
 
         public ViewMapperRenderScope CreateRender()
         {
-            var scope = Pools.ViewMapperRenderScope.Get();
-            scope.Mapper = this;
-            scope.Initialize();
-            return scope;
+            BeginRender();
+            return _mapperScope;
         }
 
         private void BeginRender()
         {
             if (_activeRender != null)
+            {
                 throw new InvalidOperationException("Must not call Render() inside other Render()");
+            }
 
             _renderScope.Link(this);
             _activeRender = _renderScope.Enter(this);
 
-            PrepareRender();
+            Assert.AreEqual(0, _next.Count);
         }
 
         private void EndRender()
         {
             if (_activeRender == null)
+            {
                 throw new InvalidOperationException("Must not call EndRender() without BeginRender()");
+            }
 
-            RemoveAll();
+            RecycleItemsAndClear(_items);
 
             var old = _items;
             _items = _next;
             _next = old;
 
+            foreach (var reusableItem in _reuse)
+            {
+                reusableItem.View.gameObject.SetActive(false);
+            }
+
             _activeRender?.Dispose();
             _activeRender = null;
         }
 
-        private void RemoveAll()
+        private bool Reuse(IState state)
         {
-            RemoveAllAndClear(_items);
+            if (!TryFindActiveItemIndex(state, out var itemIndex))
+            {
+                return false;
+            }
+
+            var item = _items[itemIndex];
+            item.View.ResetSource();
+
+            _reuse.Add(item);
+
+            _items[itemIndex] = _items[_items.Count - 1];
+            _items.RemoveAt(_items.Count - 1);
+
+            return true;
         }
 
-        private void PrepareRender()
+        private IView RenderItem(IState state)
         {
-            RemoveAllAndClear(_next);
+            var viewState = state.InnerViewState;
+            var nextViewReference = viewState.View;
+
+            Item item;
+            if (TryFindActiveItemIndex(state, out var itemIndex))
+            {
+                item = _items[itemIndex];
+
+                _items[itemIndex] = _items[_items.Count - 1];
+                _items.RemoveAt(_items.Count - 1);
+
+                if (!item.View.ViewReference.Equals(nextViewReference))
+                {
+                    item.View.ResetSource();
+                    RecycleView(item.View);
+                    item.View = null;
+                }
+            }
+            else
+            {
+                item = new Item {State = state};
+            }
+
+            if (item.View == null)
+            {
+                item.View = ResolveOrReuseView(nextViewReference);
+            }
+
+            item.View.SetSource(viewState, _link);
+            item.View.ViewReference.LinkAtomToScope();
+
+            _next.Add(item);
+
+            return item.View;
         }
 
-        private void RemoveAllAndClear(List<Item> list)
+        private IView ResolveOrReuseView(WidgetViewReference viewReference)
+        {
+            for (var i = 0; i < _reuse.Count; i++)
+            {
+                var item = _reuse[i];
+                if (!item.View.ViewReference.Equals(viewReference))
+                {
+                    continue;
+                }
+
+                _reuse.RemoveAt(i);
+
+                var view = item.View;
+
+                if (!view.gameObject.activeSelf)
+                {
+                    view.gameObject.SetActive(true);
+                }
+
+                return view;
+            }
+
+            return ResolveView(viewReference);
+        }
+
+        private bool TryFindActiveItemIndex(IState state, out int itemIndex)
+        {
+            for (var i = 0; i < _items.Count; i++)
+            {
+                if (!ReferenceEquals(_items[i].State, state))
+                {
+                    continue;
+                }
+
+                itemIndex = i;
+                return true;
+            }
+
+            itemIndex = default;
+            return false;
+        }
+
+        private void RecycleItemsAndClear(List<Item> list)
         {
             if (list.Count == 0)
+            {
                 return;
+            }
 
             for (var index = 0; index < list.Count; index++)
             {
@@ -194,6 +197,31 @@ namespace UniMob.UI.Internal
             }
 
             list.Clear();
+        }
+
+        public class ViewMapperRenderScope : IDisposable
+        {
+            private readonly ViewMapperBase _mapper;
+
+            public ViewMapperRenderScope(ViewMapperBase mapper)
+            {
+                _mapper = mapper;
+            }
+
+            void IDisposable.Dispose()
+            {
+                _mapper.EndRender();
+            }
+
+            public IView RenderItem(IState state)
+            {
+                return _mapper.RenderItem(state);
+            }
+
+            public bool Reuse(IState state)
+            {
+                return _mapper.Reuse(state);
+            }
         }
     }
 }

@@ -21,9 +21,9 @@ namespace UniMob.UI.Internal
             _worldPositionStays = worldPositionStays;
         }
 
-        protected override IView ResolveView(IViewState state)
+        protected override IView ResolveView(WidgetViewReference viewReference)
         {
-            var (prefab, viewRef) = ViewContext.Loader.LoadViewPrefab(state.View);
+            var (prefab, viewRef) = ViewContext.Loader.LoadViewPrefab(viewReference);
             var view = GameObjectPool
                 .Instantiate(prefab.gameObject, _parentSelector.Invoke(), _worldPositionStays)
                 .GetComponent<IView>();

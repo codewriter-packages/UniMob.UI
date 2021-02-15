@@ -41,11 +41,5 @@ namespace UniMob.UI
             () => new Dictionary<Key, State>(),
             o => { },
             o => o.Clear());
-        
-        public static readonly ClassPool<ViewMapperBase.ViewMapperRenderScope> ViewMapperRenderScope 
-            = new ClassPool<ViewMapperBase.ViewMapperRenderScope>(
-            () => new ViewMapperBase.ViewMapperRenderScope(), 
-            o => { },
-            o => { });
     }
 }
