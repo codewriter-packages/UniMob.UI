@@ -182,6 +182,45 @@ namespace UniMob.UI
         }
     }
 
+    public sealed class CurvedAnimation : IAnimation<float>
+    {
+        private readonly IAnimation<float> _controller;
+        private readonly Func<float, float> _curve;
+        private readonly Func<float, float> _reverseCurve;
+
+        public CurvedAnimation(IAnimation<float> controller,
+            Func<float, float> curve, Func<float, float> reverseCurve = null)
+        {
+            _controller = controller;
+            _curve = curve ?? (t => t);
+            _reverseCurve = reverseCurve ?? _curve;
+        }
+
+        public bool IsAnimating => _controller.IsAnimating;
+        public bool IsCompleted => _controller.IsCompleted;
+        public bool IsDismissed => _controller.IsDismissed;
+        public AnimationStatus Status => _controller.Status;
+
+        public float Value
+        {
+            get
+            {
+                switch (_controller.Status)
+                {
+                    case AnimationStatus.Forward:
+                    case AnimationStatus.Completed:
+                        return _curve(_controller.Value);
+
+                    case AnimationStatus.Reverse:
+                    case AnimationStatus.Dismissed:
+                        return _reverseCurve(_controller.Value);
+                    default:
+                        return _controller.Value;
+                }
+            }
+        }
+    }
+
     public sealed class ConstAnimation<T> : IAnimation<T>
     {
         public bool IsAnimating => false;
