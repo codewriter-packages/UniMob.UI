@@ -10,6 +10,7 @@ namespace UniMob.UI.Widgets
         public float Duration { get; set; } = 0f;
         public float? ReverseDuration { get; set; } = null;
         public Alignment Alignment { get; set; } = Alignment.Center;
+        public bool KeepMounted { get; set; } = false;
 
         public override State CreateState() => new AnimatedCrossFadeState();
 
@@ -38,6 +39,11 @@ namespace UniMob.UI.Widgets
 
             _firstChild = CreateChild(context =>
             {
+                if (!Widget.KeepMounted && _controller.IsCompleted)
+                {
+                    return new Empty();
+                }
+
                 return new CompositeTransition
                 {
                     Key = _firstKey,
@@ -47,6 +53,11 @@ namespace UniMob.UI.Widgets
             });
             _secondChild = CreateChild(context =>
             {
+                if (!Widget.KeepMounted && _controller.IsDismissed)
+                {
+                    return new Empty();
+                }
+
                 return new CompositeTransition
                 {
                     Key = _secondKey,
