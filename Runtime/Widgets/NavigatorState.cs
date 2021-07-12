@@ -14,9 +14,7 @@ namespace UniMob.UI.Widgets
 
         private readonly Queue<NavigatorCommand[]> _pendingCommands = new Queue<NavigatorCommand[]>();
         private readonly Stack<Route> _pendingPause = new Stack<Route>();
-
-        private readonly MutableAtom<bool> _interactable = Atom.Value(true);
-
+        
         private Task _task = Task.CompletedTask;
 
         public override WidgetViewReference View { get; }
@@ -32,7 +30,7 @@ namespace UniMob.UI.Widgets
 
         public IState[] Screens => _states.Value;
 
-        public bool Interactable => _interactable.Value;
+        [Atom] public bool Interactable { get; private set; } = true;
 
         public override void InitState()
         {
@@ -187,7 +185,7 @@ namespace UniMob.UI.Widgets
 
         private async Task ProcessCommandsLoop()
         {
-            _interactable.Value = false;
+            Interactable = false;
             try
             {
                 while (_pendingCommands.Count > 0)
@@ -201,7 +199,7 @@ namespace UniMob.UI.Widgets
             }
             finally
             {
-                _interactable.Value = true;
+                Interactable = true;
             }
         }
 

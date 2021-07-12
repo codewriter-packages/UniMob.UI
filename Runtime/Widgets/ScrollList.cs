@@ -11,22 +11,15 @@ namespace UniMob.UI.Widgets
 
     public class ScrollListState : MultiChildLayoutState<ScrollList>, IScrollListState
     {
-        private readonly Atom<WidgetSize> _innerSize;
-
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("UniMob.ScrollList");
-
-        public ScrollListState()
-        {
-            _innerSize = Atom.Computed(CalculateInnerSize);
-        }
 
         public override WidgetSize CalculateSize()
         {
             return WidgetSize.Stretched;
         }
 
-        public WidgetSize InnerSize => _innerSize.Value;
+        [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public bool UseMask => Widget.UseMask;

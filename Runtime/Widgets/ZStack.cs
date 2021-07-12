@@ -12,21 +12,15 @@ namespace UniMob.UI.Widgets
 
     internal class ZStackState : MultiChildLayoutState<ZStack>, IZStackState
     {
-        private readonly Atom<WidgetSize> _innerSize;
-
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("$$_ZStack");
-
-        public ZStackState()
-        {
-            _innerSize = Atom.Computed(CalculateInnerSize);
-        }
-
+        
         public Alignment Alignment => Widget.Alignment;
+        [Atom] public WidgetSize InnerSize => CalculateInnerSize();
 
         public override WidgetSize CalculateSize()
         {
-            var (minWidth, minHeight, maxWidth, maxHeight) = _innerSize.Value;
+            var (minWidth, minHeight, maxWidth, maxHeight) = InnerSize;
 
             if (Widget.CrossAxisSize == AxisSize.Max)
             {

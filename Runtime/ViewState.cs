@@ -4,18 +4,11 @@ namespace UniMob.UI
 {
     public abstract class ViewState : State, IViewState
     {
-        private readonly Atom<WidgetSize> _size;
-
-        public override WidgetSize Size => _size.Value;
+        [Atom] public override WidgetSize Size => CalculateSize();
 
         public abstract WidgetViewReference View { get; }
 
         public sealed override IViewState InnerViewState => this;
-
-        protected ViewState()
-        {
-            _size = Atom.Computed(CalculateSize);
-        }
 
         public virtual void DidViewMount(IView view)
         {

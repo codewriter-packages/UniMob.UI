@@ -18,17 +18,10 @@ namespace UniMob.UI.Widgets
 
     internal class GridFlowState : MultiChildLayoutState<GridFlow>, IGridFlowState
     {
-        private readonly Atom<WidgetSize> _innerSize;
-
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("$$_Grid");
 
-        public GridFlowState()
-        {
-            _innerSize = Atom.Computed(CalculateInnerSize);
-        }
-
-        public WidgetSize InnerSize => _innerSize.Value;
+        [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
@@ -36,7 +29,7 @@ namespace UniMob.UI.Widgets
 
         public override WidgetSize CalculateSize()
         {
-            var (minWidth, minHeight, maxWidth, maxHeight) = _innerSize.Value;
+            var (minWidth, minHeight, maxWidth, maxHeight) = InnerSize;
 
             if (Widget.CrossAxisSize == AxisSize.Max)
             {

@@ -79,7 +79,8 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _statesAtom = Atom.Computed(ComputeStates, callbacks: this, requiresReaction: true);
+            _statesAtom = Atom.Computed(ComputeStates, callbacks: this, requiresReaction: true,
+                debugName: $"StateCollectionHolder::State");
         }
 
         private State[] ComputeStates()
@@ -133,7 +134,8 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _stateAtom = Atom.Computed(ComputeState, callbacks: this, requiresReaction: true);
+            _stateAtom = Atom.Computed(ComputeState, callbacks: this, requiresReaction: true,
+                debugName: $"StateHolder<{typeof(TWidget)}, {typeof(TState)}>::State");
         }
 
         IState StateHolder.Value => _stateAtom.Value;

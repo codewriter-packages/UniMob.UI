@@ -7,27 +7,10 @@ namespace UniMob.UI
     {
         private float _prevDeltaTime;
 
-        private readonly MutableAtom<AnimationDirection> _direction = Atom.Value(AnimationDirection.Reverse);
-
-        private readonly MutableAtom<float> _duration = Atom.Value(0f);
-        private readonly MutableAtom<float> _reverseDuration = Atom.Value(0f);
-        private readonly MutableAtom<float> _value = Atom.Value(0f);
-
-        public float Duration
-        {
-            get => _duration.Value;
-            set => _duration.Value = value;
-        }
-
-        public float ReverseDuration
-        {
-            get => _reverseDuration.Value;
-            set => _reverseDuration.Value = value;
-        }
-
-        public float Value => _value.Value;
-
-        public AnimationDirection Direction => _direction.Value;
+        [Atom] public float Duration { get; set; }
+        [Atom] public float ReverseDuration { get; set; }
+        [Atom] public float Value { get; private set; }
+        [Atom] public AnimationDirection Direction { get; private set; }
 
         public AnimationStatus Status => Direction == AnimationDirection.Reverse
             ? (Mathf.Approximately(Value, 0f) ? AnimationStatus.Dismissed : AnimationStatus.Reverse)
@@ -57,17 +40,17 @@ namespace UniMob.UI
 
             Duration = duration;
             ReverseDuration = reverseDuration ?? duration;
-            _direction.Value = completed ? AnimationDirection.Forward : AnimationDirection.Reverse;
-            _value.Value = completed ? 1f : 0f;
+            Direction = completed ? AnimationDirection.Forward : AnimationDirection.Reverse;
+            Value = completed ? 1f : 0f;
         }
 
         public void Forward()
         {
-            _direction.Value = AnimationDirection.Forward;
+            Direction = AnimationDirection.Forward;
 
             if (Mathf.Approximately(Duration, 0))
             {
-                _value.Value = 1f;
+                Value = 1f;
                 return;
             }
 
@@ -76,11 +59,11 @@ namespace UniMob.UI
 
         public void Reverse()
         {
-            _direction.Value = AnimationDirection.Reverse;
+            Direction = AnimationDirection.Reverse;
 
             if (Mathf.Approximately(Duration, 0))
             {
-                _value.Value = 0f;
+                Value = 0f;
                 return;
             }
 
@@ -91,16 +74,16 @@ namespace UniMob.UI
         {
             RemoveAnimationTicker();
 
-            _direction.Value = AnimationDirection.Forward;
-            _value.Value = 1f;
+            Direction = AnimationDirection.Forward;
+            Value = 1f;
         }
 
         public void Dismiss()
         {
             RemoveAnimationTicker();
 
-            _direction.Value = AnimationDirection.Reverse;
-            _value.Value = 0f;
+            Direction = AnimationDirection.Reverse;
+            Value = 0f;
         }
 
         private void AddAnimationTicker()
@@ -127,20 +110,20 @@ namespace UniMob.UI
                 case AnimationDirection.Forward:
                     if (!Mathf.Approximately(Value, 1f))
                     {
-                        _value.Value = Mathf.Clamp01(_value.Value + dt / Duration);
+                        Value = Mathf.Clamp01(Value + dt / Duration);
                         return;
                     }
 
-                    _value.Value = 1f;
+                    Value = 1f;
                     break;
                 case AnimationDirection.Reverse:
                     if (!Mathf.Approximately(Value, 0f))
                     {
-                        _value.Value = Mathf.Clamp01(_value.Value - dt / ReverseDuration);
+                        Value = Mathf.Clamp01(Value - dt / ReverseDuration);
                         return;
                     }
 
-                    _value.Value = 0f;
+                    Value = 0f;
                     break;
             }
 

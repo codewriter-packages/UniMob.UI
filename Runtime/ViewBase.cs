@@ -18,9 +18,9 @@ namespace UniMob.UI
 
         private TState _currentState;
 
-        private readonly MutableAtom<TState> _nextState;
-        private readonly Atom<TState> _doRebind;
-        private readonly Atom<object> _doRender;
+        private MutableAtom<TState> _nextState;
+        private Atom<TState> _doRebind;
+        private Atom<object> _doRender;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private CustomSampler _renderSampler;
@@ -37,15 +37,22 @@ namespace UniMob.UI
 
         public Vector2Int Bounds => _bounds.Value;
 
-        protected ViewBase()
+        private void Initialize()
         {
-            _nextState = Atom.Value<TState>(null, debugName: "ViewBase.nextState");
-            _doRebind = Atom.Computed(DoRebind, debugName: "ViwBase.DoRebind()", keepAlive: true);
-            _doRender = Atom.Computed(DoRender, debugName: "ViewBase.DoRender()", keepAlive: true);
+            if (_nextState != null)
+            {
+                return;
+            }
+
+            _nextState = Atom.Value<TState>(null, debugName: $"View<{typeof(TState)}>({name})::State");
+            _doRebind = Atom.Computed(DoRebind, debugName: $"View<{typeof(TState)}>({name})::Bind()", keepAlive: true);
+            _doRender = Atom.Computed(DoRender, debugName: $"View<{typeof(TState)}>({name})::Render()", keepAlive: true);
         }
 
         void IView.SetSource(IViewState newSource, bool link)
         {
+            Initialize();
+            
             _renderScope.Link(this);
 
             var doRebindAtom = ((AtomBase) _doRebind);
@@ -86,8 +93,8 @@ namespace UniMob.UI
         {
             using (Atom.NoWatch)
             {
-                _doRebind.Deactivate();
-                _doRender.Deactivate();
+                _doRebind?.Deactivate();
+                _doRender?.Deactivate();
 
                 if (_currentState != null)
                 {
@@ -113,7 +120,11 @@ namespace UniMob.UI
                 child.Unmount();
             }
 
-            _nextState.Value = null;
+            if (_nextState != null)
+            {
+                _nextState.Value = null;
+            }
+
             _currentState = null;
         }
 
@@ -134,6 +145,8 @@ namespace UniMob.UI
 
         private TState DoRebind()
         {
+            Initialize();
+            
             var nextState = _nextState.Value;
 
             using (Atom.NoWatch)

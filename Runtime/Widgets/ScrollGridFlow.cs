@@ -16,19 +16,12 @@ namespace UniMob.UI.Widgets
 
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
-        private readonly Atom<WidgetSize> _innerSize;
-
         private ScrollGridFlowView _gridView;
 
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("UniMob.ScrollGridFlow");
 
-        public ScrollGridFlowState()
-        {
-            _innerSize = Atom.Computed(CalculateInnerSize);
-        }
-
-        public WidgetSize InnerSize => _innerSize.Value;
+        [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
