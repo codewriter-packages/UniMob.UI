@@ -2,7 +2,7 @@
   "name": "com.unimob.ui",
   "displayName": "UniMob.UI",
   "description": "A declarative library for building reactive user interfaces",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "unity": "2019.3",
   "license": "MIT",
   "author": "Vlad Vanifatov (https://github.com/vanifatovvlad)",
