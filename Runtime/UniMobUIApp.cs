@@ -1,25 +1,17 @@
-using System;
 using UniMob.UI.Widgets;
 using UnityEngine;
 
 namespace UniMob.UI
 {
-    public abstract class UniMobUIApp : MonoBehaviour
+    public abstract class UniMobUIApp : LifetimeMonoBehaviour
     {
         [SerializeField] private ViewPanel root = default;
 
-        private IDisposable _render;
-
-        protected virtual void OnEnable()
+        protected override void Start()
         {
             Initialize();
 
-            _render = UniMobUI.RunApp(root, Build, name);
-        }
-
-        protected virtual void OnDisable()
-        {
-            _render.Dispose();
+            UniMobUI.RunApp(Lifetime, root, Build, name);
         }
 
         protected virtual void Initialize()

@@ -25,7 +25,6 @@ namespace UniMob.UI.Widgets
         private AnimationController _controller;
         private StateHolder _firstChild;
         private StateHolder _secondChild;
-        private Atom<WidgetSize> _size;
 
         private IAnimation<float> _firstAnimation;
         private IAnimation<float> _secondAnimation;
@@ -65,9 +64,7 @@ namespace UniMob.UI.Widgets
                     Opacity = _secondAnimation,
                 };
             });
-
-            _size = Atom.Computed(CalculateSizeInternal);
-
+            
             var completed = Widget.CrossFadeState == CrossFadeState.ShowSecond;
             _controller = new AnimationController(Widget.Duration, Widget.ReverseDuration, completed);
 
@@ -104,9 +101,7 @@ namespace UniMob.UI.Widgets
             }
         }
 
-        public override WidgetSize CalculateSize() => _size.Value;
-
-        private WidgetSize CalculateSizeInternal()
+        public override WidgetSize CalculateSize()
         {
             return WidgetSize.Lerp(FirstChild.Size, SecondChild.Size, _controller.Value);
         }

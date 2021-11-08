@@ -17,7 +17,7 @@ namespace UniMob.UI
 
         protected HocState()
         {
-            _child = Create<Widget, IState>(new BuildContext(this, Context), Build);
+            _child = Create<Widget, IState>(Lifetime, new BuildContext(this, Context), Build);
         }
 
         internal sealed override void Update(Widget widget)

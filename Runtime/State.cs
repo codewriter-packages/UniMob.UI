@@ -1,19 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using UniMob.UI.Internal;
 
 namespace UniMob.UI
 {
-    public abstract class State : IState, IDisposable
+    public abstract class State : IState, IDisposable, ILifetimeScope
     {
         private readonly MutableBuildContext _context;
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly LifetimeController _lifetimeController = new LifetimeController();
 
         public BuildContext Context => _context;
-
-        public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
         internal Widget RawWidget { get; private set; }
 
@@ -23,10 +20,11 @@ namespace UniMob.UI
 
         public Key Key => RawWidget.Key;
 
+        public Lifetime Lifetime => _lifetimeController.Lifetime;
+
         protected State()
         {
             _context = new MutableBuildContext(this, null);
-            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         internal virtual void Update(Widget widget)
@@ -48,20 +46,26 @@ namespace UniMob.UI
 
         public virtual void Dispose()
         {
-            _cancellationTokenSource.Dispose();
+            _lifetimeController.Dispose();
         }
 
-        internal static StateHolder<TState> Create<TWidget, TState>(BuildContext context,
+        internal static StateHolder<TState> Create<TWidget, TState>(
+            Lifetime lifetime,
+            BuildContext context,
             WidgetBuilder<TWidget> builder)
             where TWidget : Widget
             where TState : class, IState
         {
-            return new StateHolder<TWidget, TState>(context, builder);
+            return new StateHolder<TWidget, TState>(lifetime, context, builder);
         }
 
-        internal static StateCollectionHolder CreateList(BuildContext context, Func<BuildContext, List<Widget>> builder)
+        internal static StateCollectionHolder CreateList(
+            Lifetime lifetime,
+            BuildContext context, 
+            Func<BuildContext, 
+                List<Widget>> builder)
         {
-            return new StateCollectionHolder(context, builder);
+            return new StateCollectionHolder(lifetime, context, builder);
         }
     }
 
@@ -75,11 +79,11 @@ namespace UniMob.UI
 
         public IState[] Value => _statesAtom.Value;
 
-        public StateCollectionHolder(BuildContext context, Func<BuildContext, List<Widget>> builder)
+        public StateCollectionHolder(Lifetime lifetime, BuildContext context, Func<BuildContext, List<Widget>> builder)
         {
             _context = context;
             _builder = builder;
-            _statesAtom = Atom.Computed(ComputeStates, callbacks: this, requiresReaction: true,
+            _statesAtom = Atom.Computed(lifetime, ComputeStates, callbacks: this,
                 debugName: $"StateCollectionHolder::State");
         }
 
@@ -130,11 +134,11 @@ namespace UniMob.UI
 
         private State _state;
 
-        public StateHolder(BuildContext context, WidgetBuilder<TWidget> builder)
+        public StateHolder(Lifetime lifetime, BuildContext context, WidgetBuilder<TWidget> builder)
         {
             _context = context;
             _builder = builder;
-            _stateAtom = Atom.Computed(ComputeState, callbacks: this, requiresReaction: true,
+            _stateAtom = Atom.Computed(lifetime, ComputeState, callbacks: this,
                 debugName: $"StateHolder<{typeof(TWidget)}, {typeof(TState)}>::State");
         }
 

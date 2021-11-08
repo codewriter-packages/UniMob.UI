@@ -90,7 +90,7 @@ namespace UniMob.UI.Widgets
 
         protected override async Task OnDestroy()
         {
-            await Atom.When(() => !_animation.IsAnimating);
+            await Atom.When(Lifetime.Eternal, () => !_animation.IsAnimating);
             await base.OnDestroy();
         }
     }

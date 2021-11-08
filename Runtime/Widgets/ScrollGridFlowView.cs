@@ -66,7 +66,7 @@ namespace UniMob.UI.Widgets
                 }
             }
 
-            _visibilityIndices = Atom.Computed(() =>
+            _visibilityIndices = Atom.Computed(Lifetime, () =>
             {
                 _scrollValue.Get();
 

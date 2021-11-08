@@ -3,7 +3,7 @@ namespace UniMob.UI
     using System;
     using UnityEngine;
 
-    public class AnimationController : IAnimation<float>
+    public class AnimationController : IAnimation<float>, ILifetimeScope
     {
         private float _prevDeltaTime;
 
@@ -24,6 +24,8 @@ namespace UniMob.UI
             Direction == AnimationDirection.Reverse && !Mathf.Approximately(Value, 0f);
 
         public IAnimation<float> View => this;
+
+        Lifetime ILifetimeScope.Lifetime => Lifetime.Eternal;
 
         public AnimationController(float duration, float? reverseDuration = null, bool completed = false)
         {

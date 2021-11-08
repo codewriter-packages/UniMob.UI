@@ -42,17 +42,17 @@ namespace UniMob.UI
             where TChildWidget : Widget
             where TChildState : ViewState<TChildWidget>
         {
-            return Create<TChildWidget, TChildState>(new BuildContext(this, Context), builder);
+            return Create<TChildWidget, TChildState>(Lifetime, new BuildContext(this, Context), builder);
         }
 
         protected StateHolder CreateChild(WidgetBuilder<Widget> builder)
         {
-            return Create<Widget, IState>(new BuildContext(this, Context), builder);
+            return Create<Widget, IState>(Lifetime, new BuildContext(this, Context), builder);
         }
 
         protected StateCollectionHolder CreateChildren(Func<BuildContext, List<Widget>> builder)
         {
-            return CreateList(new BuildContext(this, Context), builder);
+            return CreateList(Lifetime, new BuildContext(this, Context), builder);
         }
     }
 }
