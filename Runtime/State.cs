@@ -69,7 +69,7 @@ namespace UniMob.UI
         }
     }
 
-    public class StateCollectionHolder : IAtomCallbacks
+    public class StateCollectionHolder
     {
         private readonly BuildContext _context;
         private readonly Func<BuildContext, List<Widget>> _builder;
@@ -83,8 +83,9 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _statesAtom = Atom.Computed(lifetime, ComputeStates, callbacks: this,
-                debugName: $"StateCollectionHolder::State");
+            _statesAtom = Atom.Computed(lifetime, ComputeStates, debugName: $"StateCollectionHolder::State");
+
+            lifetime.Register(DeactivateStates);
         }
 
         private State[] ComputeStates()
@@ -95,15 +96,10 @@ namespace UniMob.UI
                 _states = StateUtilities.UpdateChildren(_context, _states, newWidgets);
             }
 
-            // ReSharper disable once CoVariantArrayConversion
             return _states.ToArray();
         }
 
-        void IAtomCallbacks.OnActive()
-        {
-        }
-
-        void IAtomCallbacks.OnInactive()
+        private void DeactivateStates()
         {
             foreach (var state in _states)
             {
@@ -124,7 +120,7 @@ namespace UniMob.UI
         new TState Value { get; }
     }
 
-    public sealed class StateHolder<TWidget, TState> : StateHolder<TState>, IAtomCallbacks
+    public sealed class StateHolder<TWidget, TState> : StateHolder<TState>
         where TWidget : Widget
         where TState : class, IState
     {
@@ -138,8 +134,9 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _stateAtom = Atom.Computed(lifetime, ComputeState, callbacks: this,
+            _stateAtom = Atom.Computed(lifetime, ComputeState,
                 debugName: $"StateHolder<{typeof(TWidget)}, {typeof(TState)}>::State");
+            lifetime.Register(DeactivateState);
         }
 
         IState StateHolder.Value => _stateAtom.Value;
@@ -156,11 +153,7 @@ namespace UniMob.UI
             return _state as TState;
         }
 
-        void IAtomCallbacks.OnActive()
-        {
-        }
-
-        void IAtomCallbacks.OnInactive()
+        private void DeactivateState()
         {
             StateUtilities.DeactivateChild(_state);
         }
