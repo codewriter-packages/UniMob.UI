@@ -16,7 +16,7 @@ namespace UniMob.UI
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
         private readonly LifetimeController _lifetimeController = new LifetimeController();
 
-        private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero);
+        private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
 
         private TState _currentState;
 
@@ -58,12 +58,12 @@ namespace UniMob.UI
         void IView.SetSource(IViewState newSource, bool link)
         {
             Initialize();
-            
+
             _renderScope.Link(this);
 
             var doRebindAtom = ((AtomBase) _doRebind);
 
-            if (!doRebindAtom.IsActive)
+            if (!doRebindAtom.options.Has(AtomOptions.Active))
             {
                 doRebindAtom.Actualize();
             }
@@ -72,7 +72,10 @@ namespace UniMob.UI
             {
                 if (newSource is TState typedState)
                 {
-                    _nextState.Value = typedState;
+                    using (Atom.NoWatch)
+                    {
+                        _nextState.Value = typedState;
+                    }
                 }
                 else
                 {
@@ -128,7 +131,10 @@ namespace UniMob.UI
 
             if (_nextState != null)
             {
-                _nextState.Value = null;
+                using (Atom.NoWatch)
+                {
+                    _nextState.Value = null;
+                }
             }
 
             _currentState = null;
@@ -152,7 +158,7 @@ namespace UniMob.UI
         private TState DoRebind()
         {
             Initialize();
-            
+
             var nextState = _nextState.Value;
 
             using (Atom.NoWatch)
@@ -241,8 +247,11 @@ namespace UniMob.UI
 
         private void RefreshBounds()
         {
-            var size = rectTransform.rect.size;
-            _bounds.Value = new Vector2Int((int) size.x, (int) size.y);
+            using (Atom.NoWatch)
+            {
+                var size = rectTransform.rect.size;
+                _bounds.Value = new Vector2Int((int) size.x, (int) size.y);
+            }
         }
 
         protected virtual void DidStateAttached(TState state)
@@ -270,7 +279,7 @@ namespace UniMob.UI
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
+
             _lifetimeController.Dispose();
         }
 
