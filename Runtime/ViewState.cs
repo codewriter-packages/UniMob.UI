@@ -4,11 +4,26 @@ namespace UniMob.UI
 {
     public abstract class ViewState : State, IViewState
     {
+        private LifetimeController _mountLifetimeController;
+        
         [Atom] public override WidgetSize Size => CalculateSize();
 
         public abstract WidgetViewReference View { get; }
 
         public sealed override IViewState InnerViewState => this;
+
+        public Lifetime MountLifetime
+        {
+            get
+            {
+                if (_mountLifetimeController == null)
+                {
+                    _mountLifetimeController = new LifetimeController();
+                }
+
+                return _mountLifetimeController.Lifetime;
+            }
+        }
 
         public virtual void DidViewMount(IView view)
         {
@@ -18,6 +33,8 @@ namespace UniMob.UI
         public virtual void DidViewUnmount(IView view)
         {
             Assert.IsNull(Atom.CurrentScope);
+            
+            _mountLifetimeController?.Dispose();
         }
 
         public virtual WidgetSize CalculateSize()

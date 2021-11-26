@@ -9,14 +9,16 @@ using UnityEngine.Profiling;
 namespace UniMob.UI
 {
     [RequireComponent(typeof(RectTransform))]
-    public abstract class ViewBase<TState> : UIBehaviour, IView, IViewTreeElement
+    public abstract class ViewBase<TState> : UIBehaviour, IView, IViewTreeElement, ILifetimeScope
         where TState : class, IState
     {
         [NotNull] private readonly ViewRenderScope _renderScope = new ViewRenderScope();
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
-        private readonly LifetimeController _lifetimeController = new LifetimeController();
+        private readonly LifetimeController _viewLifetimeController = new LifetimeController();
 
         private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
+
+        private LifetimeController _stateLifetimeController;
 
         private TState _currentState;
 
@@ -39,7 +41,22 @@ namespace UniMob.UI
 
         public Vector2Int Bounds => _bounds.Value;
 
-        public Lifetime Lifetime => _lifetimeController.Lifetime;
+        public Lifetime ViewLifetime => _viewLifetimeController.Lifetime;
+
+        public Lifetime StateLifetime
+        {
+            get
+            {
+                if (_stateLifetimeController == null)
+                {
+                    _stateLifetimeController = new LifetimeController();
+                }
+
+                return _stateLifetimeController.Lifetime;
+            }
+        }
+
+        Lifetime ILifetimeScope.Lifetime => ViewLifetime;
 
         private void Initialize()
         {
@@ -48,10 +65,10 @@ namespace UniMob.UI
                 return;
             }
 
-            _nextState = Atom.Value<TState>(Lifetime, null, debugName: $"View<{typeof(TState)}>({name})::State");
-            _doRebind = Atom.Computed(Lifetime, DoRebind, debugName: $"View<{typeof(TState)}>({name})::Bind()",
+            _nextState = Atom.Value<TState>(ViewLifetime, null, debugName: $"View<{typeof(TState)}>({name})::State");
+            _doRebind = Atom.Computed(ViewLifetime, DoRebind, debugName: $"View<{typeof(TState)}>({name})::Bind()",
                 keepAlive: true);
-            _doRender = Atom.Computed(Lifetime, DoRender, debugName: $"View<{typeof(TState)}>({name})::Render()",
+            _doRender = Atom.Computed(ViewLifetime, DoRender, debugName: $"View<{typeof(TState)}>({name})::Render()",
                 keepAlive: true);
         }
 
@@ -122,6 +139,8 @@ namespace UniMob.UI
 
                     DidStateDetached(_currentState);
                 }
+                
+                _stateLifetimeController?.Dispose();
             }
 
             foreach (var child in _children)
@@ -280,7 +299,7 @@ namespace UniMob.UI
         {
             base.OnDestroy();
 
-            _lifetimeController.Dispose();
+            _viewLifetimeController.Dispose();
         }
 
         protected virtual void Activate()

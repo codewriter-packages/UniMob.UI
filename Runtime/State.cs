@@ -8,7 +8,8 @@ namespace UniMob.UI
     public abstract class State : IState, IDisposable, ILifetimeScope
     {
         private readonly MutableBuildContext _context;
-        private readonly LifetimeController _lifetimeController = new LifetimeController();
+
+        private LifetimeController _stateLifetimeController;
 
         public BuildContext Context => _context;
 
@@ -20,7 +21,20 @@ namespace UniMob.UI
 
         public Key Key => RawWidget.Key;
 
-        public Lifetime Lifetime => _lifetimeController.Lifetime;
+        Lifetime ILifetimeScope.Lifetime => StateLifetime;
+
+        public Lifetime StateLifetime
+        {
+            get
+            {
+                if (_stateLifetimeController == null)
+                {
+                    _stateLifetimeController = new LifetimeController();
+                }
+
+                return _stateLifetimeController.Lifetime;
+            }
+        }
 
         protected State()
         {
@@ -46,7 +60,7 @@ namespace UniMob.UI
 
         public virtual void Dispose()
         {
-            _lifetimeController.Dispose();
+            _stateLifetimeController?.Dispose();
         }
 
         internal static StateHolder<TState> Create<TWidget, TState>(
@@ -61,8 +75,8 @@ namespace UniMob.UI
 
         internal static StateCollectionHolder CreateList(
             Lifetime lifetime,
-            BuildContext context, 
-            Func<BuildContext, 
+            BuildContext context,
+            Func<BuildContext,
                 List<Widget>> builder)
         {
             return new StateCollectionHolder(lifetime, context, builder);
