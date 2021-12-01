@@ -22,7 +22,7 @@ namespace UniMob.UI.Widgets
 
             canvasGroup = GetComponent<CanvasGroup>();
 
-            _interactableReaction = new ReactionAtom(StateLifetime, "Navigator View Interactable Render", () =>
+            _interactableReaction = new ReactionAtom(ViewLifetime, "Navigator View Interactable Render", () =>
             {
                 //
                 canvasGroup.interactable = State.Interactable;
