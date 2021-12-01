@@ -169,7 +169,10 @@ namespace UniMob.UI
 
         private void DeactivateState()
         {
-            StateUtilities.DeactivateChild(_state);
+            if (_state != null)
+            {
+                StateUtilities.DeactivateChild(_state);
+            }
         }
     }
 }
