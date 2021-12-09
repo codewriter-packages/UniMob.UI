@@ -31,7 +31,7 @@ namespace UniMob.UI.Widgets
             _contentRoot = (RectTransform) transform.GetChild(0);
             _rectMask = GetComponent<RectMask2D>();
             _scroll = GetComponent<ScrollRect>();
-            _scroll.onValueChanged.AddListener(_ => OnContentAnchoredPositionChanged());
+            _scroll.onValueChanged.Bind(OnContentAnchoredPositionChanged);
 
             SetupVirtualization();
         }
@@ -62,7 +62,10 @@ namespace UniMob.UI.Widgets
 
                 if (sticky != null && data.child.Key == sticky)
                 {
-                    _sticked.Value = contentPosition > data.cornerPosition.y;
+                    using (Atom.NoWatch)
+                    {
+                        _sticked.Value = contentPosition > data.cornerPosition.y;
+                    }
                 }
             }
 
@@ -82,7 +85,7 @@ namespace UniMob.UI.Widgets
             });
         }
 
-        private void OnContentAnchoredPositionChanged()
+        private void OnContentAnchoredPositionChanged(Vector2 _)
         {
             _scrollValue.Value = (int) _contentRoot.anchoredPosition.y;
         }
