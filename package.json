@@ -8,7 +8,7 @@
   "author": "Vlad Vanifatov (https://github.com/vanifatovvlad)",
   "homepage": "https://github.com/codewriter-packages/UniMob.UI#readme",
   "dependencies": {
-    "com.unimob": "1.0.2",
+    "com.unimob": "2.0.0",
     "com.unity.addressables": "1.6.2"
   }
 }
