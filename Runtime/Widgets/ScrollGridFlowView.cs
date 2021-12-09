@@ -97,6 +97,10 @@ namespace UniMob.UI.Widgets
             if (_mapper == null)
                 _mapper = new PooledViewMapper(_contentRoot);
 
+            // Sets initial content rectTransform size
+            // to prevent unnecessary scrolling in ScrollView
+            DoLayout(State, RenderContent);
+
             _scroll.horizontalNormalizedPosition = 0f;
             _scroll.verticalNormalizedPosition = 1f;
         }
@@ -199,7 +203,7 @@ namespace UniMob.UI.Widgets
         }
 
         private static void DoLayout(IScrollGridFlowState state, ContentRenderDelegate renderContentPanel,
-            ChildRenderDelegate renderChild)
+            ChildRenderDelegate renderChild = null)
         {
             var children = state.Children;
             var crossAxis = state.CrossAxisAlignment;
@@ -243,6 +247,11 @@ namespace UniMob.UI.Widgets
 
                 var contentPivot = new Vector2(contentPivotX, contentPivotY);
                 renderContentPanel(contentPivot, gridSize, childAlignment);
+            }
+
+            if (renderChild == null)
+            {
+                return;
             }
 
             var newLine = true;
