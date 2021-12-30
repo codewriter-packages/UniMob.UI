@@ -2,9 +2,101 @@
 
 A declarative library for building reactive user interface. Built over [UniMob](https://github.com/codewriter-packages/UniMob).
 
-## Core concepts
+## Getting Started
 
-Widgets are the building blocks of a app’s user interface, and each widget is an immutable declaration of part of the user interface.
+#### 1. Create view
+
+View are regular MonoBehaviour that should be attached to gameObject.
+
+```csharp
+using UniMob.UI;
+
+public class CounterView : View<ICounterState>
+{
+    public UnityEngine.UI.Text counterText;
+    public UnityEngine.UI.Button incrementButton;
+
+    // initial setup
+    protected override void Awake()
+    {
+        base.Awake();
+
+        incrementButton.Click(() => State.Increment);
+    }
+
+    // update view with data provided by State
+    // Render() is called automatically when data changes
+    // so view always be synchronized with state
+    protected override void Render()
+    {
+        counterText.text = "Conter: " + State.Counter;
+    }
+}
+
+// describe data required for view
+public interface IConterState : IViewState {
+  Counter { get; set; }
+}
+```
+
+#### 2. Create widget
+
+A widget is an immutable description of an interface element. May contain additional data if necessary.
+
+```csharp
+using UniMob.UI;
+
+public class CounterWidget : StatefulWidget
+{
+    public int IncrementStep { get; set; }
+
+    public override State CreateState() => new CounterState();
+}
+```
+
+#### 3. Create state
+
+The State provides data for the View and optionally contains mutable state of this interface part.
+
+```csharp
+using UniMob;
+using UniMob.UI;
+
+public class CounterState : ViewState<CounterWidget>, ICounterState
+{
+    // where to load the view from? 
+    public override WidgetViewReference View {
+        get => WidgetViewReference.Resource("Prefabs/Counter View");
+    }
+    
+    [Atom] public int Counter { get; private set; }
+
+    public void Increment()
+    {
+        // atom modification will automatically update UI
+        Counter += Widget.IncrementStep;
+    }
+}
+```
+
+#### 3. Run app
+
+```csharp
+using UniMob;
+using UniMob.UI;
+
+public class CounterApp : UniMobUIApp
+{
+    protected override Widget Build(BuildContext context)
+    {
+        return new ConterWidget();
+    }
+}
+```
+
+## Widget Composition
+
+Widgets are the building blocks of a app’s user interface.
 Widgets form a hierarchy based on composition.
 
 UniMob.UI comes with a suite of powerful basic widgets, of which the following are commonly used:
@@ -17,110 +109,46 @@ UniMob.UI comes with a suite of powerful basic widgets, of which the following a
 >
 >**[Container](./Runtime/Widgets/Container.cs)**<br/>
 >The Container widget lets you create a rectangular visual element that has background color and custom size.
+>
+>**[Scroll Grid Flow](./Runtime/Widgets/ScrollGridFlow.cs)**<br/>
+>The ScrollGridFlow widget lets you create a virtualized scrollable grid of elements.
 
-So what does code that uses UniMob.UI look like?
+Composition of widgets allows you to build complex custom interfaces that will automatically update when needed.
 
 ```csharp
-using UniMob;
-using UniMob.UI;
-using UniMob.UI.Widgets;
-using UnityEngine;
+private Widget Build(BuildContext context) {
+    return new ScrollGridFlow {
+        CrossAxisAlignment = CrossAxisAlignment.Center,
+        MaxCrossAxisExtent = 750.0f,
+        Children = {
+            this.BuildDailyOffers(),
+            
+            this.BuildGemsHeader(),
+            this.BuildGemsSlots(),
 
-public class CounterApp : UniMobUIApp
-{
-    [Atom] private int Counter { get; set; }
-
-    protected override Widget Build(BuildContext context)
-    {
-        return new Container {
-            BackgroundColor = Color.cyan,
-            Child = new Column {
-                Children = {
-                    new UniMobText(WidgetSize.Fixed(400, 50)) {
-                        Value = "Tap count: " + Counter,
-                        FontSize = 40,
-                    },
-                    new UniMobButton {
-                        OnClick = () => Counter += 1,
-                        Child = new UniMobText(WidgetSize.Fixed(400, 50)) {
-                            Value = "Increment",
-                            FontSize = 40,
-                        }
-                    }
-                }
-            }
-        };
-    }
+            this.BuildGoldHeader(),
+            this.BuildGoldSlots(),
+        }
+    };
 }
+
+private IEnumerable<StoreItem> BuildDailyOffers() {
+    return this.DailyOffersModel
+        .GetAllOffers()
+        .Where(offer => offer.Visible) // subscribe to 'Visible' atom
+        .Select(offer => this.BuildDailyOffer(offer.Id);
+}
+
+private Widget BuildDailyOffer(string offerId) {
+    return new DailyOfferWidget(offerId) {
+        Key = Key.Of($"store_item_{offerId}")
+    };
+}
+
+// ...
 ```
 
 More code samples are located in  [UniMob.UI Samples](https://github.com/codewriter-packages/UniMob.UI-Samples) repository.
-
-## Custom widgets
-
-Built-in widgets provide basic functionality, but modern games requires more complex and unique interfaces. You can create your own widgets to implement it.
-
-#### 1. Create widget
-
-The widget contains the immutable data that is required for a user interface part.
-
-```csharp
-using UniMob.UI;
-
-public class RealCounterWidget : StatefulWidget
-{
-    public int IncrementStep { get; set; }
-
-    public override State CreateState() => new RealCounterState();
-}
-```
-
-#### 2. Create state
-
-The State provides data for the View and optionally contains mutable state of this interface part.
-
-```csharp
-using UniMob;
-using UniMob.UI;
-
-public class RealCounterState : ViewState<RealCounterWidget>
-{
-    public override WidgetViewReference View => WidgetViewReference.Resource("Prefabs/Real Counter View");
-
-    [Atom] public int Counter { get; private set; }
-
-    public void Increment()
-    {
-        Counter += Widget.IncrementStep;
-    }
-}
-```
-
-#### 3. Create view
-
-View describes how data provided by State should be rendered on the screen.
-
-```csharp
-using UniMob.UI;
-
-public class RealCounterView : View<RealCounterState>
-{
-    public UnityEngine.UI.Text counterText;
-    public UnityEngine.UI.Button incrementButton;
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        incrementButton.Click(() => State.Increment);
-    }
-
-    protected override void Render()
-    {
-        counterText.text = State.Counter.ToString();
-    }
-}
-```
 
 ## How to Install
 Minimal Unity Version is 2019.3.
