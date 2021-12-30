@@ -35,7 +35,9 @@ public class CounterView : View<ICounterState>
 
 // describe data required for view
 public interface IConterState : IViewState {
-  Counter { get; set; }
+  Counter { get; }
+  
+  void Increment();
 }
 ```
 
@@ -66,6 +68,7 @@ public class CounterState : ViewState<CounterWidget>, ICounterState
 {
     // where to load the view from? 
     public override WidgetViewReference View {
+        // supports direct prefab link, Resources and Addressables
         get => WidgetViewReference.Resource("Prefabs/Counter View");
     }
     
@@ -89,7 +92,9 @@ public class CounterApp : UniMobUIApp
 {
     protected override Widget Build(BuildContext context)
     {
-        return new ConterWidget();
+        return new ConterWidget() {
+            IncrementStep = 1
+        };
     }
 }
 ```
@@ -141,6 +146,7 @@ private IEnumerable<StoreItem> BuildDailyOffers() {
 
 private Widget BuildDailyOffer(string offerId) {
     return new DailyOfferWidget(offerId) {
+        // keys must be set for list elements
         Key = Key.Of($"store_item_{offerId}")
     };
 }
