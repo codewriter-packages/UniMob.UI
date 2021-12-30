@@ -33,9 +33,10 @@ public class CounterView : View<ICounterState>
     }
 }
 
-// describe data required for view
+// describes the data required for the view 
+// and the actions performed by the view 
 public interface IConterState : IViewState {
-  Counter { get; }
+  int Counter { get; }
   
   void Increment();
 }
