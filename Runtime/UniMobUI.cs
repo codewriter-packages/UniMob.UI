@@ -1,6 +1,5 @@
 using System;
 using JetBrains.Annotations;
-using UniMob.UI.Internal;
 using UniMob.UI.Widgets;
 
 namespace UniMob.UI
@@ -17,13 +16,7 @@ namespace UniMob.UI
             var context = new BuildContext(null, null);
             var stateHolder = State.Create<Widget, IState>(lifetime, context, builder);
 
-            lifetime.Register(() =>
-            {
-                if (!Engine.IsApplicationQuiting)
-                {
-                    view.ResetSource();
-                }
-            });
+            lifetime.Register(() => view.ResetSource());
 
             Atom.Reaction(lifetime, () => root.Render(stateHolder.Value), debugName: debugName);
         }

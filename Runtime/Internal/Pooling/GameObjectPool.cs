@@ -122,7 +122,7 @@ namespace UniMob.UI.Internal.Pooling
             public void Return(GameObject gameObject, bool deactivate, bool worldPositionStays = false,
                 bool resetParent = true)
             {
-                if (gameObject == null)
+                if (gameObject == null || Engine.IsApplicationQuiting)
                     return;
 
                 if (deactivate)
