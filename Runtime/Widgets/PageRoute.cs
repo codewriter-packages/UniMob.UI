@@ -8,6 +8,7 @@ namespace UniMob.UI.Widgets
     {
         private readonly AnimationController _animation;
         private readonly AnimationController _secondaryAnimation;
+        private readonly LifetimeController _lifetimeController;
 
         private bool _destroying;
         private bool _paused;
@@ -18,8 +19,17 @@ namespace UniMob.UI.Widgets
             float reverseTransitionDuration
         ) : base(routeSettings)
         {
-            _animation = new AnimationController(transitionDuration, reverseTransitionDuration);
-            _secondaryAnimation = new AnimationController(transitionDuration, reverseTransitionDuration, true);
+            _lifetimeController = new LifetimeController();
+            var lt = _lifetimeController.Lifetime;
+            _animation = new AnimationController(lt, transitionDuration, reverseTransitionDuration);
+            _secondaryAnimation = new AnimationController(lt, transitionDuration, reverseTransitionDuration, true);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _lifetimeController.Dispose();
         }
 
         public sealed override Widget Build(BuildContext context)
@@ -90,7 +100,7 @@ namespace UniMob.UI.Widgets
 
         protected override async Task OnDestroy()
         {
-            await Atom.When(Lifetime.Eternal, () => !_animation.IsAnimating);
+            await Atom.When(_lifetimeController.Lifetime, () => !_animation.IsAnimating);
             await base.OnDestroy();
         }
     }

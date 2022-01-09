@@ -25,9 +25,9 @@ namespace UniMob.UI
 
         public IAnimation<float> View => this;
 
-        Lifetime ILifetimeScope.Lifetime => Lifetime.Eternal;
+        public Lifetime Lifetime { get; }
 
-        public AnimationController(float duration, float? reverseDuration = null, bool completed = false)
+        public AnimationController(Lifetime lifetime, float duration, float? reverseDuration = null, bool completed = false)
         {
             if (duration < 0)
             {
@@ -40,6 +40,7 @@ namespace UniMob.UI
                     "Must positive or zero");
             }
 
+            Lifetime = lifetime;
             Duration = duration;
             ReverseDuration = reverseDuration ?? duration;
             Direction = completed ? AnimationDirection.Forward : AnimationDirection.Reverse;
@@ -103,6 +104,11 @@ namespace UniMob.UI
 
         private void Tick()
         {
+            if (Lifetime.IsDisposed)
+            {
+                return;
+            }
+        
             var nextDeltaTime = Time.unscaledDeltaTime;
             var dt = Mathf.Min(nextDeltaTime * 0.8f + _prevDeltaTime * 0.2f, 1 / 5f);
             _prevDeltaTime = nextDeltaTime;

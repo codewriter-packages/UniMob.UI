@@ -114,6 +114,10 @@ namespace UniMob.UI.Widgets
             return OnInitialize() ?? Task.CompletedTask;
         }
 
+        public virtual void Dispose()
+        {
+        }
+
         protected virtual Task OnInitialize() => Task.CompletedTask;
 
         protected virtual Task OnCreate() => Task.CompletedTask;

@@ -439,7 +439,8 @@ namespace UniMob.UI.Widgets
         {
             _widgets.Add(new Builder(screen.Build)
             {
-                Key = Key.Of(screen)
+                Key = Key.Of(screen),
+                OnDispose = screen.Dispose,
             });
             _stack.Push(screen);
             _version.Value++;

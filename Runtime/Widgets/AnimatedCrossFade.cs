@@ -66,7 +66,7 @@ namespace UniMob.UI.Widgets
             });
             
             var completed = Widget.CrossFadeState == CrossFadeState.ShowSecond;
-            _controller = new AnimationController(Widget.Duration, Widget.ReverseDuration, completed);
+            _controller = new AnimationController(StateLifetime, Widget.Duration, Widget.ReverseDuration, completed);
 
             _firstAnimation = _controller.Drive(new FloatTween(1, 0));
             _secondAnimation = _controller.Drive(new FloatTween(0, 1));
