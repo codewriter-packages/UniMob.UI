@@ -23,7 +23,8 @@ namespace UniMob.UI.Internal.Pooling
             if (pool != null)
                 return pool;
 
-            pool = new Pool(prefab);
+            pool = new GameObject("Pool").AddComponent<Pool>();
+            pool.Init(prefab);
             Pools.Add(prefabID, pool);
 
             return pool;
@@ -61,7 +62,7 @@ namespace UniMob.UI.Internal.Pooling
                 return;
             }
 
-            if (poolID.PrefabInstanceID == 0)
+            if (poolID.PrefabInstanceID == 0 || poolID.ObjectDestroyed)
                 return;
 
             if (!Pools.TryGetValue(poolID.PrefabInstanceID, out var pool))
@@ -75,29 +76,42 @@ namespace UniMob.UI.Internal.Pooling
             pool.Return(obj, deactivate, worldPositionStays, resetParent);
         }
 
-        public sealed class Pool
+        public sealed class Pool : MonoBehaviour
         {
             private readonly Stack<GameObject> _stack = new Stack<GameObject>();
-            private readonly GameObject _prefab;
-            private readonly Transform _root;
+            private GameObject _prefab;
+            private bool _poolDestroyed;
 
             public int CountOfObjectsInPool => _stack.Count;
             public GameObject Prefab => _prefab;
-            public Transform Root => _root;
 
-            public Pool([NotNull] GameObject prefab)
+            private void Start()
+            {
+                DontDestroyOnLoad(this);
+                DontDestroyOnLoad(gameObject);
+            }
+
+            private void OnDestroy()
+            {
+                _poolDestroyed = true;
+            }
+
+            public void Init([NotNull] GameObject prefab)
             {
                 if (prefab == null) throw new ArgumentNullException(nameof(prefab));
 
                 _prefab = prefab;
-                _root = new GameObject().transform;
-                Object.DontDestroyOnLoad(_root);
 
                 EditorUpdateName();
             }
 
             public GameObject Get(Transform parent = null, bool worldPositionStays = true)
             {
+                if (_poolDestroyed)
+                {
+                    throw new InvalidOperationException("Cannot get object from destroyed pool");
+                }
+                
                 GameObject obj;
                 if (_stack.Count > 0)
                 {
@@ -119,19 +133,22 @@ namespace UniMob.UI.Internal.Pooling
                 return obj;
             }
 
-            public void Return(GameObject gameObject, bool deactivate, bool worldPositionStays = false,
+            public void Return(GameObject instance, bool deactivate, bool worldPositionStays = false,
                 bool resetParent = true)
             {
-                if (gameObject == null || Engine.IsApplicationQuiting)
+                if (_poolDestroyed)
+                    return;
+                
+                if (instance == null)
                     return;
 
                 if (deactivate)
-                    gameObject.SetActive(false);
+                    instance.SetActive(false);
 
                 if (resetParent)
-                    gameObject.transform.SetParent(_root, worldPositionStays);
+                    instance.transform.SetParent(transform, worldPositionStays);
 
-                _stack.Push(gameObject);
+                _stack.Push(instance);
 
                 EditorUpdateName();
             }
@@ -140,7 +157,7 @@ namespace UniMob.UI.Internal.Pooling
             private void EditorUpdateName()
             {
 #if UNITY_EDITOR
-                _root.name = $"{Prefab.name} Pool ({CountOfObjectsInPool})";
+                name = $"{Prefab.name} Pool ({CountOfObjectsInPool})";
 #endif
             }
         }

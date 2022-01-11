@@ -12,6 +12,8 @@ namespace UniMob.UI
 
         WidgetViewReference ViewReference { get; set; }
 
+        bool IsDestroyed { get; }
+
         BuildContext Context { get; }
 
         void SetSource(IViewState source, bool link);

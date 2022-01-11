@@ -12,5 +12,12 @@ namespace UniMob.UI.Internal.Pooling
             get => prefabInstanceID;
             set => prefabInstanceID = value;
         }
+
+        public bool ObjectDestroyed { get; private set; }
+
+        private void OnDestroy()
+        {
+            ObjectDestroyed = true;
+        }
     }
 }

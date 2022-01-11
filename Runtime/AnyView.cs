@@ -10,6 +10,8 @@ namespace UniMob.UI
 
         public BuildContext Context { get; private set; }
 
+        public bool IsDestroyed { get; private set; }
+
         public void SetSource(IViewState source, bool link)
         {
             Context = source.Context;
@@ -18,6 +20,11 @@ namespace UniMob.UI
         public void ResetSource()
         {
             Context = null;
+        }
+
+        private void OnDestroy()
+        {
+            IsDestroyed = true;
         }
     }
 }

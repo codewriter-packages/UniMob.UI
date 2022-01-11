@@ -35,6 +35,9 @@ namespace UniMob.UI.Internal
 
         protected override void RecycleView(IView view)
         {
+            if (view.IsDestroyed)
+                return;
+
             GameObjectPool.Recycle(view.gameObject, true);
         }
     }

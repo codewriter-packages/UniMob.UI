@@ -37,6 +37,8 @@ namespace UniMob.UI
 
         public WidgetViewReference ViewReference { get; set; }
 
+        public bool IsDestroyed { get; private set; }
+
         public BuildContext Context => State?.Context;
 
         public Vector2Int Bounds => _bounds.Value;
@@ -299,6 +301,7 @@ namespace UniMob.UI
         {
             base.OnDestroy();
 
+            IsDestroyed = true;
             _viewLifetimeController.Dispose();
         }
 
