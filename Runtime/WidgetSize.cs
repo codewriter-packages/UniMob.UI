@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace UniMob.UI
 {
-    public struct WidgetSize
+    public struct WidgetSize : IEquatable<WidgetSize>
     {
         public float MinWidth { get; }
         public float MinHeight { get; }
@@ -119,6 +120,31 @@ namespace UniMob.UI
                 maxWidth: Mathf.Min(a.MaxWidth, b.MaxWidth),
                 maxHeight: Mathf.Min(a.MaxHeight, b.MaxHeight)
             );
+        }
+
+        public bool Equals(WidgetSize other)
+        {
+            return Mathf.Approximately(MinWidth, other.MinWidth) &&
+                   Mathf.Approximately(MinHeight, other.MinHeight) &&
+                   Mathf.Approximately(MaxWidth, other.MaxWidth) &&
+                   Mathf.Approximately(MaxHeight, other.MaxHeight);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is WidgetSize other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = MinWidth.GetHashCode();
+                hashCode = (hashCode * 397) ^ MinHeight.GetHashCode();
+                hashCode = (hashCode * 397) ^ MaxWidth.GetHashCode();
+                hashCode = (hashCode * 397) ^ MaxHeight.GetHashCode();
+                return hashCode;
+            }
         }
     }
 }
