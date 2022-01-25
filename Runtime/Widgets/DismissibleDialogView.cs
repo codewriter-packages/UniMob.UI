@@ -117,9 +117,9 @@ namespace UniMob.UI.Widgets
                 return;
             }
 
-            if (!_dragging && Mathf.Abs(State.Offset) > 0.1f)
+            if (!_dragging && Mathf.Abs(State.Offset) > 0.1f && !State.Dismissed)
             {
-                State.Offset = Mathf.Lerp(State.Offset, 0f, Time.smoothDeltaTime * 15f);
+                State.Offset = Mathf.Lerp(State.Offset, 0f, Time.smoothDeltaTime * 10f);
             }
         }
 
@@ -137,6 +137,8 @@ namespace UniMob.UI.Widgets
                 {
                     _dragScrollRect = scrollRect;
                 }
+
+                Debug.Log(target, target);
             }
             else
             {
@@ -152,7 +154,7 @@ namespace UniMob.UI.Widgets
 
                 if (_dragScrollRect == null ||
                     State.Expanded == false ||
-                    State.Expanded && _dragScrollRect.verticalNormalizedPosition > 1.01f)
+                    State.Expanded && _dragScrollRect.verticalNormalizedPosition >= (_dragLastDelta > 0f ? 0.999f : 1.001f))
                 {
                     State.Offset += _dragLastDelta;
                 }
@@ -282,6 +284,7 @@ namespace UniMob.UI.Widgets
         float Offset { get; set; }
         float DismissThreshold { get; }
         bool Expanded { get; }
+        bool Dismissed { get; }
         IState Child { get; }
         WidgetSize ChildSize { get; }
 

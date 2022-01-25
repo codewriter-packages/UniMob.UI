@@ -26,6 +26,7 @@ namespace UniMob.UI.Widgets
         [Atom] public bool Expanded => ExpandedByUser || Widget.CollapsedHeight == null;
         [Atom] private float? CollapsedHeight => Widget.CollapsedHeight;
         [Atom] private float? ExpandedHeight { get; set; }
+        [Atom] public bool Dismissed { get; private set; }
         [Atom] public float DismissThreshold => Widget.DismissTreshold;
 
         [Atom] public WidgetSize ChildSize
@@ -77,6 +78,8 @@ namespace UniMob.UI.Widgets
 
         public void OnDismiss()
         {
+            Dismissed = true;
+            
             Widget.OnDismiss?.Invoke();
         }
     }
