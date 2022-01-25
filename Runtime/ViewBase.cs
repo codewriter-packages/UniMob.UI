@@ -143,6 +143,7 @@ namespace UniMob.UI
                 }
                 
                 _stateLifetimeController?.Dispose();
+                _stateLifetimeController = null;
             }
 
             foreach (var child in _children)
