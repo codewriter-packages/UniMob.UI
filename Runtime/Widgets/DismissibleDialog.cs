@@ -21,11 +21,11 @@ namespace UniMob.UI.Widgets
             = WidgetViewReference.Resource("$$_DismissibleDialog");
 
         [Atom] private bool ExpandedByUser { get; set; }
-
-        [Atom] public float Offset { get; set; }
-        [Atom] public bool Expanded => ExpandedByUser || Widget.CollapsedHeight == null;
         [Atom] private float? CollapsedHeight => Widget.CollapsedHeight;
         [Atom] private float? ExpandedHeight { get; set; }
+
+        [Atom] public float Offset { get; private set; }
+        [Atom] public bool Expanded => ExpandedByUser || Widget.CollapsedHeight == null;
         [Atom] public bool Dismissed { get; private set; }
         [Atom] public float DismissThreshold => Widget.DismissTreshold;
 
@@ -41,6 +41,31 @@ namespace UniMob.UI.Widgets
                 }
 
                 return WidgetSize.FixedHeight(CollapsedHeight.Value - Offset);
+            }
+        }
+
+        public void SetOffset(float offset)
+        {
+            if (Dismissed)
+            {
+                return;
+            }
+
+            Offset = offset;
+
+            if (ExpandedHeight.HasValue && CollapsedHeight.HasValue &&
+                !Expanded && -offset >= (ExpandedHeight - CollapsedHeight) * 0.99f)
+            {
+                OnExpand();
+            }
+            else if (ExpandedHeight.HasValue && CollapsedHeight.HasValue &&
+                     Expanded && offset >= (ExpandedHeight - CollapsedHeight) * 0.99f)
+            {
+                OnCollapse();
+            }
+            else if (Expanded)
+            {
+                Offset = Mathf.Max(0, Offset);
             }
         }
 
@@ -79,7 +104,7 @@ namespace UniMob.UI.Widgets
         public void OnDismiss()
         {
             Dismissed = true;
-            
+
             Widget.OnDismiss?.Invoke();
         }
     }

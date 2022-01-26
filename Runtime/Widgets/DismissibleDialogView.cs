@@ -92,6 +92,7 @@ namespace UniMob.UI.Widgets
         private bool _dragging;
         private float _dragLastDelta;
         private ScrollRect _dragScrollRect;
+        private GameObject _pressHandler;
 
         public IDismissibleDialogState State { get; set; }
 
@@ -117,14 +118,27 @@ namespace UniMob.UI.Widgets
                 return;
             }
 
-            if (!_dragging && Mathf.Abs(State.Offset) > 0.1f && !State.Dismissed)
+            if (!_dragging && Mathf.Abs(State.Offset) != 0f)
             {
-                State.Offset = Mathf.Lerp(State.Offset, 0f, Time.smoothDeltaTime * 10f);
+                var offset = Mathf.Lerp(State.Offset, 0f, Time.smoothDeltaTime * 10f);
+                if (Mathf.Abs(offset) < 1f)
+                {
+                    offset = 0f;
+                }
+
+                State.SetOffset(offset);
             }
         }
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
+            if (_pressHandler != null)
+            {
+                ExecuteEvents.Execute(_pressHandler, eventData, ExecuteEvents.pointerUpHandler);
+
+                _pressHandler = null;
+            }
+
             if (eventData.button == PointerEventData.InputButton.Left && IsActive() && State != null)
             {
                 _dragging = true;
@@ -137,8 +151,6 @@ namespace UniMob.UI.Widgets
                 {
                     _dragScrollRect = scrollRect;
                 }
-
-                Debug.Log(target, target);
             }
             else
             {
@@ -152,20 +164,17 @@ namespace UniMob.UI.Widgets
             {
                 _dragLastDelta = eventData.delta.y * -1f;
 
+                // _dragLastDelta < 0f is scroll up
                 if (_dragScrollRect == null ||
                     State.Expanded == false ||
-                    State.Expanded && _dragScrollRect.verticalNormalizedPosition >= (_dragLastDelta > 0f ? 0.999f : 1.001f))
+                    State.Expanded && State.Offset > 0 ||
+                    State.Expanded && _dragLastDelta > 0f && _dragScrollRect.verticalNormalizedPosition >= 1f)
                 {
-                    State.Offset += _dragLastDelta;
+                    State.SetOffset(State.Offset + _dragLastDelta);
                 }
                 else
                 {
                     PropagateEvent(eventData, ExecuteEvents.dragHandler);
-                }
-
-                if (State.Expanded)
-                {
-                    State.Offset = Mathf.Max(0, State.Offset);
                 }
             }
             else
@@ -178,7 +187,12 @@ namespace UniMob.UI.Widgets
         {
             if (eventData.button == PointerEventData.InputButton.Left && IsActive() && _dragging && State != null)
             {
-                PropagateEvent(eventData, ExecuteEvents.endDragHandler);
+                var target = PropagateEvent(eventData, ExecuteEvents.endDragHandler);
+
+                if (_dragScrollRect != null && target != _dragScrollRect.gameObject)
+                {
+                    ExecuteEvents.Execute(_dragScrollRect.gameObject, eventData, ExecuteEvents.endDragHandler);
+                }
 
                 var overThreshold = Mathf.Abs(State.Offset) > Rect.rect.size.y * State.DismissThreshold;
                 if (overThreshold)
@@ -228,7 +242,7 @@ namespace UniMob.UI.Widgets
 
         void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
         {
-            PropagateEvent(eventData, ExecuteEvents.pointerDownHandler);
+            _pressHandler = PropagateEvent(eventData, ExecuteEvents.pointerDownHandler);
         }
 
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
@@ -243,7 +257,14 @@ namespace UniMob.UI.Widgets
 
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
         {
+            if (_pressHandler == null)
+            {
+                return;
+            }
+
             PropagateEvent(eventData, ExecuteEvents.pointerUpHandler);
+
+            _pressHandler = null;
         }
 
         void IScrollHandler.OnScroll(PointerEventData eventData)
@@ -265,10 +286,10 @@ namespace UniMob.UI.Widgets
             raycastTarget = false;
 
             EventSystem.current.RaycastAll(eventData, _graphicRaycastResult);
+            var root = FindFirstRaycast(_graphicRaycastResult).gameObject;
+            _graphicRaycastResult.Clear();
 
-            if (_graphicRaycastResult.Count > 0 &&
-                _graphicRaycastResult[0] is var root &&
-                root.gameObject != gameObject)
+            if (root != null && root.gameObject != gameObject)
             {
                 target = ExecuteEvents.ExecuteHierarchy(root.gameObject, eventData, callback);
             }
@@ -277,17 +298,31 @@ namespace UniMob.UI.Widgets
 
             return target;
         }
+
+        protected static RaycastResult FindFirstRaycast(List<RaycastResult> candidates)
+        {
+            for (var i = 0; i < candidates.Count; ++i)
+            {
+                if (candidates[i].gameObject == null)
+                    continue;
+
+                return candidates[i];
+            }
+
+            return new RaycastResult();
+        }
     }
 
     internal interface IDismissibleDialogState : IViewState
     {
-        float Offset { get; set; }
+        float Offset { get; }
         float DismissThreshold { get; }
         bool Expanded { get; }
         bool Dismissed { get; }
         IState Child { get; }
         WidgetSize ChildSize { get; }
 
+        void SetOffset(float offset);
         void SetExpandedHeight(float height);
         void OnExpand();
         void OnCollapse();
