@@ -13,7 +13,7 @@ namespace UniMob.UI.Widgets
         protected override void Activate()
         {
             if (_mapper == null)
-                _mapper = new PooledViewMapper(transform);
+                _mapper = new PooledViewMapper(GetContentTransform());
 
             base.Activate();
         }
@@ -42,6 +42,11 @@ namespace UniMob.UI.Widgets
                 layout.CornerPosition = Vector2.zero;
                 ViewLayoutUtility.SetLayout(ChildView.rectTransform, layout);
             }
+        }
+
+        protected virtual Transform GetContentTransform()
+        {
+            return transform;
         }
     }
 
