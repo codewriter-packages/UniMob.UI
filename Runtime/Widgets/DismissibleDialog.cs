@@ -18,7 +18,7 @@ namespace UniMob.UI.Widgets
     internal class DismissibleDialogState : SingleChildLayoutState<DismissibleDialog>, IDismissibleDialogState
     {
         public override WidgetViewReference View { get; }
-            = WidgetViewReference.Resource("$$_DismissibleDialog");
+            = WidgetViewReference.Resource("UniMob.DismissibleDialog");
 
         [Atom] private bool ExpandedByUser { get; set; }
         [Atom] private float? CollapsedHeight => Widget.CollapsedHeight;

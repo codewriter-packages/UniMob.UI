@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7319685399380290385}
-  - component: {fileID: 3214165851247777947}
-  - component: {fileID: 8396603077404931015}
+  - component: {fileID: 7512244075896298170}
+  - component: {fileID: 2442368818030346488}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -37,7 +37,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -99.99957}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &3214165851247777947
+--- !u!222 &7512244075896298170
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45,7 +45,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7319685399380290384}
   m_CullTransparentMesh: 1
---- !u!114 &8396603077404931015
+--- !u!114 &2442368818030346488
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,13 +84,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7319685399583282089}
-  - component: {fileID: 8906665030187236578}
-  - component: {fileID: 7319685399583282087}
-  - component: {fileID: 7319685399583282086}
-  - component: {fileID: 8228260109757239937}
-  - component: {fileID: 2693781698086315572}
+  - component: {fileID: 4125128245014019881}
+  - component: {fileID: 1549002399440353727}
   m_Layer: 5
-  m_Name: UniMob.ScrollList
+  m_Name: UniMob.DIsmissibleDIalog
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -116,7 +113,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8906665030187236578
+--- !u!114 &4125128245014019881
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,10 +122,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7319685399583282088}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43b31ad1c89a460984626649225428d1, type: 3}
+  m_Script: {fileID: 11500000, guid: 4d07204fbf40479fb7f346188dee6ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7319685399583282087
+--- !u!114 &1549002399440353727
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -137,76 +134,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7319685399583282088}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01f3385436954780a8ee95327be9e86c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1283ae1cc47644fe9e841ebe53719345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Content: {fileID: 7319685399380290385}
-  m_Horizontal: 0
-  m_Vertical: 1
-  m_MovementType: 1
-  m_Elasticity: 0.2
-  m_Inertia: 1
-  m_DecelerationRate: 0.08
-  m_ScrollSensitivity: 1
-  m_Viewport: {fileID: 7319685399583282089}
-  m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 0}
-  m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
-  m_HorizontalScrollbarSpacing: -3
-  m_VerticalScrollbarSpacing: -3
-  m_OnValueChanged:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &7319685399583282086
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7319685399583282088}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding: {x: 0, y: 0, z: 0, w: 0}
-  m_Softness: {x: 0, y: 0}
---- !u!223 &8228260109757239937
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7319685399583282088}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_TargetDisplay: 0
---- !u!114 &2693781698086315572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7319685399583282088}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 55
