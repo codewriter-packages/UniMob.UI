@@ -9,7 +9,7 @@ using UnityEngine.Profiling;
 namespace UniMob.UI
 {
     [RequireComponent(typeof(RectTransform))]
-    public abstract class ViewBase<TState> : UIBehaviour, IView, IViewTreeElement, ILifetimeScope
+    public abstract class ViewBase<TState> : UIBehaviour, IView, IViewTreeElement
         where TState : class, IState
     {
         [NotNull] private readonly ViewRenderScope _renderScope = new ViewRenderScope();
@@ -57,8 +57,6 @@ namespace UniMob.UI
                 return _stateLifetimeController.Lifetime;
             }
         }
-
-        Lifetime ILifetimeScope.Lifetime => ViewLifetime;
 
         private void Initialize()
         {
