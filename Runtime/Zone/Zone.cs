@@ -8,6 +8,9 @@ namespace UniMob
     {
         private readonly List<Action> _tickers = new List<Action>();
 
+        private List<Action> _nextFrame = new List<Action>();
+        private List<Action> _nextFrameExecuting = new List<Action>();
+
         public static Zone Current { get; set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -36,6 +39,22 @@ namespace UniMob
                     HandleUncaughtException(ex);
                 }
             }
+
+            var toSwap = _nextFrame;
+            _nextFrame = _nextFrameExecuting;
+            _nextFrameExecuting = toSwap;
+
+            foreach (var action in _nextFrameExecuting)
+            {
+                try
+                {
+                    action.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    HandleUncaughtException(ex);
+                }
+            }
         }
 
         public void HandleUncaughtException(Exception exception)
@@ -51,6 +70,11 @@ namespace UniMob
         public void RemoveTicker(Action action)
         {
             _tickers.Remove(action);
+        }
+
+        public void NextFrame(Action action)
+        {
+            _nextFrame.Add(action);
         }
     }
 }

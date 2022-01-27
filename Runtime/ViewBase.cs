@@ -19,6 +19,7 @@ namespace UniMob.UI
         private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
 
         private LifetimeController _stateLifetimeController;
+        private Action _refreshBoundsAction;
 
         private TState _currentState;
 
@@ -102,7 +103,8 @@ namespace UniMob.UI
                     return;
                 }
 
-                RefreshBounds();
+                RefreshBoundsImmediate();
+                RefreshBoundsNextFrame();
             }
 
             if (link)
@@ -265,7 +267,17 @@ namespace UniMob.UI
             return null;
         }
 
-        private void RefreshBounds()
+        private void RefreshBoundsNextFrame()
+        {
+            if (_refreshBoundsAction == null)
+            {
+                _refreshBoundsAction = RefreshBoundsImmediate;
+            }
+            
+            Zone.Current.NextFrame(_refreshBoundsAction);
+        }
+
+        private void RefreshBoundsImmediate()
         {
             using (Atom.NoWatch)
             {
@@ -286,14 +298,14 @@ namespace UniMob.UI
         {
             base.OnRectTransformDimensionsChange();
 
-            RefreshBounds();
+            RefreshBoundsNextFrame();
         }
 
         protected override void OnTransformParentChanged()
         {
             base.OnTransformParentChanged();
 
-            RefreshBounds();
+            RefreshBoundsNextFrame();
         }
 
         protected override void OnDestroy()
