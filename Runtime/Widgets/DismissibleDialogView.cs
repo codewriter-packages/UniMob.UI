@@ -1,18 +1,21 @@
 using UniMob.UI.Internal;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UniMob.UI.Widgets
 {
     internal sealed class DismissibleDialogView : View<IDismissibleDialogState>
     {
+        [SerializeField] private UniMobDismissibleDialogBehaviour dismissibleDialogBehaviour = default;
+        [SerializeField] private Button backgroundButton = default;
+
         private ViewMapperBase _mapper;
-        private UniMobDismissibleDialogBehaviour _dismissibleDialogBehaviour;
 
         protected override void Awake()
         {
             base.Awake();
 
-            _dismissibleDialogBehaviour = GetComponent<UniMobDismissibleDialogBehaviour>();
+            backgroundButton.Click(() => State.OnDismiss);
         }
 
         protected override void Activate()
@@ -20,7 +23,7 @@ namespace UniMob.UI.Widgets
             if (_mapper == null)
                 _mapper = new PooledViewMapper(transform);
 
-            _dismissibleDialogBehaviour.State = State;
+            dismissibleDialogBehaviour.State = State;
 
             base.Activate();
 
@@ -32,7 +35,7 @@ namespace UniMob.UI.Widgets
 
         protected override void Deactivate()
         {
-            _dismissibleDialogBehaviour.State = null;
+            dismissibleDialogBehaviour.State = null;
 
             base.Deactivate();
         }
