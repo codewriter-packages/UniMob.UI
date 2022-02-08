@@ -8,6 +8,8 @@ namespace UniMob.UI.Widgets
         public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
 
+        public WidgetSize? Size { get; set; }
+
         public override State CreateState() => new RowState();
     }
 
@@ -22,6 +24,11 @@ namespace UniMob.UI.Widgets
 
         public override WidgetSize CalculateSize()
         {
+            if (Widget.Size.HasValue)
+            {
+                return Widget.Size.Value;
+            }
+        
             var (minWidth, minHeight, maxWidth, maxHeight) = InnerSize;
 
             if (Widget.MainAxisSize == AxisSize.Max)
