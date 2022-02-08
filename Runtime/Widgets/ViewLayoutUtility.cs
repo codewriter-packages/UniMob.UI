@@ -42,6 +42,12 @@ namespace UniMob.UI.Widgets
             rt.sizeDelta = sizeDelta;
         }
 
+        public static void SetPadding(RectTransform rt, RectPadding padding)
+        {
+            rt.offsetMin = new Vector2(padding.Left, padding.Bottom);
+            rt.offsetMax = new Vector2(-padding.Right, -padding.Top);
+        }
+
         private static Vector2 CornerPositionToAnchored(Vector2 position, Vector2 pivot, Vector2 size, Alignment corner)
         {
             return new Vector2(position.x, -position.y) +
