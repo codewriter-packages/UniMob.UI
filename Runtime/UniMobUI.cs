@@ -14,7 +14,11 @@ namespace UniMob.UI
 
             IView view = root;
             var context = new BuildContext(null, null);
-            var stateHolder = State.Create<Widget, IState>(lifetime, context, builder);
+            var stateHolder = State.Create<Widget, IState>(lifetime, context, ctx =>
+            {
+                var child = builder.Invoke(ctx);
+                return new UniMobDeviceWidget(child, root.gameObject);
+            });
 
             lifetime.Register(() => view.ResetSource());
 
