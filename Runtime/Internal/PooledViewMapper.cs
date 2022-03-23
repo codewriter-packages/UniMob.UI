@@ -23,14 +23,17 @@ namespace UniMob.UI.Internal
 
         protected override IView ResolveView(WidgetViewReference viewReference)
         {
-            var (prefab, viewRef) = ViewContext.Loader.LoadViewPrefab(viewReference);
-            var view = GameObjectPool
-                .Instantiate(prefab.gameObject, _parentSelector.Invoke(), _worldPositionStays)
-                .GetComponent<IView>();
-            view.gameObject.name = prefab.gameObject.name;
-            view.rectTransform.anchoredPosition = Vector2.zero;
-            view.ViewReference = viewRef;
-            return view;
+            using (Atom.NoWatch)
+            {
+                var (prefab, viewRef) = ViewContext.Loader.LoadViewPrefab(viewReference);
+                var view = GameObjectPool
+                    .Instantiate(prefab.gameObject, _parentSelector.Invoke(), _worldPositionStays)
+                    .GetComponent<IView>();
+                view.gameObject.name = prefab.gameObject.name;
+                view.rectTransform.anchoredPosition = Vector2.zero;
+                view.ViewReference = viewRef;
+                return view;
+            }
         }
 
         protected override void RecycleView(IView view)
@@ -38,7 +41,10 @@ namespace UniMob.UI.Internal
             if (view.IsDestroyed)
                 return;
 
-            GameObjectPool.Recycle(view.gameObject, true);
+            using (Atom.NoWatch)
+            {
+                GameObjectPool.Recycle(view.gameObject, true);
+            }
         }
     }
 }
