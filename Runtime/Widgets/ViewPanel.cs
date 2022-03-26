@@ -4,11 +4,14 @@ using UnityEngine;
 namespace UniMob.UI.Widgets
 {
     [AddComponentMenu("UniMob/Views/ViewPanel")]
-    public sealed class ViewPanel : ViewBase<IState>
+    public sealed class ViewPanel : View<IViewState>
     {
         private ViewMapperBase _mapper;
 
-        public void Render(IState state, bool link = false) => ((IView) this).SetSource(state.InnerViewState, link);
+        public void Render(IState state, bool link = false)
+        {
+            base.Render(state.InnerViewState, link);
+        }
 
         protected override void Activate()
         {

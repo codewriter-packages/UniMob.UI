@@ -14,8 +14,6 @@ namespace UniMob.UI
 
         bool IsDestroyed { get; }
 
-        BuildContext Context { get; }
-
         void SetSource(IViewState source, bool link);
         void ResetSource();
     }
