@@ -18,6 +18,9 @@ namespace UniMob.UI
 
         private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
 
+        [CanBeNull] private List<Action> _activationCallbacks;
+        [CanBeNull] private List<Action> _deactivationCallbacks;
+
         private LifetimeController _stateLifetimeController;
         private Action _refreshBoundsAction;
 
@@ -135,7 +138,6 @@ namespace UniMob.UI
                         using (Atom.NoWatch)
                         {
                             Deactivate();
-                            OnAfterDeactivate();
                         }
                     }
                     catch (Exception ex)
@@ -202,7 +204,6 @@ namespace UniMob.UI
                     try
                     {
                         Deactivate();
-                        OnAfterDeactivate();
                     }
                     catch (Exception ex)
                     {
@@ -215,7 +216,6 @@ namespace UniMob.UI
                 try
                 {
                     Activate();
-                    OnAfterActivate();
                 }
                 catch (Exception ex)
                 {
@@ -256,7 +256,6 @@ namespace UniMob.UI
                 try
                 {
                     Render();
-                    OnAfterRender();
                 }
                 catch (Exception ex)
                 {
@@ -342,24 +341,56 @@ namespace UniMob.UI
 
         protected virtual void Activate()
         {
+            if (_activationCallbacks != null)
+            {
+                foreach (var call in _activationCallbacks)
+                {
+                    call.Invoke();
+                }
+            }
         }
 
         protected virtual void Deactivate()
         {
-        }
-
-        protected virtual void OnAfterRender()
-        {
-        }
-
-        protected virtual void OnAfterActivate()
-        {
-        }
-
-        protected virtual void OnAfterDeactivate()
-        {
+            if (_deactivationCallbacks != null)
+            {
+                foreach (var call in _deactivationCallbacks)
+                {
+                    call.Invoke();
+                }
+            }
         }
 
         protected abstract void Render();
+
+        public void AddActivationCallback(Action callback)
+        {
+            if (_activationCallbacks == null)
+            {
+                _activationCallbacks = new List<Action>();
+            }
+
+            _activationCallbacks.Add(callback);
+        }
+
+        public void AddDeactivationCallback(Action callback)
+        {
+            if (_deactivationCallbacks == null)
+            {
+                _deactivationCallbacks = new List<Action>();
+            }
+
+            _deactivationCallbacks.Add(callback);
+        }
+
+        public void RemoveActivationCallback(Action callback)
+        {
+            _activationCallbacks?.Remove(callback);
+        }
+
+        public void RemoveDeactivationCallback(Action callback)
+        {
+            _deactivationCallbacks?.Remove(callback);
+        }
     }
 }
