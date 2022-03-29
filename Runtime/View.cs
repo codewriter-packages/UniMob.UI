@@ -45,7 +45,7 @@ namespace UniMob.UI
 
         protected Vector2Int Bounds => _bounds.Value;
 
-        protected Lifetime ViewLifetime => _viewLifetimeController.Lifetime;
+        public Lifetime ViewLifetime => _viewLifetimeController.Lifetime;
 
         protected Lifetime StateLifetime
         {
