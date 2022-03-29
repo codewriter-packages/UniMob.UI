@@ -25,7 +25,7 @@ namespace UniMob.UI.Internal
         {
             using (Atom.NoWatch)
             {
-                var (prefab, viewRef) = ViewContext.Loader.LoadViewPrefab(viewReference);
+                var (prefab, viewRef) = UniMobViewContext.Loader.LoadViewPrefab(viewReference);
                 var view = GameObjectPool
                     .Instantiate(prefab.gameObject, _parentSelector.Invoke(), _worldPositionStays)
                     .GetComponent<IView>();

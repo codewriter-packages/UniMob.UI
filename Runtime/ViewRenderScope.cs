@@ -23,19 +23,19 @@ namespace UniMob.UI
 
             public void Link(IViewTreeElement self)
             {
-                if (ViewContext.CurrentElement != null)
-                    ViewContext.CurrentElement.AddChild(self);
+                if (UniMobViewContext.CurrentElement != null)
+                    UniMobViewContext.CurrentElement.AddChild(self);
             }
 
             public void Enter(IViewTreeElement self)
             {
-                _prevElement = ViewContext.CurrentElement;
-                ViewContext.CurrentElement = self;
+                _prevElement = UniMobViewContext.CurrentElement;
+                UniMobViewContext.CurrentElement = self;
             }
 
             public void Dispose()
             {
-                ViewContext.CurrentElement = _prevElement;
+                UniMobViewContext.CurrentElement = _prevElement;
             }
         }
     }

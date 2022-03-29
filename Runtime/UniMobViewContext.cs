@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UniMob.UI
 {
-    public static class ViewContext
+    public static class UniMobViewContext
     {
         public static Sprite DefaultWhiteImage { get; set; }
 

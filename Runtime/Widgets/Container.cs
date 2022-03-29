@@ -19,7 +19,7 @@ namespace UniMob.UI.Widgets
 
         public Sprite BackgroundImage => Widget.BackgroundImage != null
             ? Widget.BackgroundImage
-            : ViewContext.DefaultWhiteImage;
+            : UniMobViewContext.DefaultWhiteImage;
 
         public Color BackgroundColor => Widget.BackgroundColor;
 
