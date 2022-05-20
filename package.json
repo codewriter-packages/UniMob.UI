@@ -1,14 +1,14 @@
 {
-  "name": "com.unimob.ui",
+  "name": "com.codewriter.unimob.ui",
   "displayName": "UniMob.UI",
   "description": "A declarative library for building reactive user interfaces",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "unity": "2019.3",
   "license": "MIT",
   "author": "Vlad Vanifatov (https://github.com/vanifatovvlad)",
   "homepage": "https://github.com/codewriter-packages/UniMob.UI#readme",
   "dependencies": {
-    "com.unimob": "2.0.0",
+    "com.codewriter.unimob": "2.1.0",
     "com.unity.addressables": "1.6.2"
   }
 }
