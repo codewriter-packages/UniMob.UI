@@ -1,4 +1,4 @@
-# UniMob.UI [![Github license](https://img.shields.io/github/license/codewriter-packages/UniMob.UI.svg?style=flat-square)](#) [![Unity 2019.3](https://img.shields.io/badge/Unity-2019.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/UniMob.UI?style=flat-square)
+# UniMob.UI [![Github license](https://img.shields.io/github/license/codewriter-packages/UniMob.UI.svg?style=flat-square)](#) [![Unity 2019.3](https://img.shields.io/badge/Unity-2019.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/UniMob.UI?style=flat-square) [![openupm](https://img.shields.io/npm/v/com.codewriter.unimob.ui?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.codewriter.unimob.ui/)
 
 A declarative library for building reactive user interface. Built over [UniMob](https://github.com/codewriter-packages/UniMob).
 
