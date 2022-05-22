@@ -2,13 +2,13 @@
   "name": "com.codewriter.unimob.ui",
   "displayName": "UniMob.UI",
   "description": "A declarative library for building reactive user interfaces",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "unity": "2019.3",
   "license": "MIT",
   "author": "CodeWriter (https://github.com/orgs/codewriter-packages)",
   "homepage": "https://github.com/codewriter-packages/UniMob.UI#readme",
   "dependencies": {
-    "com.codewriter.unimob": "2.1.1",
+    "com.codewriter.unimob": "2.1.2",
     "com.unity.addressables": "1.6.2"
   }
 }
