@@ -78,7 +78,7 @@ namespace UniMob.UI.Internal.Pooling
 
         public sealed class Pool : MonoBehaviour
         {
-            private readonly Stack<GameObject> _stack = new Stack<GameObject>();
+            private readonly Queue<GameObject> _stack = new Queue<GameObject>();
             private GameObject _prefab;
             private bool _poolDestroyed;
 
@@ -115,7 +115,7 @@ namespace UniMob.UI.Internal.Pooling
                 GameObject obj;
                 if (_stack.Count > 0)
                 {
-                    obj = _stack.Pop();
+                    obj = _stack.Dequeue();
                     obj.transform.SetParent(parent, worldPositionStays);
                 }
                 else
@@ -148,7 +148,7 @@ namespace UniMob.UI.Internal.Pooling
                 if (resetParent)
                     instance.transform.SetParent(transform, worldPositionStays);
 
-                _stack.Push(instance);
+                _stack.Enqueue(instance);
 
                 EditorUpdateName();
             }
