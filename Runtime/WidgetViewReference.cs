@@ -6,39 +6,19 @@ namespace UniMob.UI
 {
     public struct WidgetViewReference : IEquatable<WidgetViewReference>
     {
-        private Atom<WidgetViewReference> _source;
-        private WidgetViewReferenceType _type;
-        private string _path;
-        private AssetReferenceGameObject _reference;
-        private GameObject _prefab;
-
-        private WidgetViewReference(WidgetViewReferenceType type, string path, AssetReferenceGameObject reference, GameObject prefab)
+        private WidgetViewReference(WidgetViewReferenceType type, string path, AssetReferenceGameObject reference,
+            GameObject prefab)
         {
-            _type = type;
-            _path = path;
-            _reference = reference;
-            _prefab = prefab;
-            _source = null;
+            Type = type;
+            Path = path;
+            Reference = reference;
+            Prefab = prefab;
         }
 
-        internal WidgetViewReference(Atom<WidgetViewReference> source)
-        {
-            _type = WidgetViewReferenceType.Resource;
-            _path = null;
-            _reference = null;
-            _prefab = null;
-            _source = source;
-        }
-
-        internal void LinkAtomToScope()
-        {
-            _source?.Get();
-        }
-
-        public WidgetViewReferenceType Type => _source?.Value.Type ?? _type;
-        public string Path => _source?.Value.Path ?? _path;
-        public AssetReferenceGameObject Reference => _source?.Value.Reference ?? _reference;
-        public GameObject Prefab => _source?.Value.Prefab is var p && p != null ? p : _prefab;
+        public WidgetViewReferenceType Type { get; }
+        public string Path { get; }
+        public AssetReferenceGameObject Reference { get; }
+        public GameObject Prefab { get; }
 
         public bool Equals(WidgetViewReference other)
         {
@@ -54,17 +34,17 @@ namespace UniMob.UI
         {
             return unchecked((int) Type * 397) ^ (Path != null ? Path.GetHashCode() : 0);
         }
-        
-         public override string ToString()
-         {
-             return $"[{nameof(WidgetViewReference)}: {_type} {_path} {_source}]";
-         }
+
+        public override string ToString()
+        {
+            return $"[{nameof(WidgetViewReference)}: {Type} {Path} {Reference} {Prefab}]";
+        }
 
         public static WidgetViewReference Addressable(string path)
         {
             return new WidgetViewReference(WidgetViewReferenceType.Addressable, path, null, null);
         }
-        
+
         public static WidgetViewReference Addressable(AssetReferenceGameObject reference)
         {
             return new WidgetViewReference(WidgetViewReferenceType.Addressable, null, reference, null);

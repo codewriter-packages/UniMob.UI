@@ -9,18 +9,18 @@ namespace UniMob.UI.Internal.ViewLoaders
             _loaders = loaders;
         }
 
-        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
+        public IView LoadViewPrefab(WidgetViewReference viewReference)
         {
             foreach (var loader in _loaders)
             {
-                var (view, reference) = loader.LoadViewPrefab(viewReference);
+                var view = loader.LoadViewPrefab(viewReference);
                 if (view != null)
                 {
-                    return (view, reference);
+                    return view;
                 }
             }
 
-            return (null, default);
+            return null;
         }
     }
 }

@@ -8,20 +8,11 @@ namespace UniMob.UI.Internal.ViewLoaders
     {
         private readonly Dictionary<string, IView> _viewPrefabCache = new Dictionary<string, IView>();
 
-        private readonly Dictionary<string, Data> _loaders = new Dictionary<string, Data>();
-
-        private class Data
-        {
-            public MutableAtom<WidgetViewReference> ViewRef;
-        }
-
-        private IView _loadingViewPrefab;
-
-        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
+        public IView LoadViewPrefab(WidgetViewReference viewReference)
         {
             if (viewReference.Type != WidgetViewReferenceType.Addressable)
             {
-                return (null, default);
+                return null;
             }
 
             var path = viewReference.Path;
@@ -30,56 +21,31 @@ namespace UniMob.UI.Internal.ViewLoaders
 
             if (_viewPrefabCache.TryGetValue(identifier, out var cachedView))
             {
-                return (cachedView, viewReference);
+                return cachedView;
             }
 
-            if (!_loaders.TryGetValue(identifier, out var data))
+            var op = path != null
+                ? Addressables.LoadAssetAsync<GameObject>(path)
+                : viewReference.Reference.LoadAssetAsync<GameObject>();
+
+            var prefab = op.WaitForCompletion();
+
+            if (prefab == null)
             {
-                var op = path != null
-                    ? Addressables.LoadAssetAsync<GameObject>(path)
-                    : viewReference.Reference.LoadAssetAsync<GameObject>();
-                var tempReference = Atom.Value(WidgetViewReference.Resource("ADDR__loading__"));
-
-                data = new Data
-                {
-                    ViewRef = tempReference,
-                };
-
-                _loaders.Add(identifier, data);
-
-                op.Completed += handle =>
-                {
-                    if (handle.Result == null)
-                    {
-                        Debug.LogError($"Failed to load addressable '{identifier}'. Invalid path?");
-                        return;
-                    }
-
-                    var prefab = handle.Result;
-                    var view = prefab.GetComponent<IView>();
-                    if (view == null)
-                    {
-                        Debug.LogError(
-                            $"Failed to get IView from addressable '{identifier}'. Missing view component?");
-                        return;
-                    }
-
-                    _viewPrefabCache.Add(identifier, view);
-                    tempReference.Value = WidgetViewReference.Resource("ADDR__loaded__");
-                };
+                Debug.LogError($"Failed to load addressable '{identifier}'. Invalid path?");
+                return null;
             }
 
-            if (_loadingViewPrefab == null)
+            var view = prefab.GetComponent<IView>();
+            if (view == null)
             {
-                var go = new GameObject(nameof(AnyView),
-                    typeof(RectTransform), typeof(AnyView));
-                Object.DontDestroyOnLoad(go);
-
-                _loadingViewPrefab = go.GetComponent<IView>();
-                _loadingViewPrefab.rectTransform.sizeDelta = Vector2.one;
+                Debug.LogError($"Failed to get IView from addressable '{identifier}'. Missing view component?");
+                return null;
             }
 
-            return (_loadingViewPrefab, new WidgetViewReference(data.ViewRef));
+            _viewPrefabCache.Add(identifier, view);
+
+            return view;
         }
     }
 }

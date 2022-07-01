@@ -39,8 +39,6 @@ namespace UniMob.UI
         // ReSharper disable once InconsistentNaming
         public RectTransform rectTransform => (RectTransform) transform;
 
-        WidgetViewReference IView.ViewReference { get; set; }
-
         bool IView.IsDestroyed => this == null;
 
         protected Vector2Int Bounds => _bounds.Value;

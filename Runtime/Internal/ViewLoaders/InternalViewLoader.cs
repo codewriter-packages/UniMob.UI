@@ -35,19 +35,19 @@ namespace UniMob.UI.Internal.ViewLoaders
             }
         }
 
-        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
+        public IView LoadViewPrefab(WidgetViewReference viewReference)
         {
             if (viewReference.Type != WidgetViewReferenceType.Resource ||
                 !viewReference.Path.StartsWith("$$_"))
             {
-                return (null, default);
+                return null;
             }
 
             var name = viewReference.Path;
 
             if (_cache.TryGetValue(name, out var view))
             {
-                return (view, viewReference);
+                return view;
             }
 
             if (!_builders.TryGetValue(name, out var builder))
@@ -63,7 +63,7 @@ namespace UniMob.UI.Internal.ViewLoaders
 
             _cache.Add(name, view);
 
-            return (view, viewReference);
+            return view;
         }
     }
 }
