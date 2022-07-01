@@ -39,8 +39,7 @@ namespace UniMob.UI
 
         public virtual WidgetSize CalculateSize()
         {
-            var (prefab, viewRef) = UniMobViewContext.Loader.LoadViewPrefab(View);
-            viewRef.LinkAtomToScope();
+            var prefab = UniMobViewContext.Loader.LoadViewPrefab(View);
             var size = prefab.rectTransform.sizeDelta;
 
             return new WidgetSize(

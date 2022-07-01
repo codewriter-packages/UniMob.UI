@@ -18,6 +18,7 @@ namespace UniMob.UI.Internal
 
         private class Item
         {
+            public WidgetViewReference ViewReference;
             public IView View;
             public IState State;
         }
@@ -115,7 +116,7 @@ namespace UniMob.UI.Internal
                 _items[itemIndex] = _items[_items.Count - 1];
                 _items.RemoveAt(_items.Count - 1);
 
-                if (!item.View.ViewReference.Equals(nextViewReference))
+                if (!item.ViewReference.Equals(nextViewReference))
                 {
                     item.View.ResetSource();
                     RecycleView(item.View);
@@ -132,8 +133,8 @@ namespace UniMob.UI.Internal
                 item.View = ResolveOrReuseView(nextViewReference);
             }
 
+            item.ViewReference = nextViewReference;
             item.View.SetSource(viewState, _link);
-            item.View.ViewReference.LinkAtomToScope();
 
             _next.Add(item);
 
@@ -145,7 +146,7 @@ namespace UniMob.UI.Internal
             for (var i = 0; i < _reuse.Count; i++)
             {
                 var item = _reuse[i];
-                if (!item.View.ViewReference.Equals(viewReference))
+                if (!item.ViewReference.Equals(viewReference))
                 {
                     continue;
                 }
