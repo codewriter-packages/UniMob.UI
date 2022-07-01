@@ -7,36 +7,36 @@ namespace UniMob.UI.Internal.ViewLoaders
     {
         private readonly Dictionary<GameObject, IView> _viewPrefabCache = new Dictionary<GameObject, IView>();
 
-        public (IView, WidgetViewReference) LoadViewPrefab(WidgetViewReference viewReference)
+        public IView LoadViewPrefab(WidgetViewReference viewReference)
         {
             if (viewReference.Type != WidgetViewReferenceType.Prefab)
             {
-                return (null, default);
+                return null;
             }
 
             var prefab = viewReference.Prefab;
 
             if (_viewPrefabCache.TryGetValue(prefab, out var view))
             {
-                return (view, viewReference);
+                return view;
             }
 
             if (prefab == null)
             {
                 Debug.LogError($"Prefab is null");
-                return (null, default);
+                return null;
             }
 
             view = prefab.GetComponent<IView>();
             if (view == null)
             {
                 Debug.LogError($"Failed to get IView from prefab '{prefab.name}'. Missing view component?");
-                return (null, default);
+                return null;
             }
 
             _viewPrefabCache.Add(prefab, view);
 
-            return (view, viewReference);
+            return view;
         }
     }
 }

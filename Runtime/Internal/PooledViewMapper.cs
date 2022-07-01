@@ -25,13 +25,12 @@ namespace UniMob.UI.Internal
         {
             using (Atom.NoWatch)
             {
-                var (prefab, viewRef) = UniMobViewContext.Loader.LoadViewPrefab(viewReference);
+                var prefab = UniMobViewContext.Loader.LoadViewPrefab(viewReference);
                 var view = GameObjectPool
                     .Instantiate(prefab.gameObject, _parentSelector.Invoke(), _worldPositionStays)
                     .GetComponent<IView>();
                 view.gameObject.name = prefab.gameObject.name;
                 view.rectTransform.anchoredPosition = Vector2.zero;
-                view.ViewReference = viewRef;
                 return view;
             }
         }
