@@ -10,8 +10,6 @@ namespace UniMob.UI
         // ReSharper disable once InconsistentNaming
         RectTransform rectTransform { get; }
 
-        WidgetViewReference ViewReference { get; set; }
-
         bool IsDestroyed { get; }
 
         void SetSource(IViewState source, bool link);
