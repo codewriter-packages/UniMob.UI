@@ -106,6 +106,7 @@ namespace UniMob.UI
         {
             if (Lifetime.IsDisposed)
             {
+                RemoveAnimationTicker();
                 return;
             }
         
