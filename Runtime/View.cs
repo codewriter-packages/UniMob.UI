@@ -147,9 +147,6 @@ namespace UniMob.UI
 
                     DidStateDetached(_currentState);
                 }
-
-                _stateLifetimeController?.Dispose();
-                _stateLifetimeController = null;
             }
 
             foreach (var child in _children)
@@ -352,6 +349,9 @@ namespace UniMob.UI
 
         protected virtual void Deactivate()
         {
+            _stateLifetimeController?.Dispose();
+            _stateLifetimeController = null;
+
             if (_deactivationCallbacks != null)
             {
                 foreach (var call in _deactivationCallbacks)
