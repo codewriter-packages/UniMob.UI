@@ -16,7 +16,7 @@ namespace UniMob.UI
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
         private readonly LifetimeController _viewLifetimeController = new LifetimeController();
 
-        private readonly MutableAtom<Vector2Int> _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
+        private MutableAtom<Vector2Int> _bounds;
 
         [CanBeNull] private List<Action> _activationCallbacks;
         [CanBeNull] private List<Action> _deactivationCallbacks;
@@ -41,7 +41,18 @@ namespace UniMob.UI
 
         bool IView.IsDestroyed => this == null;
 
-        protected Vector2Int Bounds => _bounds.Value;
+        protected Vector2Int Bounds
+        {
+            get
+            {
+                if (_bounds == null)
+                {
+                    _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
+                }
+
+                return _bounds.Value;
+            }
+        }
 
         public Lifetime ViewLifetime => _viewLifetimeController.Lifetime;
 
@@ -266,6 +277,11 @@ namespace UniMob.UI
 
         private void RefreshBoundsNextFrame()
         {
+            if (_bounds == null)
+            {
+                return;
+            }
+
             if (_refreshBoundsAction == null)
             {
                 _refreshBoundsAction = RefreshBoundsImmediate;
@@ -276,6 +292,11 @@ namespace UniMob.UI
 
         private void RefreshBoundsImmediate()
         {
+            if (_bounds == null)
+            {
+                return;
+            }
+            
             using (Atom.NoWatch)
             {
                 var size = rectTransform.rect.size;
