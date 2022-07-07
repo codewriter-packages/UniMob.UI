@@ -97,7 +97,7 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _statesAtom = Atom.Computed(lifetime, ComputeStates, debugName: $"StateCollectionHolder::State");
+            _statesAtom = Atom.Computed(lifetime, ComputeStates);
 
             lifetime.Register(DeactivateStates);
         }
@@ -148,7 +148,7 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _stateAtom = Atom.Computed(lifetime, ComputeState, debugName: "StateHolder<TWidget, TState>::State");
+            _stateAtom = Atom.Computed(lifetime, ComputeState);
             lifetime.Register(DeactivateState);
         }
 

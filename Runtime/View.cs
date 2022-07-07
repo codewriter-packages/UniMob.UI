@@ -47,7 +47,7 @@ namespace UniMob.UI
             {
                 if (_bounds == null)
                 {
-                    _bounds = Atom.Value(Vector2Int.zero, debugName: "View.bounds");
+                    _bounds = Atom.Value(Vector2Int.zero);
                 }
 
                 return _bounds.Value;
@@ -82,11 +82,9 @@ namespace UniMob.UI
                 return;
             }
 
-            _nextState = Atom.Value<TState>(ViewLifetime, null, debugName: $"View<{typeof(TState)}>({name})::State");
-            _doRebind = Atom.Computed(ViewLifetime, DoRebind, debugName: $"View<{typeof(TState)}>({name})::Bind()",
-                keepAlive: true);
-            _doRender = Atom.Computed(ViewLifetime, DoRender, debugName: $"View<{typeof(TState)}>({name})::Render()",
-                keepAlive: true);
+            _nextState = Atom.Value<TState>(ViewLifetime, null);
+            _doRebind = Atom.Computed(ViewLifetime, DoRebind, keepAlive: true);
+            _doRender = Atom.Computed(ViewLifetime, DoRender, keepAlive: true);
         }
 
         void IView.SetSource(IViewState newSource, bool link)
