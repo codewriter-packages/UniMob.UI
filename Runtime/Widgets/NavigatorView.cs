@@ -22,11 +22,12 @@ namespace UniMob.UI.Widgets
 
             canvasGroup = GetComponent<CanvasGroup>();
 
-            _interactableReaction = new ReactionAtom(ViewLifetime, "Navigator View Interactable Render", () =>
+            _interactableReaction = new ReactionAtom("Navigator View Interactable Render", () =>
             {
                 //
                 canvasGroup.interactable = State.Interactable;
             });
+            ViewLifetime.Register(_interactableReaction);
         }
 
         protected override void Activate()
