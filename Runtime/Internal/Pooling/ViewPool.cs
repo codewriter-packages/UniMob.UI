@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace UniMob.UI.Internal.Pooling
 {
-    internal static class GameObjectPool
+    internal static class ViewPool
     {
         private static readonly Dictionary<int, Pool> Pools = new Dictionary<int, Pool>();
 
@@ -30,23 +30,21 @@ namespace UniMob.UI.Internal.Pooling
             return pool;
         }
 
-        public static GameObject Instantiate([NotNull] GameObject prefab, Transform parent = null,
-            bool worldPositionStays = true)
+        public static GameObject Instantiate([NotNull] GameObject prefab, Transform parent = null)
         {
             if (prefab == null) throw new ArgumentNullException(nameof(prefab));
 
             var prefabID = prefab.GetInstanceID();
             var pool = GetPool(prefab);
-            var obj = pool.Get(parent, worldPositionStays);
+            var obj = pool.Get(parent);
 
-            var poolID = obj.GetComponent<PoolID>() ?? obj.AddComponent<PoolID>();
+            var poolID = obj.TryGetComponent(out PoolID id) ? id : obj.AddComponent<PoolID>();
             poolID.PrefabInstanceID = prefabID;
 
             return obj;
         }
 
-        public static void Recycle(GameObject obj, bool deactivate = true, bool worldPositionStays = false,
-            bool resetParent = true)
+        public static void Recycle(GameObject obj)
         {
             if (obj == null)
             {
@@ -54,8 +52,7 @@ namespace UniMob.UI.Internal.Pooling
                 return;
             }
 
-            var poolID = obj.GetComponent<PoolID>();
-            if (poolID == null)
+            if (!obj.TryGetComponent(out PoolID poolID))
             {
                 Debug.LogError("[GameObjectPool] PoolID component not attached", obj);
                 Object.Destroy(obj);
@@ -73,7 +70,7 @@ namespace UniMob.UI.Internal.Pooling
             }
 
             poolID.PrefabInstanceID = 0;
-            pool.Return(obj, deactivate, worldPositionStays, resetParent);
+            pool.Return(obj);
         }
 
         public sealed class Pool : MonoBehaviour
@@ -105,22 +102,22 @@ namespace UniMob.UI.Internal.Pooling
                 EditorUpdateName();
             }
 
-            public GameObject Get(Transform parent = null, bool worldPositionStays = true)
+            public GameObject Get(Transform parent = null)
             {
                 if (_poolDestroyed)
                 {
                     throw new InvalidOperationException("Cannot get object from destroyed pool");
                 }
-                
+
                 GameObject obj;
                 if (_stack.Count > 0)
                 {
                     obj = _stack.Dequeue();
-                    obj.transform.SetParent(parent, worldPositionStays);
+                    obj.transform.SetParent(parent, false);
                 }
                 else
                 {
-                    obj = Object.Instantiate(_prefab, parent, worldPositionStays);
+                    obj = Object.Instantiate(_prefab, parent, false);
                 }
 
                 if (!obj.activeSelf)
@@ -133,20 +130,16 @@ namespace UniMob.UI.Internal.Pooling
                 return obj;
             }
 
-            public void Return(GameObject instance, bool deactivate, bool worldPositionStays = false,
-                bool resetParent = true)
+            public void Return(GameObject instance)
             {
                 if (_poolDestroyed)
                     return;
-                
+
                 if (instance == null)
                     return;
 
-                if (deactivate)
-                    instance.SetActive(false);
-
-                if (resetParent)
-                    instance.transform.SetParent(transform, worldPositionStays);
+                instance.SetActive(false);
+                instance.transform.SetParent(transform, false);
 
                 _stack.Enqueue(instance);
 

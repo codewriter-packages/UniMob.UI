@@ -1,4 +1,3 @@
-using System;
 using UniMob.UI.Internal.Pooling;
 using UnityEngine;
 
@@ -6,19 +5,11 @@ namespace UniMob.UI.Internal
 {
     public sealed class PooledViewMapper : ViewMapperBase
     {
-        private readonly Func<Transform> _parentSelector;
-        private readonly bool _worldPositionStays;
+        private readonly Transform _parent;
 
-        public PooledViewMapper(Transform parent, bool worldPositionStays = false, bool link = true)
-            : this(() => parent, worldPositionStays, link)
+        public PooledViewMapper(Transform parent, bool link = true) : base(link)
         {
-        }
-
-        public PooledViewMapper(Func<Transform> parentSelector, bool worldPositionStays, bool link) 
-            : base(link)
-        {
-            _parentSelector = parentSelector;
-            _worldPositionStays = worldPositionStays;
+            _parent = parent;
         }
 
         protected override IView ResolveView(WidgetViewReference viewReference)
@@ -26,10 +17,12 @@ namespace UniMob.UI.Internal
             using (Atom.NoWatch)
             {
                 var prefab = UniMobViewContext.Loader.LoadViewPrefab(viewReference);
-                var view = GameObjectPool
-                    .Instantiate(prefab.gameObject, _parentSelector.Invoke(), _worldPositionStays)
+                var view = ViewPool
+                    .Instantiate(prefab.gameObject, _parent)
                     .GetComponent<IView>();
+#if UNITY_EDITOR
                 view.gameObject.name = prefab.gameObject.name;
+#endif
                 view.rectTransform.anchoredPosition = Vector2.zero;
                 return view;
             }
@@ -42,7 +35,7 @@ namespace UniMob.UI.Internal
 
             using (Atom.NoWatch)
             {
-                GameObjectPool.Recycle(view.gameObject, true);
+                ViewPool.Recycle(view.gameObject);
             }
         }
     }
