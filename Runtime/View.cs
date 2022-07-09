@@ -93,13 +93,6 @@ namespace UniMob.UI
 
             _renderScope.Link(this);
 
-            var doRebindAtom = ((AtomBase) _doRebind);
-
-            if (!doRebindAtom.options.Has(AtomOptions.Active))
-            {
-                doRebindAtom.Actualize();
-            }
-
             if (!ReferenceEquals(newSource, _currentState))
             {
                 if (newSource is TState typedState)
@@ -127,7 +120,10 @@ namespace UniMob.UI
             }
             else
             {
-                doRebindAtom.Actualize();
+                using (Atom.NoWatch)
+                {
+                    _doRebind.Get();
+                }
             }
         }
 
@@ -225,9 +221,10 @@ namespace UniMob.UI
                 {
                     Zone.Current.HandleUncaughtException(ex);
                 }
+
+                _doRender.Invalidate();
             }
 
-            ((AtomBase) _doRender).Actualize(true);
             _doRender.Get();
 
             DidStateAttached(nextState);
