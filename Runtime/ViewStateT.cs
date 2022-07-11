@@ -8,7 +8,7 @@ namespace UniMob.UI
     public abstract class ViewState<TWidget> : ViewState
         where TWidget : Widget
     {
-        private readonly MutableAtom<TWidget> _widget = Atom.Value(default(TWidget), debugName: $"ViewState<{typeof(TWidget)}>::Widget");
+        private readonly MutableAtom<TWidget> _widget = Atom.Value(default(TWidget));
 
         protected TWidget Widget => _widget.Value;
 
@@ -24,7 +24,7 @@ namespace UniMob.UI
             }
             else
             {
-                throw new Exception($"Trying to pass {widget.GetType()}, but expected {typeof(TWidget)}");
+                throw new WrongStateTypeException(GetType(), typeof(TWidget), widget.GetType());
             }
 
             if (oldWidget != null)

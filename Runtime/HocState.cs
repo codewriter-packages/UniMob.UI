@@ -8,8 +8,9 @@ namespace UniMob.UI
         where TWidget : Widget
     {
         private readonly StateHolder _child;
+        private readonly MutableAtom<TWidget> _widget = Atom.Value(default(TWidget));
 
-        protected TWidget Widget { get; private set; }
+        protected TWidget Widget => _widget.Value;
 
         public sealed override WidgetSize Size => InnerViewState.Size;
 
@@ -28,7 +29,7 @@ namespace UniMob.UI
 
             if (widget is TWidget typedWidget)
             {
-                Widget = typedWidget;
+                _widget.Value = typedWidget;
             }
             else
             {
