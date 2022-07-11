@@ -1,11 +1,12 @@
 {
     "name": "UniMob.UI",
+    "rootNamespace": "",
     "references": [
         "UniMob",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Unity.TextMeshPro"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -13,5 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "",
+            "define": "UNIMOB_UI_TMPRO"
+        }
+    ],
+    "noEngineReferences": false
 }
