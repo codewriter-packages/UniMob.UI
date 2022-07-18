@@ -14,7 +14,7 @@ namespace UniMob.UI.Widgets
 
         private ViewMapperBase _mapper;
 
-        private ReactionAtom _interactableReaction;
+        private Atom<object> _interactableReaction;
 
         protected override void Awake()
         {
@@ -22,11 +22,11 @@ namespace UniMob.UI.Widgets
 
             canvasGroup = GetComponent<CanvasGroup>();
 
-            _interactableReaction = new ReactionAtom(ViewLifetime, "Navigator View Interactable Render", () =>
+            _interactableReaction = Atom.Computed(ViewLifetime, () =>
             {
-                //
                 canvasGroup.interactable = State.Interactable;
-            });
+                return default(object);
+            }, keepAlive: true);
         }
 
         protected override void Activate()
@@ -36,7 +36,7 @@ namespace UniMob.UI.Widgets
             if (_mapper == null)
                 _mapper = new PooledViewMapper(transform, link: false);
 
-            _interactableReaction.Activate();
+            _interactableReaction.Get();
         }
 
         protected override void Deactivate()
