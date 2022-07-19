@@ -83,6 +83,11 @@ namespace UniMob.UI.Internal
 
             _activeRender?.Dispose();
             _activeRender = null;
+            
+            foreach (var item in _items)
+            {
+                item.View.SetSource(item.State.InnerViewState, _link);
+            }
         }
 
         private bool Reuse(IState state)
@@ -134,7 +139,6 @@ namespace UniMob.UI.Internal
             }
 
             item.ViewReference = nextViewReference;
-            item.View.SetSource(viewState, _link);
 
             _next.Add(item);
 
