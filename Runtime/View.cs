@@ -16,17 +16,16 @@ namespace UniMob.UI
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
         private readonly LifetimeController _viewLifetimeController = new LifetimeController();
 
-        private MutableAtom<Vector2Int> _bounds;
+        private Atom<Vector2Int> _bounds;
 
         [CanBeNull] private List<Action> _activationCallbacks;
         [CanBeNull] private List<Action> _deactivationCallbacks;
 
         private LifetimeController _stateLifetimeController;
-        private Action _refreshBoundsAction;
 
         private TState _currentState;
+        private TState _nextState;
 
-        private MutableAtom<TState> _nextState;
         private Atom<TState> _doRebind;
         private Atom<object> _doRender;
 
@@ -47,7 +46,11 @@ namespace UniMob.UI
             {
                 if (_bounds == null)
                 {
-                    _bounds = Atom.Value(Vector2Int.zero);
+                    _bounds = Atom.Computed(ViewLifetime, () =>
+                    {
+                        var size = rectTransform.rect.size;
+                        return new Vector2Int((int) size.x, (int) size.y);
+                    });
                 }
 
                 return _bounds.Value;
@@ -75,39 +78,23 @@ namespace UniMob.UI
             self.SetSource(state, link);
         }
 
-        private void Initialize()
-        {
-            if (_nextState != null)
-            {
-                return;
-            }
-
-            _nextState = Atom.Value<TState>(ViewLifetime, null);
-            _doRebind = Atom.Computed(ViewLifetime, DoRebind, keepAlive: true);
-            _doRender = Atom.Computed(ViewLifetime, DoRender, keepAlive: true);
-        }
-
         void IView.SetSource(IViewState newSource, bool link)
         {
-            Initialize();
+            if (_doRebind == null)
+            {
+                _doRebind = Atom.Computed(ViewLifetime, DoRebind, keepAlive: true);
+                _doRender = Atom.Computed(ViewLifetime, DoRender, keepAlive: true);
+            }
 
             _renderScope.Link(this);
 
             var doRebindAtom = ((AtomBase) _doRebind);
 
-            if (!doRebindAtom.options.Has(AtomOptions.Active))
-            {
-                doRebindAtom.Actualize();
-            }
-
             if (!ReferenceEquals(newSource, _currentState))
             {
                 if (newSource is TState typedState)
                 {
-                    using (Atom.NoWatch)
-                    {
-                        _nextState.Value = typedState;
-                    }
+                    _nextState = typedState;
                 }
                 else
                 {
@@ -117,8 +104,7 @@ namespace UniMob.UI
                     return;
                 }
 
-                RefreshBoundsImmediate();
-                RefreshBoundsNextFrame();
+                doRebindAtom.Actualize(true);
             }
 
             if (link)
@@ -142,17 +128,21 @@ namespace UniMob.UI
                 {
                     try
                     {
-                        using (Atom.NoWatch)
-                        {
-                            Deactivate();
-                        }
+                        _currentState.DidViewUnmount(this);
                     }
                     catch (Exception ex)
                     {
                         Zone.Current.HandleUncaughtException(ex);
                     }
 
-                    DidStateDetached(_currentState);
+                    try
+                    {
+                        Deactivate();
+                    }
+                    catch (Exception ex)
+                    {
+                        Zone.Current.HandleUncaughtException(ex);
+                    }
                 }
             }
 
@@ -161,14 +151,7 @@ namespace UniMob.UI
                 child.Unmount();
             }
 
-            if (_nextState != null)
-            {
-                using (Atom.NoWatch)
-                {
-                    _nextState.Value = null;
-                }
-            }
-
+            _nextState = null;
             _currentState = null;
         }
 
@@ -189,21 +172,24 @@ namespace UniMob.UI
 
         private TState DoRebind()
         {
-            Initialize();
-
-            var nextState = _nextState.Value;
+            if (ReferenceEquals(_currentState, _nextState))
+            {
+                _doRender.Get();
+                return _nextState;
+            }
 
             using (Atom.NoWatch)
             {
-                var currentState = _currentState;
-                if (ReferenceEquals(currentState, nextState))
+                if (_currentState != null)
                 {
-                    return nextState;
-                }
-
-                if (currentState != null)
-                {
-                    DidStateDetached(currentState);
+                    try
+                    {
+                        _currentState.DidViewUnmount(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        Zone.Current.HandleUncaughtException(ex);
+                    }
 
                     try
                     {
@@ -215,7 +201,7 @@ namespace UniMob.UI
                     }
                 }
 
-                _currentState = nextState;
+                _currentState = _nextState;
 
                 try
                 {
@@ -230,9 +216,19 @@ namespace UniMob.UI
             ((AtomBase) _doRender).Actualize(true);
             _doRender.Get();
 
-            DidStateAttached(nextState);
+            using (Atom.NoWatch)
+            {
+                try
+                {
+                    _currentState.DidViewMount(this);
+                }
+                catch (Exception ex)
+                {
+                    Zone.Current.HandleUncaughtException(ex);
+                }
+            }
 
-            return nextState;
+            return _nextState;
         }
 
         private object DoRender()
@@ -273,62 +269,16 @@ namespace UniMob.UI
             return null;
         }
 
-        private void RefreshBoundsNextFrame()
+        private void RefreshBounds()
         {
             if (_bounds == null)
             {
                 return;
             }
 
-            if (_refreshBoundsAction == null)
-            {
-                _refreshBoundsAction = RefreshBoundsImmediate;
-            }
-
-            Zone.Current.NextFrame(_refreshBoundsAction);
-        }
-
-        private void RefreshBoundsImmediate()
-        {
-            if (_bounds == null)
-            {
-                return;
-            }
-            
             using (Atom.NoWatch)
             {
-                var size = rectTransform.rect.size;
-                _bounds.Value = new Vector2Int((int) size.x, (int) size.y);
-            }
-        }
-
-        private void DidStateAttached(TState state)
-        {
-            try
-            {
-                using (Atom.NoWatch)
-                {
-                    state.DidViewMount(this);
-                }
-            }
-            catch (Exception ex)
-            {
-                Zone.Current.HandleUncaughtException(ex);
-            }
-        }
-
-        private void DidStateDetached(TState state)
-        {
-            try
-            {
-                using (Atom.NoWatch)
-                {
-                    state.DidViewUnmount(this);
-                }
-            }
-            catch (Exception ex)
-            {
-                Zone.Current.HandleUncaughtException(ex);
+                _bounds.Invalidate();
             }
         }
 
@@ -336,14 +286,14 @@ namespace UniMob.UI
         {
             base.OnRectTransformDimensionsChange();
 
-            RefreshBoundsNextFrame();
+            RefreshBounds();
         }
 
         protected override void OnTransformParentChanged()
         {
             base.OnTransformParentChanged();
 
-            RefreshBoundsNextFrame();
+            RefreshBounds();
         }
 
         protected override void OnDestroy()
