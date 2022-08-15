@@ -36,15 +36,6 @@ namespace UniMob.UI.Widgets
                 rectMask.enabled = useMask;
             }
 
-            foreach (var child in State.Children)
-            {
-                if (!float.IsInfinity(child.Size.MaxHeight) || !float.IsInfinity(child.Size.MaxWidth))
-                {
-                    Debug.LogError("Cannot render fixed-size widgets inside Tabs.\n" +
-                                   $"Try to wrap '{child.GetType().Name}' into another stretched widget");
-                }
-            }
-
             var children = State.Children;
             var bounds = Bounds;
             var tabSize = (Vector2) bounds;
@@ -73,25 +64,25 @@ namespace UniMob.UI.Widgets
 
                 if (firstTab == secondTab)
                 {
-                    RenderChild(render, children[firstTab], tabSize, cornerPos);
+                    RenderChild(render, children[firstTab], cornerPos);
                 }
                 else
                 {
-                    RenderChild(render, children[firstTab], tabSize, cornerPos);
-                    RenderChild(render, children[secondTab], tabSize, cornerPos + new Vector2(tabSize.x, 0f));
+                    RenderChild(render, children[firstTab], cornerPos);
+                    RenderChild(render, children[secondTab], cornerPos + new Vector2(tabSize.x, 0f));
                 }
             }
         }
 
-        private void RenderChild(ViewMapperBase.ViewMapperRenderScope render,
-            IState child, Vector2 size, Vector2 cornerPosition)
+        private void RenderChild(ViewMapperBase.ViewMapperRenderScope render, IState child, Vector2 cornerPosition)
         {
             var childView = render.RenderItem(child);
+            var childSize = child.Size.GetSize(Bounds);
 
             LayoutData layout;
-            layout.Size = size;
-            layout.Alignment = Alignment.TopLeft;
-            layout.Corner = Alignment.TopLeft;
+            layout.Size = childSize;
+            layout.Alignment = Alignment.Center;
+            layout.Corner = Alignment.Center;
             layout.CornerPosition = cornerPosition;
             ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
         }
