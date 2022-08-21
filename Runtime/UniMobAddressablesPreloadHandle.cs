@@ -53,6 +53,9 @@ namespace UniMob.UI
                 }
             }
 
+            await Task.WhenAll(queuedTasks);
+            queuedTasks.Clear();
+
             if (Debug.unityLogger.IsLogTypeAllowed(LogType.Log))
             {
                 Debug.Log($"Preload '{_key}' addressable assets in {sw.ElapsedMilliseconds} ms");
