@@ -44,17 +44,6 @@ namespace UniMob.UI.Widgets
         protected abstract Widget BuildTransitions(BuildContext context, AnimationController animation,
             AnimationController secondaryAnimation, Widget child);
 
-        public override bool HandleBack()
-        {
-            if (NavigatorState == null)
-            {
-                return base.HandleBack();
-            }
-
-            NavigatorState.Pop();
-            return true;
-        }
-
         public override Task ApplyScreenEvent(ScreenEvent screenEvent)
         {
             _destroying = screenEvent == ScreenEvent.Destroy;

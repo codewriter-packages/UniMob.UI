@@ -14,13 +14,13 @@ namespace UniMob.UI.Widgets
 
         private object _popResult = null;
 
-        internal NavigatorState NavigatorState { get; set; }
-
         protected Route(RouteSettings settings)
         {
             _settings = settings;
             _machine = BuildStateMachine();
         }
+
+        public Func<bool> BackAction { get; set; }
 
         public ScreenState ScreenState => _machine.State;
 
@@ -136,7 +136,7 @@ namespace UniMob.UI.Widgets
             return Task.CompletedTask;
         }
 
-        public virtual bool HandleBack() => true;
+        public bool HandleBack() => BackAction?.Invoke() ?? true;
 
         public abstract Widget Build(BuildContext context);
 
