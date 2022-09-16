@@ -372,7 +372,6 @@ namespace UniMob.UI.Widgets
 
         private Task InitializeScreen(Route screen)
         {
-            screen.NavigatorState = this;
             return screen.Initialize();
         }
     }
