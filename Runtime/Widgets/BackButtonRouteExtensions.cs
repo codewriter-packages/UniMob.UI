@@ -13,9 +13,10 @@ namespace UniMob.UI.Widgets
                 if (filter == null || filter.Invoke())
                 {
                     navigatorState.Pop();
+                    return true;
                 }
 
-                return true;
+                return false;
             }
 
             route.BackAction = HandleBack;
@@ -31,9 +32,10 @@ namespace UniMob.UI.Widgets
                 if (filter == null || filter.Invoke())
                 {
                     navigatorState.Pop(result);
+                    return true;
                 }
 
-                return true;
+                return false;
             }
 
             route.BackAction = HandleBack;
