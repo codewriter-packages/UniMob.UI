@@ -24,7 +24,7 @@ namespace UniMob.UI.Widgets
 
         public bool HandleBack()
         {
-            return _handler?.Invoke() ?? true;
+            return _handler?.Invoke() ?? false;
         }
 
         public static TRoute Create<TRoute>([NotNull] Func<BackButtonController, TRoute> func)

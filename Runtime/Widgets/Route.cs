@@ -136,7 +136,7 @@ namespace UniMob.UI.Widgets
             return Task.CompletedTask;
         }
 
-        public bool HandleBack() => BackAction?.Invoke() ?? true;
+        public bool HandleBack() => BackAction?.Invoke() ?? false;
 
         public abstract Widget Build(BuildContext context);
 
