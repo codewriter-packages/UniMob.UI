@@ -30,8 +30,6 @@ namespace UniMob.UI.Widgets
 
         public IState[] Screens => _states.Value;
 
-        [Atom] public bool Interactable { get; private set; } = true;
-
         public override void InitState()
         {
             base.InitState();
@@ -185,7 +183,6 @@ namespace UniMob.UI.Widgets
 
         private async Task ProcessCommandsLoop()
         {
-            Interactable = false;
             try
             {
                 while (_pendingCommands.Count > 0)
@@ -196,10 +193,6 @@ namespace UniMob.UI.Widgets
             catch (Exception e)
             {
                 Debug.LogException(e);
-            }
-            finally
-            {
-                Interactable = true;
             }
         }
 
