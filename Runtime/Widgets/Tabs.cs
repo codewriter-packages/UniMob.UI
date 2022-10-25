@@ -9,6 +9,7 @@ namespace UniMob.UI.Widgets
 
         public TabController TabController { get; }
         public bool UseMask { get; set; } = true;
+        public bool Draggable {get; set;} = true; 
         public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
         public WidgetSize? Size { get; set; }
@@ -25,6 +26,7 @@ namespace UniMob.UI.Widgets
         public bool UseMask => Widget.UseMask;
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
+        [Atom] public bool Draggable => Widget.Draggable;
 
         public override WidgetSize CalculateSize()
         {

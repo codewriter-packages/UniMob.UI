@@ -89,7 +89,7 @@ namespace UniMob.UI.Widgets
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
-            _routeToParent = Mathf.Abs(eventData.delta.x) < Mathf.Abs(eventData.delta.y);
+            _routeToParent = Mathf.Abs(eventData.delta.x) < Mathf.Abs(eventData.delta.y) || (HasState && !State.Draggable);
 
             if (_routeToParent)
             {
@@ -163,6 +163,8 @@ namespace UniMob.UI.Widgets
         TabController TabController { get; }
 
         bool UseMask { get; }
+
+        bool Draggable { get; }
 
         IState[] Children { get; }
     }
