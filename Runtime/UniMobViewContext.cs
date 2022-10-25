@@ -10,10 +10,16 @@ namespace UniMob.UI
 
         internal static IViewTreeElement CurrentElement;
 
-        public static readonly IViewLoader Loader = new MultiViewLoader(
-            new InternalViewLoader(),
-            new PrefabViewLoader(),
-            new BuiltinResourcesViewLoader(),
-            new AddressableViewLoader());
+        public static IViewLoader Loader;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            Loader = new MultiViewLoader(
+                new InternalViewLoader(),
+                new PrefabViewLoader(),
+                new BuiltinResourcesViewLoader(),
+                new AddressableViewLoader());
+        }
     }
 }

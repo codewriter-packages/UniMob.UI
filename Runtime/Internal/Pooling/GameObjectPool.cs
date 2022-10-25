@@ -12,6 +12,12 @@ namespace UniMob.UI.Internal.Pooling
     {
         private static readonly Dictionary<int, Pool> Pools = new Dictionary<int, Pool>();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            Pools.Clear();
+        }
+
         public static Pool GetPool([NotNull] GameObject prefab)
         {
             if (prefab == null) throw new ArgumentNullException(nameof(prefab));
@@ -80,10 +86,8 @@ namespace UniMob.UI.Internal.Pooling
         {
             private readonly Queue<GameObject> _stack = new Queue<GameObject>();
             private GameObject _prefab;
+            private string _prefabName;
             private bool _poolDestroyed;
-
-            public int CountOfObjectsInPool => _stack.Count;
-            public GameObject Prefab => _prefab;
 
             private void Start()
             {
@@ -101,6 +105,7 @@ namespace UniMob.UI.Internal.Pooling
                 if (prefab == null) throw new ArgumentNullException(nameof(prefab));
 
                 _prefab = prefab;
+                _prefabName = prefab.name;
 
                 EditorUpdateName();
             }
@@ -111,7 +116,7 @@ namespace UniMob.UI.Internal.Pooling
                 {
                     throw new InvalidOperationException("Cannot get object from destroyed pool");
                 }
-                
+
                 GameObject obj;
                 if (_stack.Count > 0)
                 {
@@ -138,7 +143,7 @@ namespace UniMob.UI.Internal.Pooling
             {
                 if (_poolDestroyed)
                     return;
-                
+
                 if (instance == null)
                     return;
 
@@ -157,7 +162,7 @@ namespace UniMob.UI.Internal.Pooling
             private void EditorUpdateName()
             {
 #if UNITY_EDITOR
-                name = $"{Prefab.name} Pool ({CountOfObjectsInPool})";
+                name = $"{_prefabName} Pool ({_stack.Count})";
 #endif
             }
         }

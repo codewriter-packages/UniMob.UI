@@ -15,6 +15,18 @@ namespace UniMob.UI
         private static readonly List<UniMobAddressablesPreloadHandle> Handles =
             new List<UniMobAddressablesPreloadHandle>();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            if (Handles.Count > 0)
+            {
+                Debug.LogError(
+                    "[UniMob] You must Dispose all UniMobAddressablesPreloadHandle when application is closed");
+            }
+
+            Handles.Clear();
+        }
+
         private readonly object _key;
         private readonly int _loadGroupSize;
         private readonly List<AsyncOperationHandle> _operations;
