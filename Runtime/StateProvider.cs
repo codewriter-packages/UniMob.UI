@@ -7,6 +7,14 @@ namespace UniMob.UI
     {
         private static readonly Dictionary<Type, Func<State>> StateFactories = new Dictionary<Type, Func<State>>();
 
+        #if UNITY_EDITOR
+        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        static void OnRuntimeLoad()
+        {
+            StateFactories.Clear();
+        }
+        #endif
+
         public static void Register<TWidget>(Func<State> factory)
             where TWidget : Widget
         {

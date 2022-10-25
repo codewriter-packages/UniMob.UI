@@ -12,6 +12,15 @@ namespace UniMob.UI.Internal.Pooling
     {
         private static readonly Dictionary<int, Pool> Pools = new Dictionary<int, Pool>();
 
+
+        #if UNITY_EDITOR
+        [RuntimeInitializeOnLoadMethod]
+        static void OnRuntimeLoad()
+        {
+            Pools.Clear();
+        }
+        #endif
+
         public static Pool GetPool([NotNull] GameObject prefab)
         {
             if (prefab == null) throw new ArgumentNullException(nameof(prefab));
@@ -157,7 +166,8 @@ namespace UniMob.UI.Internal.Pooling
             private void EditorUpdateName()
             {
 #if UNITY_EDITOR
-                name = $"{Prefab.name} Pool ({CountOfObjectsInPool})";
+                if(Prefab != null)
+                    name = $"{Prefab.name} Pool ({CountOfObjectsInPool})";
 #endif
             }
         }
