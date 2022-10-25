@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UniMob.UI
 {
     public static class StateProvider
     {
         private static readonly Dictionary<Type, Func<State>> StateFactories = new Dictionary<Type, Func<State>>();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            StateFactories.Clear();
+        }
 
         public static void Register<TWidget>(Func<State> factory)
             where TWidget : Widget

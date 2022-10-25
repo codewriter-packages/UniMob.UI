@@ -16,8 +16,6 @@ namespace UniMob
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         internal static void Init()
         {
-            if (!ReferenceEquals(Current, null)) return;
-
             var go = new GameObject(nameof(Zone));
             var zone = go.AddComponent<Zone>();
             DontDestroyOnLoad(go);
