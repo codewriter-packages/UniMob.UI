@@ -58,7 +58,7 @@ namespace UniMob.UI
             return new Vector2(w, h);
         }
 
-        internal static WidgetSize Lerp(WidgetSize a, WidgetSize b, float t)
+        public static WidgetSize Lerp(WidgetSize a, WidgetSize b, float t)
         {
             if (Mathf.Approximately(t, 0))
             {
@@ -92,7 +92,7 @@ namespace UniMob.UI
             return new WidgetSize(minWidth, minHeight, maxWidth, maxHeight);
         }
 
-        internal static WidgetSize StackX(WidgetSize a, WidgetSize b)
+        public static WidgetSize StackX(WidgetSize a, WidgetSize b)
         {
             return new WidgetSize(
                 minWidth: a.MinWidth + b.MinWidth,
@@ -102,7 +102,7 @@ namespace UniMob.UI
             );
         }
 
-        internal static WidgetSize StackY(WidgetSize a, WidgetSize b)
+        public static WidgetSize StackY(WidgetSize a, WidgetSize b)
         {
             return new WidgetSize(
                 minWidth: Mathf.Max(a.MinWidth, b.MinWidth),
@@ -112,7 +112,7 @@ namespace UniMob.UI
             );
         }
 
-        internal static WidgetSize StackZ(WidgetSize a, WidgetSize b)
+        public static WidgetSize StackZ(WidgetSize a, WidgetSize b)
         {
             return new WidgetSize(
                 minWidth: Mathf.Max(a.MinWidth, b.MinWidth),
