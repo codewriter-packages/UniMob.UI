@@ -105,20 +105,6 @@ public class CounterApp : UniMobUIApp
 Widgets are the building blocks of a app’s user interface.
 Widgets form a hierarchy based on composition.
 
-UniMob.UI comes with a suite of powerful basic widgets, of which the following are commonly used:
-
-> **[Row](./Runtime/Widgets/Row.cs), [Column](./Runtime/Widgets/Column.cs)**<br/>
-> These widgets let you create layouts in both the horizontal (Row) and vertical (Column) directions. 
->
->**[ZStack](./Runtime/Widgets/ZStack.cs)**<br/>
->A Stack widget lets you place widgets on top of each other in paint order.
->
->**[Container](./Runtime/Widgets/Container.cs)**<br/>
->The Container widget lets you create a rectangular visual element that has background color and custom size.
->
->**[Scroll Grid Flow](./Runtime/Widgets/ScrollGridFlow.cs)**<br/>
->The ScrollGridFlow widget lets you create a virtualized scrollable grid of elements.
-
 Composition of widgets allows you to build complex custom interfaces that will automatically update when needed.
 
 ```csharp
@@ -156,6 +142,56 @@ private Widget BuildDailyOffer(string offerId) {
 ```
 
 More code samples are located in  [UniMob.UI Samples](https://github.com/codewriter-packages/UniMob.UI-Samples) repository.
+
+## Built-in widgets
+
+UniMob.UI comes with a suite of powerful basic widgets:
+
+> **[Row](./Runtime/Widgets/Row.cs), [Column](./Runtime/Widgets/Column.cs)**<br/>
+> These widgets let you create layouts in both the horizontal (Row) and vertical (Column) directions.
+>
+>**[ZStack](./Runtime/Widgets/ZStack.cs)**<br/>
+>A Stack widget lets you place widgets on top of each other in paint order.
+>
+>**[Container](./Runtime/Widgets/Container.cs)**<br/>
+>The Container widget lets you create a rectangular visual element that has background color and custom size.
+>
+> **[Empty](./Runtime/Widgets/Empty.cs)**<br/>
+> Widget that displays nothing.
+>
+>**[Scroll Grid Flow](./Runtime/Widgets/ScrollGridFlow.cs)**<br/>
+>The ScrollGridFlow widget lets you create a virtualized scrollable grid of elements.
+>
+>**[Grid Flow](./Runtime/Widgets/GridFlow.cs)**<br/>
+> A widget lets you create grid of elements.
+>
+>**[Vertical Split Box](./Runtime/Widgets/VerticalSplitBox.cs)**<br/>
+> Column with two elements. Unlike a [column](./Runtime/Widgets/Column.cs) allows to specify a stretched size for elements.
+>
+> **[Tabs](./Runtime/Widgets/Tabs.cs)**<br/>
+> Widget that displays horizontally scrollable and draggable list of tabs.
+>
+>**[Navigator](./Runtime/Widgets/Navigator.cs)**<br/>
+> A widget that manages a set of child widgets.
+>
+>**[Composite Transition](./Runtime/Widgets/CompositeTransition.cs)**<br/>
+> Animates the opacity, position, rotation and scale of a widget.
+>
+>**[Animated Cross Fade](./Runtime/Widgets/AnimatedCrossFade.cs)**<br/>
+> A widget that cross-fades between two given children and animates itself between their sizes.
+>
+>**[Dismissible Dialog](./Runtime/Widgets/DismissibleDialog.cs)**<br/>
+> A widget with swipe-down-to-dismiss and swipe-up-to-expand callbacks.
+>
+>**[Padding Box](./Runtime/Widgets/PaddingBox.cs)**<br/>
+> Widget that add extra padding for inner element.
+>
+>**[UniMob Button](./Runtime/Widgets/UniMobButton.cs)**<br/>
+> Widget that detects clicks.
+>
+>**[UniMob Text](./Runtime/Widgets/UniMobText.cs)**<br/>
+> Display and style text.
+>
 
 ## How to Install
 Minimal Unity Version is 2019.3.
