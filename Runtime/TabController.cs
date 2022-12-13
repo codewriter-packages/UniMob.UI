@@ -45,6 +45,7 @@ namespace UniMob.UI
                 if (Mathf.Approximately(Duration, 0f))
                 {
                     IndexIsChanging = false;
+                    Value = newIndex,
                 }
                 else
                 {
