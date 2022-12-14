@@ -26,5 +26,10 @@ namespace UniMob.UI
 
         public float Horizontal => Left + Right;
         public float Vertical => Top + Bottom;
+
+
+        public static RectPadding Symmetric(float horizontal, float vertical) => new (horizontal, horizontal, vertical, vertical);
+        public static RectPadding All(float padding) => Symmetric(padding, padding);
+        public static RectPadding Only(float left = 0, float right = 0, float top = 0, float bottom = 0) => new (left, right, top, bottom);
     }
 }
