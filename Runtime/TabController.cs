@@ -46,7 +46,6 @@ namespace UniMob.UI
                 {
                     Value = Index;
                     IndexIsChanging = false;
-                    Value = newIndex;
                 }
                 else
                 {
