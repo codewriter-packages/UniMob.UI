@@ -49,7 +49,7 @@ namespace UniMob.UI.Widgets
             {
                 var childSize = child.Size;
 
-                if (float.IsInfinity(childSize.MaxWidth) || float.IsInfinity(childSize.MaxHeight))
+                if (float.IsInfinity(childSize.MaxHeight))
                 {
                     continue;
                 }
