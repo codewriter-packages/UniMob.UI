@@ -270,6 +270,22 @@ namespace UniMob.UI.Widgets
                     newLine = false;
                     lineHeight = childSize.y;
                     var lineWidth = childSize.x;
+
+                    if (float.IsInfinity(childSize.x))
+                    {
+                        if (lineMaxChildCount == 1)
+                        {
+                            // This is not right, in theory, as it messes with the cornerPosition.x calculation.
+                            // However, as long as there is only one child per line, it works.
+                            lineWidth = 0;
+                        }
+                        else
+                        {
+                            Debug.LogError($"Cannot render multiple horizontally stretched widgets inside ScrollGridFlow.\n" +
+                                $"Try to wrap {child.GetType().Name} into another widget of fixed width or to set {nameof(state.MaxCrossAxisCount)} to 1");
+                        }
+                    }
+
                     var lineChildCount = 1;
 
                     for (int i = childIndex + 1; i < children.Length; i++)
