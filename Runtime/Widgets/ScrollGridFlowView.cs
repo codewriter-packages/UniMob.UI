@@ -100,6 +100,7 @@ namespace UniMob.UI.Widgets
             // Sets initial content rectTransform size
             // to prevent unnecessary scrolling in ScrollView
             DoLayout(State, RenderContent);
+            _visibilityIndices.Invalidate();
 
             _scroll.horizontalNormalizedPosition = 0f;
             _scroll.verticalNormalizedPosition = 1f;
