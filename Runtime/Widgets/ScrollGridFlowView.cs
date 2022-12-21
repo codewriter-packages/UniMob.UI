@@ -111,6 +111,7 @@ namespace UniMob.UI.Widgets
 
             _childPositions.Clear();
             _nextChildren.Clear();
+            _visibilityIndices.Deactivate();
         }
 
         protected override void Render()
