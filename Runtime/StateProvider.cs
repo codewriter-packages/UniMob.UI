@@ -4,39 +4,43 @@ using UnityEngine;
 
 namespace UniMob.UI
 {
-    public static class StateProvider
+    public class StateProvider
     {
-        private static readonly Dictionary<Type, Func<State>> StateFactories = new Dictionary<Type, Func<State>>();
+        private readonly Dictionary<Type, Func<State>> _stateFactories = new Dictionary<Type, Func<State>>();
+
+        public static StateProvider Shared { get; } = new StateProvider();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
-            StateFactories.Clear();
+            Shared.Clear();
         }
 
-        public static void Register<TWidget>(Func<State> factory)
-            where TWidget : Widget
+        public void Register<TWidget>(Func<State> factory) where TWidget : Widget
         {
             var type = typeof(TWidget);
 
-            if (StateFactories.ContainsKey(type))
+            if (_stateFactories.ContainsKey(type))
             {
                 throw new InvalidOperationException($"StateProvider for widget {type.Name} already registered");
             }
 
-            StateFactories.Add(type, factory);
+            _stateFactories.Add(type, factory);
         }
 
-        public static State Of<T>(T _)
+        public State Of(Widget w)
         {
-            var type = typeof(T);
-
-            if (!StateFactories.TryGetValue(type, out var factory))
+            if (!_stateFactories.TryGetValue(w.Type, out var factory))
             {
-                throw new InvalidOperationException($"StateProvider for widget {type.Name} not registered");
+                throw new InvalidOperationException($"StateProvider for widget {w.Type.Name} not registered");
             }
 
             return factory();
+        }
+
+        public void Clear()
+        {
+            _stateFactories.Clear();
         }
     }
 }

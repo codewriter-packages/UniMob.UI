@@ -5,14 +5,16 @@ namespace UniMob.UI
 {
     public class UniMobDeviceWidget : StatefulWidget
     {
-        public UniMobDeviceWidget(Widget child, GameObject root)
+        public UniMobDeviceWidget(Widget child, GameObject root, StateProvider stateProvider)
         {
             Child = child;
             Root = root;
+            StateProvider = stateProvider;
         }
 
         public Widget Child { get; }
         public GameObject Root { get; }
+        public StateProvider StateProvider { get; }
 
         public override State CreateState() => new UniMobDeviceState();
     }
@@ -23,6 +25,8 @@ namespace UniMob.UI
         private RectInt _lastSafeArea;
 
         [Atom] public RectPadding SafeArea { get; private set; }
+
+        public StateProvider StateProvider => Widget.StateProvider;
 
         public override Widget Build(BuildContext context)
         {

@@ -183,6 +183,13 @@ namespace UniMob.UI.Internal
             Assert.IsNull(Atom.CurrentScope);
 
             var newChild = newWidget.CreateState();
+            if (newChild == null)
+            {
+                var rootState = context.AncestorStateOfType<UniMobDeviceState>();
+                var stateProvider = rootState.StateProvider;
+                newChild = newWidget.CreateState(stateProvider);
+            }
+
             newChild.Mount(context);
             newChild.Update(newWidget);
 
@@ -190,7 +197,7 @@ namespace UniMob.UI.Internal
             {
                 globalKey.UntypedCurrentState = newChild;
             }
-            
+
             newChild.InitState();
             return newChild;
         }
