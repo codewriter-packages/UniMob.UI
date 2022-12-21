@@ -12,6 +12,15 @@ namespace UniMob.UI
         [CanBeNull] public Key Key { get; set; }
 
         [NotNull]
-        public abstract State CreateState();
+        public virtual State CreateState(StateProvider provider)
+        {
+            return provider.Of(this);
+        }
+
+        [CanBeNull]
+        public virtual State CreateState()
+        {
+            return null;
+        }
     }
 }

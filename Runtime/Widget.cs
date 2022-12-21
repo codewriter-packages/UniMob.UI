@@ -9,6 +9,7 @@ namespace UniMob.UI
 
         Key Key { get; }
 
+        State CreateState(StateProvider provider);
         State CreateState();
     }
 }
