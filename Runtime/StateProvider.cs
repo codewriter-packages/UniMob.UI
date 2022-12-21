@@ -28,6 +28,11 @@ namespace UniMob.UI
             _stateFactories.Add(type, factory);
         }
 
+        public void RegisterUnsafe(Type widgetType, Func<State> factory)
+        {
+            _stateFactories.Add(widgetType, factory);
+        }
+
         public State Of(Widget w)
         {
             if (!_stateFactories.TryGetValue(w.Type, out var factory))
