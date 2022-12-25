@@ -1,50 +1,34 @@
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace UniMob.UI.Widgets
 {
-    [RequireComponent(typeof(Text))]
+    [RequireComponent(typeof(UniMobTextMeshProBehaviour))]
     internal class UniMobTextView : View<IUniMobTextState>
     {
-        private Text _text;
-
-        protected override void Awake()
-        {
-            base.Awake();
-
-            _text = GetComponent<Text>();
-        }
+        [SerializeField] private UniMobTextMeshProBehaviour text;
 
         protected override void Render()
         {
-            _text.text = State.Value;
-            _text.color = State.Color;
-            _text.fontSize = State.FontSize;
-            _text.alignment = ToTextAnchor(State.MainAxisAlignment, State.CrossAxisAlignment);
+            text.text = State.Value;
+            text.color = State.Color;
+            text.fontSize = State.FontSize;
+            text.horizontalAlignment = ToHorizontalAlignment(State.CrossAxisAlignment);
+            text.verticalAlignment = ToVerticalAlignment(State.MainAxisAlignment);
         }
 
-        private static TextAnchor ToTextAnchor(MainAxisAlignment main, CrossAxisAlignment cross)
+        private static HorizontalAlignmentOptions ToHorizontalAlignment(CrossAxisAlignment align)
         {
-            switch (main)
-            {
-                case MainAxisAlignment.Center:
-                    return cross == CrossAxisAlignment.Start ? TextAnchor.MiddleLeft
-                        : cross == CrossAxisAlignment.Center ? TextAnchor.MiddleCenter
-                        : TextAnchor.MiddleRight;
+            return align == CrossAxisAlignment.Start ? HorizontalAlignmentOptions.Left
+                : align == CrossAxisAlignment.Center ? HorizontalAlignmentOptions.Center
+                : HorizontalAlignmentOptions.Right;
+        }
 
-                case MainAxisAlignment.End:
-                    return cross == CrossAxisAlignment.Start ? TextAnchor.LowerLeft
-                        : cross == CrossAxisAlignment.Center ? TextAnchor.LowerCenter
-                        : TextAnchor.LowerRight;
-
-                case MainAxisAlignment.Start:
-                    return cross == CrossAxisAlignment.Start ? TextAnchor.UpperLeft
-                        : cross == CrossAxisAlignment.Center ? TextAnchor.UpperCenter
-                        : TextAnchor.UpperRight;
-
-                default:
-                    return TextAnchor.UpperLeft;
-            }
+        private static VerticalAlignmentOptions ToVerticalAlignment(MainAxisAlignment align)
+        {
+            return align == MainAxisAlignment.Start ? VerticalAlignmentOptions.Top
+                : align == MainAxisAlignment.Center ? VerticalAlignmentOptions.Middle
+                : VerticalAlignmentOptions.Bottom;
         }
     }
 

@@ -16,6 +16,7 @@
   "homepage": "https://github.com/codewriter-packages/UniMob.UI#readme",
   "dependencies": {
     "com.codewriter.unimob": "2.1.4",
-    "com.unity.addressables": "1.20.3"
+    "com.unity.addressables": "1.20.3",
+    "com.unity.textmeshpro": "3.0.6"
   }
 }
