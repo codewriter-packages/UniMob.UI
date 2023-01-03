@@ -7,11 +7,13 @@ namespace UniMob.UI
     {
         [SerializeField] private ViewPanel root = default;
 
+        public StateProvider StateProvider { get; } = new StateProvider();
+
         protected override void Start()
         {
             Initialize();
 
-            UniMobUI.RunApp(Lifetime, root, Build, name);
+            UniMobUI.RunApp(Lifetime, StateProvider, root, Build, name);
         }
 
         protected virtual void Initialize()
