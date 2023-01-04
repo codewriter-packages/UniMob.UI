@@ -6,12 +6,13 @@ namespace UniMob.UI.Widgets
     using System.Threading.Tasks;
     using UnityEngine;
 
-    public abstract class Route
+    public abstract class Route : IBackActionOwner
     {
         private readonly RouteSettings _settings;
         private readonly TriggerStateMachine<ScreenState, ScreenEvent, Task> _machine;
         private readonly TaskCompletionSource<object> _popCompleter = new TaskCompletionSource<object>();
 
+        private Func<bool> _backAction;
         private object _popResult = null;
 
         protected Route(RouteSettings settings)
@@ -19,8 +20,6 @@ namespace UniMob.UI.Widgets
             _settings = settings;
             _machine = BuildStateMachine();
         }
-
-        public Func<bool> BackAction { get; set; }
 
         public ScreenState ScreenState => _machine.State;
 
@@ -136,13 +135,18 @@ namespace UniMob.UI.Widgets
             return Task.CompletedTask;
         }
 
-        public bool HandleBack() => BackAction?.Invoke() ?? false;
+        public bool HandleBack() => _backAction?.Invoke() ?? false;
 
         public abstract Widget Build(BuildContext context);
 
-        public void SetResult(object result) {
-
+        public void SetResult(object result)
+        {
             _popResult = result;
+        }
+
+        void IBackActionOwner.SetBackAction(Func<bool> action)
+        {
+            _backAction = action;
         }
     }
 
