@@ -43,19 +43,22 @@ namespace UniMob.UI.Widgets
             return navigator;
         }
 
-        public static Task Push(BuildContext context, Route route) => Of(context).Push(route);
+        public static Route Push(BuildContext context, Route route) => Of(context).Push(route);
 
-        public static Task PushNamed(BuildContext context, string routeName) => Of(context).PushNamed(routeName);
+        public static Task<TResult> Push<TResult>(BuildContext context, Route route) =>
+            Of(context).Push<TResult>(route);
+
+        public static Route PushNamed(BuildContext context, string routeName) => Of(context).PushNamed(routeName);
 
         public static void Pop(BuildContext context) => Of(context).Pop();
 
-        public static Task NewRoot(BuildContext context, Route route) => Of(context).NewRoot(route);
+        public static Route NewRoot(BuildContext context, Route route) => Of(context).NewRoot(route);
 
-        public static Task NewRootNamed(BuildContext context, string routeName) => Of(context).NewRootNamed(routeName);
+        public static Route NewRootNamed(BuildContext context, string routeName) => Of(context).NewRootNamed(routeName);
 
-        public static Task Replace(BuildContext context, Route route) => Of(context).Replace(route);
+        public static Route Replace(BuildContext context, Route route) => Of(context).Replace(route);
 
-        public static Task ReplaceNamed(BuildContext context, string routeName) => Of(context).ReplaceNamed(routeName);
+        public static Route ReplaceNamed(BuildContext context, string routeName) => Of(context).ReplaceNamed(routeName);
 
         public static void PopTo(BuildContext context, Route route) => Of(context).PopTo(route);
     }
