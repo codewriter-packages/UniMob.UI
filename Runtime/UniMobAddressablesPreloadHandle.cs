@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -28,14 +27,12 @@ namespace UniMob.UI
         }
 
         private readonly object _key;
-        private readonly int _loadGroupSize;
         private readonly List<AsyncOperationHandle> _operations;
         private readonly Dictionary<string, GameObject> _prefabs;
 
-        private UniMobAddressablesPreloadHandle(object key, int loadGroupSize = 25)
+        private UniMobAddressablesPreloadHandle(object key)
         {
             _key = key;
-            _loadGroupSize = loadGroupSize;
             _operations = new List<AsyncOperationHandle>();
             _prefabs = new Dictionary<string, GameObject>();
 
@@ -44,39 +41,26 @@ namespace UniMob.UI
 
         public async Task LoadAsync()
         {
-            var sw = Stopwatch.StartNew();
-
             var loadLocationsOperation = Addressables.LoadResourceLocationsAsync(_key, typeof(GameObject));
             _operations.Add(loadLocationsOperation);
 
             var locations = await loadLocationsOperation.Task;
-            var queuedTasks = new List<Task>();
+            var queuedTasks = new List<Task>(locations.Count);
 
             foreach (var location in locations)
             {
                 var task = LoadAsset(location);
 
                 queuedTasks.Add(task);
-
-                if (queuedTasks.Count > _loadGroupSize)
-                {
-                    await Task.WhenAll(queuedTasks);
-                    queuedTasks.Clear();
-                }
             }
 
             await Task.WhenAll(queuedTasks);
             queuedTasks.Clear();
-
-            if (Debug.unityLogger.IsLogTypeAllowed(LogType.Log))
-            {
-                Debug.Log($"Preload '{_key}' addressable assets in {sw.ElapsedMilliseconds} ms");
-            }
         }
 
         private async Task LoadAsset(IResourceLocation location)
         {
-            var loadOperation = Addressables.LoadAssetAsync<GameObject>(location.PrimaryKey);
+            var loadOperation = Addressables.LoadAssetAsync<GameObject>(location);
             _operations.Add(loadOperation);
 
             var prefab = await loadOperation.Task;
