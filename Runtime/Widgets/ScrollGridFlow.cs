@@ -7,7 +7,7 @@ namespace UniMob.UI.Widgets
     {
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
-        public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
+        public float MaxCrossAxisExtent { get; set; } = float.PositiveInfinity;
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
 
@@ -51,6 +51,7 @@ namespace UniMob.UI.Widgets
 
                 if (float.IsInfinity(childSize.MaxHeight))
                 {
+                    height = float.PositiveInfinity;
                     continue;
                 }
 
