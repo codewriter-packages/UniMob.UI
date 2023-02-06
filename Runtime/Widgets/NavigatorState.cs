@@ -54,18 +54,18 @@ namespace UniMob.UI.Widgets
             return route;
         }
 
-        public Task PushNamed(string routeName)
+        public Route PushNamed(string routeName)
         {
             var route = CreateRoute(routeName);
             return Push(route);
         }
 
-        public Task Push(Route route)
+        public Route Push(Route route)
         {
             if (route == null) throw new ArgumentNullException(nameof(route));
 
             ApplyCommands(new NavigatorCommand.Push(route));
-            return route.PopTask;
+            return route;
         }
         
         public async Task<TResult> Push<TResult>(Route route)
@@ -77,34 +77,34 @@ namespace UniMob.UI.Widgets
             return result is TResult tResult ? tResult : default;
         }
 
-        public Task NewRootNamed(string routeName)
+        public Route NewRootNamed(string routeName)
         {
             var route = CreateRoute(routeName);
             return NewRoot(route);
         }
 
-        public Task NewRoot(Route route)
+        public Route NewRoot(Route route)
         {
             if (route == null) throw new ArgumentNullException(nameof(route));
 
             ApplyCommands(
                 new NavigatorCommand.PopTo(null),
                 new NavigatorCommand.Replace(route));
-            return route.PopTask;
+            return route;
         }
 
-        public Task ReplaceNamed(string routeName)
+        public Route ReplaceNamed(string routeName)
         {
             var route = CreateRoute(routeName);
             return Replace(route);
         }
 
-        public Task Replace(Route route)
+        public Route Replace(Route route)
         {
             if (route == null) throw new ArgumentNullException(nameof(route));
 
             ApplyCommands(new NavigatorCommand.Replace(route));
-            return route.PopTask;
+            return route;
         }
 
         public void PopTo(Route route)

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UniMob.UI.Internal;
 
 namespace UniMob.UI.Widgets
@@ -6,12 +7,14 @@ namespace UniMob.UI.Widgets
     using System.Threading.Tasks;
     using UnityEngine;
 
-    public abstract class Route
+    public abstract class Route : IBackActionOwner
     {
         private readonly RouteSettings _settings;
         private readonly TriggerStateMachine<ScreenState, ScreenEvent, Task> _machine;
         private readonly TaskCompletionSource<object> _popCompleter = new TaskCompletionSource<object>();
+        private readonly TaskCompletionSource<object> _pushCompleter = new TaskCompletionSource<object>();
 
+        private Func<bool> _backAction;
         private object _popResult = null;
 
         protected Route(RouteSettings settings)
@@ -20,13 +23,13 @@ namespace UniMob.UI.Widgets
             _machine = BuildStateMachine();
         }
 
-        public Func<bool> BackAction { get; set; }
-
         public ScreenState ScreenState => _machine.State;
 
         public RouteModalType ModalType => _settings.ModalType;
 
         public Task<object> PopTask => _popCompleter.Task;
+
+        public Task PushTask => _pushCompleter.Task;
 
         public string Key => _settings.Name;
 
@@ -111,6 +114,7 @@ namespace UniMob.UI.Widgets
 
         public Task Initialize()
         {
+            _pushCompleter.SetResult(null);
             return OnInitialize() ?? Task.CompletedTask;
         }
 
@@ -132,17 +136,28 @@ namespace UniMob.UI.Widgets
 
         protected virtual Task OnDestroy()
         {
-            _popCompleter.SetResult(this._popResult);
+            _popCompleter.SetResult(_popResult);
             return Task.CompletedTask;
         }
 
-        public bool HandleBack() => BackAction?.Invoke() ?? false;
+        public bool HandleBack() => _backAction?.Invoke() ?? false;
 
         public abstract Widget Build(BuildContext context);
 
-        public void SetResult(object result) {
-
+        public void SetResult(object result)
+        {
             _popResult = result;
+        }
+
+        void IBackActionOwner.SetBackAction(Func<bool> action)
+        {
+            _backAction = action;
+        }
+
+        [Obsolete("await route is Obsolete. Use route.PopTask or route.PushTask instead")]
+        public TaskAwaiter<object> GetAwaiter()
+        {
+            return PopTask.GetAwaiter();
         }
     }
 

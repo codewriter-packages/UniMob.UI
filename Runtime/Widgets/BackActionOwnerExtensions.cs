@@ -1,12 +1,14 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace UniMob.UI.Widgets
 {
-    public static class BackButtonRouteExtensions
+    public static class BackActionOwnerExtensions
     {
-        public static TRoute WithPopOnBack<TRoute>(this TRoute route,
+        [PublicAPI]
+        public static TBackActionOwner WithPopOnBack<TBackActionOwner>(this TBackActionOwner owner,
             NavigatorState navigatorState, Func<bool> filter = null)
-            where TRoute : Route
+            where TBackActionOwner : IBackActionOwner
         {
             bool HandleBack()
             {
@@ -19,13 +21,15 @@ namespace UniMob.UI.Widgets
                 return false;
             }
 
-            route.BackAction = HandleBack;
-            return route;
+            owner.SetBackAction(HandleBack);
+
+            return owner;
         }
 
-        public static TRoute WithPopOnBack<TRoute>(this TRoute route,
+        [PublicAPI]
+        public static TBaackActionOwner WithPopOnBack<TBaackActionOwner>(this TBaackActionOwner owner,
             NavigatorState navigatorState, object result, Func<bool> filter = null)
-            where TRoute : Route
+            where TBaackActionOwner : IBackActionOwner
         {
             bool HandleBack()
             {
@@ -38,8 +42,9 @@ namespace UniMob.UI.Widgets
                 return false;
             }
 
-            route.BackAction = HandleBack;
-            return route;
+            owner.SetBackAction(HandleBack);
+
+            return owner;
         }
     }
 }
