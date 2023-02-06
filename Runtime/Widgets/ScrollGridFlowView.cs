@@ -100,7 +100,7 @@ namespace UniMob.UI.Widgets
             // Sets initial content rectTransform size
             // to prevent unnecessary scrolling in ScrollView
             DoLayout(State, RenderContent);
-            
+
 
             _scroll.horizontalNormalizedPosition = 0f;
             _scroll.verticalNormalizedPosition = 1f;
@@ -122,6 +122,14 @@ namespace UniMob.UI.Widgets
             if (_rectMask.enabled != useMask)
             {
                 _rectMask.enabled = useMask;
+            }
+            if (((int) _scroll.movementType) != (int) State.MovementType)
+            {
+                _scroll.movementType = State.MovementType switch
+                {
+                    MovementType.Clamped => ScrollRect.MovementType.Clamped,
+                    _ => ScrollRect.MovementType.Elastic,
+                };
             }
 
             var visibilityIndices = _visibilityIndices.Value;
@@ -398,5 +406,6 @@ namespace UniMob.UI.Widgets
         float MaxCrossAxisExtent { get; }
         bool UseMask { get; }
         Key Sticky { get; }
+        MovementType MovementType { get; }
     }
 }

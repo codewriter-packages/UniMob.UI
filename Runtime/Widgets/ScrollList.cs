@@ -5,6 +5,7 @@ namespace UniMob.UI.Widgets
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
         public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public bool UseMask { get; set; } = true;
+        public MovementType MovementType { get; set; } = MovementType.Elastic;
 
         public override State CreateState() => new ScrollListState();
     }
@@ -23,6 +24,8 @@ namespace UniMob.UI.Widgets
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public bool UseMask => Widget.UseMask;
+
+        public MovementType MovementType => Widget.MovementType;
 
         private WidgetSize CalculateInnerSize()
         {

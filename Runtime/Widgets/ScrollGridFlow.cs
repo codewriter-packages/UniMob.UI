@@ -6,6 +6,9 @@ namespace UniMob.UI.Widgets
     public class ScrollGridFlow : MultiChildLayoutWidget
     {
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
+
+        public MovementType MovementType { get; set; } = MovementType.Elastic;
+
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
         public bool UseMask { get; set; } = true;
@@ -23,6 +26,8 @@ namespace UniMob.UI.Widgets
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
+
+        public MovementType MovementType => Widget.MovementType;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;

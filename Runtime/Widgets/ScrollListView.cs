@@ -9,11 +9,12 @@ namespace UniMob.UI.Widgets
         private RectTransform _contentRoot;
         private ViewMapperBase _mapper;
         private RectMask2D _rectMask;
+        private ScrollRect _scroll;
 
         protected override void Awake()
         {
             base.Awake();
-
+            _scroll = GetComponent<ScrollRect>();
             _contentRoot = (RectTransform) transform.GetChild(0);
             _rectMask = GetComponent<RectMask2D>();
         }
@@ -33,7 +34,14 @@ namespace UniMob.UI.Widgets
             {
                 _rectMask.enabled = useMask;
             }
-
+            if (((int) _scroll.movementType) != (int) State.MovementType)
+            {
+                _scroll.movementType = State.MovementType switch
+                {
+                    MovementType.Clamped => ScrollRect.MovementType.Clamped,
+                    _ => ScrollRect.MovementType.Elastic,
+                };
+            }
             var children = State.Children;
             var mainAxis = State.MainAxisAlignment;
             var crossAxis = State.CrossAxisAlignment;
@@ -109,5 +117,6 @@ namespace UniMob.UI.Widgets
         CrossAxisAlignment CrossAxisAlignment { get; }
         MainAxisAlignment MainAxisAlignment { get; }
         bool UseMask { get; }
+        MovementType MovementType { get; }
     }
 }
