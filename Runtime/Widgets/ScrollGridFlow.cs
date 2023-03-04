@@ -10,12 +10,15 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent { get; set; } = float.PositiveInfinity;
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
+        public Widget BackgroundContent { get; set; } = null;
 
         public override State CreateState() => new ScrollGridFlowState();
     }
 
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
+        private readonly StateHolder _backgroundContent;
+
         private ScrollGridFlowView _gridView;
 
         public override WidgetViewReference View { get; }
@@ -27,6 +30,12 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;
         public Key Sticky => Widget.Sticky;
+        public IState BackgroundContent => _backgroundContent.Value;
+
+        public ScrollGridFlowState()
+        {
+            _backgroundContent = CreateChild(_ => Widget.BackgroundContent ?? new Empty());
+        }
 
         public override WidgetSize CalculateSize()
         {
