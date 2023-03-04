@@ -132,6 +132,22 @@ namespace UniMob.UI.Widgets
 
             using (var render = _mapper.CreateRender())
             {
+                if (State.BackgroundContent is var backgroundContentState &&
+                    !(backgroundContentState is EmptyState))
+                {
+                    var backgroundContentView = render.RenderItem(backgroundContentState);
+                    backgroundContentView.rectTransform.SetSiblingIndex(0);
+
+                    var childSize = backgroundContentState.Size;
+
+                    LayoutData layout;
+                    layout.Size = childSize.GetSizeUnbounded();
+                    layout.Alignment = Alignment.Center;
+                    layout.Corner = Alignment.Center;
+                    layout.CornerPosition = Vector2.zero;
+                    ViewLayoutUtility.SetLayout(backgroundContentView.rectTransform, layout);
+                }
+
                 DoLayout(State, RenderContent, RenderChild);
 
                 foreach (var data in _nextChildren)
@@ -392,6 +408,7 @@ namespace UniMob.UI.Widgets
     {
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
+        IState BackgroundContent { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
