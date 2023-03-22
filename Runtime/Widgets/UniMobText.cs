@@ -4,6 +4,9 @@ namespace UniMob.UI.Widgets
 {
     public class UniMobText : StatefulWidget
     {
+        public static WidgetViewReference DefaultView =
+            WidgetViewReference.Resource("UniMob.Text");
+
         public UniMobText()
         {
         }
@@ -21,14 +24,14 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
 
         public int FontSize { get; set; } = 12;
+        public WidgetViewReference View { get; set; } = DefaultView;
 
         public override State CreateState() => new UniMobTextState();
     }
 
     internal class UniMobTextState : ViewState<UniMobText>, IUniMobTextState
     {
-        public override WidgetViewReference View { get; }
-            = WidgetViewReference.Resource("UniMob.Text");
+        [Atom] public override WidgetViewReference View => Widget.View;
 
         public string Value => Widget.Value ?? string.Empty;
 

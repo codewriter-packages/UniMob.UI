@@ -6,32 +6,25 @@ namespace UniMob.UI.Widgets
 {
     internal class ScrollListView : View<IScrollListState>
     {
-        private RectTransform _contentRoot;
+        [SerializeField] private RectTransform contentRoot;
+        [SerializeField] private RectMask2D rectMask;
+
         private ViewMapperBase _mapper;
-        private RectMask2D _rectMask;
-
-        protected override void Awake()
-        {
-            base.Awake();
-
-            _contentRoot = (RectTransform) transform.GetChild(0);
-            _rectMask = GetComponent<RectMask2D>();
-        }
 
         protected override void Activate()
         {
             base.Activate();
 
             if (_mapper == null)
-                _mapper = new PooledViewMapper(_contentRoot);
+                _mapper = new PooledViewMapper(contentRoot);
         }
 
         protected override void Render()
         {
             var useMask = State.UseMask;
-            if (_rectMask.enabled != useMask)
+            if (rectMask.enabled != useMask)
             {
-                _rectMask.enabled = useMask;
+                rectMask.enabled = useMask;
             }
 
             var children = State.Children;
@@ -71,14 +64,14 @@ namespace UniMob.UI.Widgets
                     : mainAxis == MainAxisAlignment.End ? 0.0f
                     : 0.5f;
 
-                _contentRoot.pivot = new Vector2(contentPivotX, contentPivotY);
+                contentRoot.pivot = new Vector2(contentPivotX, contentPivotY);
 
                 LayoutData contentLayout;
                 contentLayout.Size = new Vector2(float.PositiveInfinity, listSize.y);
                 contentLayout.Alignment = childAlignment;
                 contentLayout.Corner = childAlignment;
                 contentLayout.CornerPosition = Vector2.zero;
-                ViewLayoutUtility.SetLayout(_contentRoot, contentLayout);
+                ViewLayoutUtility.SetLayout(contentRoot, contentLayout);
             }
 
             using (var render = _mapper.CreateRender())

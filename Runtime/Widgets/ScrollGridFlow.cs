@@ -5,12 +5,16 @@ namespace UniMob.UI.Widgets
 
     public class ScrollGridFlow : MultiChildLayoutWidget
     {
+        public static WidgetViewReference DefaultView =
+            WidgetViewReference.Resource("UniMob.ScrollGridFlow");
+
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = float.PositiveInfinity;
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
         public Widget BackgroundContent { get; set; } = null;
+        public WidgetViewReference View { get; set; } = DefaultView;
 
         public override State CreateState() => new ScrollGridFlowState();
     }
@@ -21,8 +25,7 @@ namespace UniMob.UI.Widgets
 
         private ScrollGridFlowView _gridView;
 
-        public override WidgetViewReference View { get; }
-            = WidgetViewReference.Resource("UniMob.ScrollGridFlow");
+        [Atom] public override WidgetViewReference View => Widget.View;
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;

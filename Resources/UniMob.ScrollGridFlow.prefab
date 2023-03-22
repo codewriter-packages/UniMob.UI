@@ -28,6 +28,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7319685399583282089}
   m_RootOrder: 0
@@ -106,6 +107,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7319685399380290385}
   m_Father: {fileID: 0}
@@ -128,6 +130,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d7c9ef21a04ab3872466abbeb5c3ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  contentRoot: {fileID: 7319685399380290385}
+  rectMask: {fileID: 7319685399583282086}
+  scroll: {fileID: 7319685399583282087}
 --- !u!114 &7319685399583282087
 MonoBehaviour:
   m_ObjectHideFlags: 0
