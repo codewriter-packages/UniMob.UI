@@ -10,6 +10,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new ZStackState();
     }
 
+    [AtomContainer]
     internal class ZStackState : MultiChildLayoutState<ZStack>, IZStackState
     {
         public override WidgetViewReference View { get; }

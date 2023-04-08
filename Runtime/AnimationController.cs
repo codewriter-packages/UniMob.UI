@@ -3,6 +3,7 @@ namespace UniMob.UI
     using System;
     using UnityEngine;
 
+    [AtomContainer]
     public class AnimationController : IAnimation<float>, ILifetimeScope
     {
         private float _prevDeltaTime;

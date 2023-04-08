@@ -17,6 +17,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new TabsState();
     }
 
+    [AtomContainer]
     public class TabsState : MultiChildLayoutState<Tabs>, ITabsState
     {
         public override WidgetViewReference View { get; }

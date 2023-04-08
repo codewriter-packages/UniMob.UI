@@ -13,6 +13,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new ScrollListState();
     }
 
+    [AtomContainer]
     public class ScrollListState : MultiChildLayoutState<ScrollList>, IScrollListState
     {
         [Atom] public override WidgetViewReference View => Widget.View;

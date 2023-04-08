@@ -13,6 +13,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new RowState();
     }
 
+    [AtomContainer]
     internal sealed class RowState : MultiChildLayoutState<Row>, IRowState
     {
         public override WidgetViewReference View { get; }

@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace UniMob.UI
 {
+    [AtomContainer]
     public class TabController : ILifetimeScope
     {
         private float _prevValue;

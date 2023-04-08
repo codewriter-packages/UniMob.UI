@@ -19,6 +19,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new ScrollGridFlowState();
     }
 
+    [AtomContainer]
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
         private readonly StateHolder _backgroundContent;

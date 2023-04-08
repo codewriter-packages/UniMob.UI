@@ -29,6 +29,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new UniMobTextState();
     }
 
+    [AtomContainer]
     internal class UniMobTextState : ViewState<UniMobText>, IUniMobTextState
     {
         [Atom] public override WidgetViewReference View => Widget.View;

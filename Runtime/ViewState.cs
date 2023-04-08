@@ -2,6 +2,7 @@ using UnityEngine.Assertions;
 
 namespace UniMob.UI
 {
+    [AtomContainer]
     public abstract class ViewState : State, IViewState
     {
         private LifetimeController _mountLifetimeController;

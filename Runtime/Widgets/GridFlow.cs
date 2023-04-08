@@ -16,6 +16,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new GridFlowState();
     }
 
+    [AtomContainer]
     internal class GridFlowState : MultiChildLayoutState<GridFlow>, IGridFlowState
     {
         public override WidgetViewReference View { get; }

@@ -19,6 +19,7 @@ namespace UniMob.UI
         public override State CreateState() => new UniMobDeviceState();
     }
 
+    [AtomContainer]
     public class UniMobDeviceState : HocState<UniMobDeviceWidget>
     {
         private RectInt _lastFullArea;

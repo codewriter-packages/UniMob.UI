@@ -15,6 +15,7 @@ namespace UniMob.UI.Widgets
         public Action OnDismiss { get; set; }
     }
 
+    [AtomContainer]
     internal class DismissibleDialogState : SingleChildLayoutState<DismissibleDialog>, IDismissibleDialogState
     {
         public override WidgetViewReference View { get; }
