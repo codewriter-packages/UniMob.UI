@@ -5,24 +5,31 @@ namespace UniMob.UI.Widgets
 
     public class ScrollGridFlow : MultiChildLayoutWidget
     {
+        public static WidgetViewReference DefaultView =
+            WidgetViewReference.Resource("UniMob.ScrollGridFlow");
+
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
 
-        public MovementType MovementType { get; set; } = MovementType.Elastic;
+        
 
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
+        public Widget BackgroundContent { get; set; } = null;
+        public WidgetViewReference View { get; set; } = DefaultView;
 
+        public MovementType MovementType { get; set; } = MovementType.Elastic;
         public override State CreateState() => new ScrollGridFlowState();
     }
 
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
+        private readonly StateHolder _backgroundContent;
+        
         private ScrollGridFlowView _gridView;
 
-        public override WidgetViewReference View { get; }
-            = WidgetViewReference.Resource("UniMob.ScrollGridFlow");
+        [Atom] public override WidgetViewReference View => Widget.View;
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
@@ -32,7 +39,12 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;
         public Key Sticky => Widget.Sticky;
+        public IState BackgroundContent => _backgroundContent.Value;
 
+        public ScrollGridFlowState()
+        {
+            _backgroundContent = CreateChild(_ => Widget.BackgroundContent ?? new Empty());
+        }
         public override WidgetSize CalculateSize()
         {
             return WidgetSize.Stretched;

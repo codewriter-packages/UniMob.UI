@@ -9,10 +9,9 @@ namespace UniMob.UI.Widgets
 
     public class ScrollGridFlowView : View<IScrollGridFlowState>
     {
-        private RectTransform _contentRoot;
-
-        private RectMask2D _rectMask;
-        private ScrollRect _scroll;
+        [SerializeField] private RectTransform contentRoot;
+        [SerializeField] private RectMask2D rectMask;
+        [SerializeField] private ScrollRect scroll;
 
         private ViewMapperBase _mapper;
 
@@ -28,10 +27,10 @@ namespace UniMob.UI.Widgets
         {
             base.Awake();
 
-            _contentRoot = (RectTransform) transform.GetChild(0);
-            _rectMask = GetComponent<RectMask2D>();
-            _scroll = GetComponent<ScrollRect>();
-            _scroll.onValueChanged.Bind(OnContentAnchoredPositionChanged);
+            contentRoot = (RectTransform) transform.GetChild(0);
+            rectMask = GetComponent<RectMask2D>();
+            scroll = GetComponent<ScrollRect>();
+            scroll.onValueChanged.Bind(OnContentAnchoredPositionChanged);
 
             SetupVirtualization();
         }
@@ -73,7 +72,7 @@ namespace UniMob.UI.Widgets
             {
                 _scrollValue.Get();
 
-                contentPosition = _contentRoot.anchoredPosition.y;
+                contentPosition = contentRoot.anchoredPosition.y;
                 bounds = Bounds;
                 hidden = 0;
                 visible = 0;
@@ -87,7 +86,7 @@ namespace UniMob.UI.Widgets
 
         private void OnContentAnchoredPositionChanged(Vector2 _)
         {
-            _scrollValue.Value = (int) _contentRoot.anchoredPosition.y;
+            _scrollValue.Value = (int) contentRoot.anchoredPosition.y;
         }
 
         protected override void Activate()
@@ -95,15 +94,15 @@ namespace UniMob.UI.Widgets
             base.Activate();
 
             if (_mapper == null)
-                _mapper = new PooledViewMapper(_contentRoot);
+                _mapper = new PooledViewMapper(contentRoot);
 
             // Sets initial content rectTransform size
             // to prevent unnecessary scrolling in ScrollView
             DoLayout(State, RenderContent);
 
 
-            _scroll.horizontalNormalizedPosition = 0f;
-            _scroll.verticalNormalizedPosition = 1f;
+            scroll.horizontalNormalizedPosition = 0f;
+            scroll.verticalNormalizedPosition = 1f;
         }
 
         protected override void Deactivate()
@@ -119,13 +118,13 @@ namespace UniMob.UI.Widgets
         {
             var sticky = State.Sticky;
             var useMask = State.UseMask;
-            if (_rectMask.enabled != useMask)
+            if (rectMask.enabled != useMask)
             {
-                _rectMask.enabled = useMask;
+                rectMask.enabled = useMask;
             }
-            if (((int) _scroll.movementType) != (int) State.MovementType)
+            if (((int) scroll.movementType) != (int) State.MovementType)
             {
-                _scroll.movementType = State.MovementType switch
+                scroll.movementType = State.MovementType switch
                 {
                     MovementType.Clamped => ScrollRect.MovementType.Clamped,
                     _ => ScrollRect.MovementType.Elastic,
@@ -141,6 +140,22 @@ namespace UniMob.UI.Widgets
 
             using (var render = _mapper.CreateRender())
             {
+                if (State.BackgroundContent is var backgroundContentState &&
+                    !(backgroundContentState is EmptyState))
+                {
+                    var backgroundContentView = render.RenderItem(backgroundContentState);
+                    backgroundContentView.rectTransform.SetSiblingIndex(0);
+
+                    var childSize = backgroundContentState.Size;
+
+                    LayoutData layout;
+                    layout.Size = childSize.GetSizeUnbounded();
+                    layout.Alignment = Alignment.Center;
+                    layout.Corner = Alignment.Center;
+                    layout.CornerPosition = Vector2.zero;
+                    ViewLayoutUtility.SetLayout(backgroundContentView.rectTransform, layout);
+                }
+
                 DoLayout(State, RenderContent, RenderChild);
 
                 foreach (var data in _nextChildren)
@@ -170,7 +185,7 @@ namespace UniMob.UI.Widgets
                     layout.Corner = data.childAlignment.WithLeft();
                     layout.CornerPosition = data.cornerPosition;
 
-                    Transform childParent = _contentRoot;
+                    Transform childParent = contentRoot;
 
                     if (isSticky && _sticked.Value)
                     {
@@ -192,14 +207,14 @@ namespace UniMob.UI.Widgets
 
         private void RenderContent(Vector2 contentPivot, Vector2 gridSize, Alignment childAlignment)
         {
-            _contentRoot.pivot = contentPivot;
+            contentRoot.pivot = contentPivot;
 
             LayoutData contentLayout;
             contentLayout.Size = new Vector2(float.PositiveInfinity, gridSize.y);
             contentLayout.Alignment = childAlignment;
             contentLayout.Corner = childAlignment;
             contentLayout.CornerPosition = null;
-            ViewLayoutUtility.SetLayout(_contentRoot, contentLayout);
+            ViewLayoutUtility.SetLayout(contentRoot, contentLayout);
         }
 
         private void RenderChild(ChildData data)
@@ -364,12 +379,12 @@ namespace UniMob.UI.Widgets
         {
             var time = 0f;
 
-            var lastAnchoredPosition = _contentRoot.anchoredPosition;
+            var lastAnchoredPosition = contentRoot.anchoredPosition;
             while (time < duration)
             {
                 yield return null;
 
-                if (Vector2.SqrMagnitude(lastAnchoredPosition - _contentRoot.anchoredPosition) > 0.1f)
+                if (Vector2.SqrMagnitude(lastAnchoredPosition - contentRoot.anchoredPosition) > 0.1f)
                 {
                     yield break;
                 }
@@ -377,15 +392,15 @@ namespace UniMob.UI.Widgets
                 time += Time.unscaledDeltaTime;
 
                 lastAnchoredPosition = Vector2.LerpUnclamped(
-                    _contentRoot.anchoredPosition,
+                    contentRoot.anchoredPosition,
                     anchoredPosition,
                     CircEaseInOut(time, duration)
                 );
 
-                _contentRoot.anchoredPosition = lastAnchoredPosition;
+                contentRoot.anchoredPosition = lastAnchoredPosition;
             }
 
-            _contentRoot.anchoredPosition = anchoredPosition;
+            contentRoot.anchoredPosition = anchoredPosition;
         }
 
         public static float CircEaseInOut(float t, float d)
@@ -401,6 +416,7 @@ namespace UniMob.UI.Widgets
     {
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
+        IState BackgroundContent { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
