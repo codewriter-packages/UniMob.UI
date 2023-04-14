@@ -27,9 +27,6 @@ namespace UniMob.UI.Widgets
         {
             base.Awake();
 
-            contentRoot = (RectTransform) transform.GetChild(0);
-            rectMask = GetComponent<RectMask2D>();
-            scroll = GetComponent<ScrollRect>();
             scroll.onValueChanged.Bind(OnContentAnchoredPositionChanged);
 
             SetupVirtualization();
@@ -99,7 +96,6 @@ namespace UniMob.UI.Widgets
             // Sets initial content rectTransform size
             // to prevent unnecessary scrolling in ScrollView
             DoLayout(State, RenderContent);
-
 
             scroll.horizontalNormalizedPosition = 0f;
             scroll.verticalNormalizedPosition = 1f;
@@ -306,7 +302,8 @@ namespace UniMob.UI.Widgets
                         }
                         else
                         {
-                            Debug.LogError($"Cannot render multiple horizontally stretched widgets inside ScrollGridFlow.\n" +
+                            Debug.LogError(
+                                $"Cannot render multiple horizontally stretched widgets inside ScrollGridFlow.\n" +
                                 $"Try to wrap {child.GetType().Name} into another widget of fixed width or to set {nameof(state.MaxCrossAxisCount)} to 1");
                         }
                     }
