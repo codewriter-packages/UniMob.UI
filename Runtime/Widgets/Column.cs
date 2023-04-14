@@ -13,7 +13,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new ColumnState();
     }
 
-    internal sealed class ColumnState : MultiChildLayoutState<Column>, IColumnState
+    public sealed class ColumnState : MultiChildLayoutState<Column>, IColumnState
     {
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("$$_Column");

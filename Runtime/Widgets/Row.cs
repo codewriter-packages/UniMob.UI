@@ -13,7 +13,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new RowState();
     }
 
-    internal sealed class RowState : MultiChildLayoutState<Row>, IRowState
+    public sealed class RowState : MultiChildLayoutState<Row>, IRowState
     {
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("$$_Row");

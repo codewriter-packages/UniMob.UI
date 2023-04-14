@@ -12,7 +12,7 @@ namespace UniMob.UI.Widgets
         public override State CreateState() => new UniMobButtonState();
     }
 
-    internal class UniMobButtonState : SingleChildLayoutState<UniMobButton>, IUniMobButtonState
+    public class UniMobButtonState : SingleChildLayoutState<UniMobButton>, IUniMobButtonState
     {
         public override WidgetViewReference View { get; }
             = WidgetViewReference.Resource("UniMob.Button");
