@@ -30,8 +30,12 @@ namespace UniMob.UI.Internal.Pooling
                 return pool;
 
             pool = new GameObject("Pool").AddComponent<Pool>();
+
+            Object.DontDestroyOnLoad(pool);
+            Object.DontDestroyOnLoad(pool.gameObject);
+
             pool.Init(prefab);
-            Pools.Add(prefabID, pool);
+            Pools[prefabID] = pool;
 
             return pool;
         }
@@ -88,12 +92,6 @@ namespace UniMob.UI.Internal.Pooling
             private GameObject _prefab;
             private string _prefabName;
             private bool _poolDestroyed;
-
-            private void Start()
-            {
-                DontDestroyOnLoad(this);
-                DontDestroyOnLoad(gameObject);
-            }
 
             private void OnDestroy()
             {
