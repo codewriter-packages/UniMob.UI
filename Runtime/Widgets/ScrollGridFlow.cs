@@ -107,14 +107,14 @@ namespace UniMob.UI.Widgets
             _gridView = null;
         }
 
-        public void ScrollTo(Key key, float duration)
+        public bool ScrollTo(Key key, float duration, float offset = 0)
         {
             if (_gridView == null)
             {
-                return;
+                return false;
             }
 
-            _gridView.ScrollTo(key, duration);
+            return _gridView.ScrollTo(key, duration, offset);
         }
     }
 }
