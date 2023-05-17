@@ -31,7 +31,7 @@ namespace UniMob.UI
             Value = Mathf.Clamp(value, 0, TabCount - 1);
         }
 
-        public void AnimateTo(int newIndex)
+        public void AnimateTo(int newIndex, bool immediate = false)
         {
             using (Atom.NoWatch)
             {
@@ -42,7 +42,7 @@ namespace UniMob.UI
                 Index = newIndex;
                 IndexIsChanging = true;
 
-                if (Mathf.Approximately(Duration, 0f))
+                if (immediate || Mathf.Approximately(Duration, 0f))
                 {
                     Value = Index;
                     IndexIsChanging = false;
