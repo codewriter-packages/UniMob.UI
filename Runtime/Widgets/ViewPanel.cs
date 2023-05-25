@@ -8,6 +8,8 @@ namespace UniMob.UI.Widgets
     {
         private ViewMapperBase _mapper;
 
+        internal override bool TriggerViewMountEvents => false;
+
         public void Render(IState state, bool link = false)
         {
             base.Render(state.InnerViewState, link);

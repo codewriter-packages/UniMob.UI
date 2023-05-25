@@ -180,6 +180,9 @@ UniMob.UI comes with a suite of powerful basic widgets:
 >**[Animated Cross Fade](./Runtime/Widgets/AnimatedCrossFade.cs)**<br/>
 > A widget that cross-fades between two given children and animates itself between their sizes.
 >
+>**[Animated Switcher](./Runtime/Widgets/AnimatedSwitcher.cs)**<br/>
+> A widget that by default does a cross-fade between a new widget and the widget previously set on the AnimatedSwitcher as a child.
+>
 >**[Dismissible Dialog](./Runtime/Widgets/DismissibleDialog.cs)**<br/>
 > A widget with swipe-down-to-dismiss and swipe-up-to-expand callbacks.
 >

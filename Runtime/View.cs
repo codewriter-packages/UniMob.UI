@@ -35,6 +35,8 @@ namespace UniMob.UI
         public bool HasState => _currentState != null;
         protected TState State => _currentState;
 
+        internal virtual bool TriggerViewMountEvents => true;
+
         // ReSharper disable once InconsistentNaming
         public RectTransform rectTransform => (RectTransform) transform;
 
@@ -128,7 +130,10 @@ namespace UniMob.UI
                 {
                     try
                     {
-                        _currentState.DidViewUnmount(this);
+                        if (TriggerViewMountEvents)
+                        {
+                            _currentState.DidViewUnmount(this);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -184,7 +189,10 @@ namespace UniMob.UI
                 {
                     try
                     {
-                        _currentState.DidViewUnmount(this);
+                        if (TriggerViewMountEvents)
+                        {
+                            _currentState.DidViewUnmount(this);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -220,7 +228,10 @@ namespace UniMob.UI
             {
                 try
                 {
-                    _currentState.DidViewMount(this);
+                    if (TriggerViewMountEvents)
+                    {
+                        _currentState.DidViewMount(this);
+                    }
                 }
                 catch (Exception ex)
                 {

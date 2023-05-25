@@ -364,12 +364,20 @@ namespace UniMob.UI.Widgets
             public Vector2 cornerPosition;
         }
 
-        public void ScrollTo(Key key, float duration)
+        public bool ScrollTo(Key key, float duration, float offset)
         {
-            if (_childPositions.TryGetValue(key, out var position))
+            if (!_childPositions.TryGetValue(key, out var position))
             {
-                StartCoroutine(ScrollTo(Vector2.up * position.y, duration));
+                return false;
             }
+
+            var y = position.y - offset;
+
+            // special case for element at end of list
+            y -= Mathf.Max(0, Bounds.y - (contentRoot.sizeDelta.y - y));
+
+            StartCoroutine(ScrollTo(Vector2.up * y, duration));
+            return true;
         }
 
         private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration)
