@@ -57,7 +57,6 @@ namespace UniMob.UI.Internal.ViewLoaders
 
             var template = builder();
             Object.DontDestroyOnLoad(template);
-            template.hideFlags = HideFlags.HideInHierarchy;
 
             view = template.GetComponent<IView>();
 
