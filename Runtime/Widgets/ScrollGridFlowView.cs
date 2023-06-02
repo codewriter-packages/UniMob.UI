@@ -99,6 +99,7 @@ namespace UniMob.UI.Widgets
         private void OnContentAnchoredPositionChanged(Vector2 _)
         {
             _scrollValue.Value = (int) contentRoot.anchoredPosition.y;
+            State.ScrollController.NormalizedValue = 1f - scroll.verticalNormalizedPosition;
         }
 
         protected override void Activate()
@@ -113,7 +114,7 @@ namespace UniMob.UI.Widgets
             DoLayout(State, RenderContent);
 
             scroll.horizontalNormalizedPosition = 0f;
-            scroll.verticalNormalizedPosition = 1f;
+            scroll.verticalNormalizedPosition = 1f - State.ScrollController.NormalizedValue;
         }
 
         protected override void Deactivate()
@@ -438,6 +439,7 @@ namespace UniMob.UI.Widgets
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
         bool UseMask { get; }
+        ScrollController ScrollController { get; }
         Key Sticky { get; }
         StickyModes StickyMode { get; }
     }
