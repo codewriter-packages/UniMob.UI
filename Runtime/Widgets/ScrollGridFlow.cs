@@ -13,6 +13,7 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent { get; set; } = float.PositiveInfinity;
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
+        public StickyModes StickyMode { get; set; } = StickyModes.Top;
         public Widget BackgroundContent { get; set; } = null;
         public WidgetViewReference View { get; set; } = DefaultView;
 
@@ -33,6 +34,7 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;
         public Key Sticky => Widget.Sticky;
+        public StickyModes StickyMode => Widget.StickyMode;
         public IState BackgroundContent => _backgroundContent.Value;
 
         public ScrollGridFlowState()
@@ -116,5 +118,13 @@ namespace UniMob.UI.Widgets
 
             return _gridView.ScrollTo(key, duration, offset);
         }
+    }
+
+    [Flags]
+    public enum StickyModes
+    {
+        Top = 1 << 0,
+        Bottom = 1 << 1,
+        TopAndBottom = Top | Bottom,
     }
 }
