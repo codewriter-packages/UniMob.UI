@@ -16,7 +16,7 @@ namespace UniMob.UI.Widgets
         private ViewMapperBase _mapper;
 
         private readonly MutableAtom<int> _scrollValue = Atom.Value(0);
-        private readonly MutableAtom<bool> _sticked = Atom.Value(false);
+        private readonly MutableAtom<StickyModes?> _sticked = Atom.Value<StickyModes?>(null);
         private readonly List<ChildData> _nextChildren = new List<ChildData>();
 
         private Atom<Vector2Int> _visibilityIndices;
@@ -60,7 +60,22 @@ namespace UniMob.UI.Widgets
                 {
                     using (Atom.NoWatch)
                     {
-                        _sticked.Value = contentPosition > data.cornerPosition.y;
+                        var corner = data.cornerPosition.y;
+                        var stickToTop = (State.StickyMode & StickyModes.Top) != 0;
+                        var stickToBottom = (State.StickyMode & StickyModes.Bottom) != 0;
+
+                        if (stickToTop && contentPosition > corner)
+                        {
+                            _sticked.Value = StickyModes.Top;
+                        }
+                        else if (stickToBottom && contentPosition + Bounds.y < corner + data.childSize.y)
+                        {
+                            _sticked.Value = StickyModes.Bottom;
+                        }
+                        else
+                        {
+                            _sticked.Value = null;
+                        }
                     }
                 }
             }
@@ -175,12 +190,17 @@ namespace UniMob.UI.Widgets
 
                     Transform childParent = contentRoot;
 
-                    if (isSticky && _sticked.Value)
+                    if (isSticky && _sticked.Value is var stickyMode && stickyMode != null)
                     {
-                        childParent = transform;
+                        childParent = contentRoot.parent;
 
-                        layout.Corner = Alignment.TopCenter;
-                        layout.CornerPosition = Vector2.zero;
+                        layout.Corner = stickyMode == StickyModes.Top
+                            ? Alignment.TopCenter
+                            : Alignment.BottomCenter;
+
+                        layout.CornerPosition = stickyMode == StickyModes.Top
+                            ? Vector2.zero
+                            : new Vector2(0, Bounds.y);
                     }
 
                     if (childView.rectTransform.parent != childParent)
@@ -419,5 +439,6 @@ namespace UniMob.UI.Widgets
         float MaxCrossAxisExtent { get; }
         bool UseMask { get; }
         Key Sticky { get; }
+        StickyModes StickyMode { get; }
     }
 }
