@@ -17,6 +17,8 @@ namespace UniMob.UI.Widgets
         public Widget BackgroundContent { get; set; } = null;
         public WidgetViewReference View { get; set; } = DefaultView;
 
+        public ScrollController ScrollController { get; set; }
+
         public override State CreateState() => new ScrollGridFlowState();
     }
 
@@ -37,9 +39,18 @@ namespace UniMob.UI.Widgets
         public StickyModes StickyMode => Widget.StickyMode;
         public IState BackgroundContent => _backgroundContent.Value;
 
+        [Atom] public ScrollController ScrollController { get; private set; }
+
         public ScrollGridFlowState()
         {
             _backgroundContent = CreateChild(_ => Widget.BackgroundContent ?? new Empty());
+        }
+
+        public override void InitState()
+        {
+            base.InitState();
+
+            ScrollController = Widget.ScrollController ?? new ScrollController(StateLifetime);
         }
 
         public override WidgetSize CalculateSize()
@@ -107,6 +118,16 @@ namespace UniMob.UI.Widgets
             base.DidViewUnmount(view);
 
             _gridView = null;
+        }
+
+        public override void DidUpdateWidget(ScrollGridFlow oldWidget)
+        {
+            base.DidUpdateWidget(oldWidget);
+
+            if (Widget.ScrollController != null && Widget.ScrollController != ScrollController)
+            {
+                ScrollController = Widget.ScrollController;
+            }
         }
 
         public bool ScrollTo(Key key, float duration, float offset = 0)
