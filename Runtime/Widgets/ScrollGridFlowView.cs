@@ -389,6 +389,9 @@ namespace UniMob.UI.Widgets
             // special case for element at end of list
             y -= Mathf.Max(0, Bounds.y - (contentRoot.sizeDelta.y - y));
 
+            // special case for elements at begin of list
+            y = Math.Max(0, y);
+
             StartCoroutine(ScrollTo(Vector2.up * y, duration));
             return true;
         }
