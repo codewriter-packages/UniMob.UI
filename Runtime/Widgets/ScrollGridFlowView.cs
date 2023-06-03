@@ -377,7 +377,7 @@ namespace UniMob.UI.Widgets
             public Vector2 cornerPosition;
         }
 
-        public bool ScrollTo(Key key, float duration, float offset)
+        public bool ScrollTo(Key key, float duration, float offset, ScrollEasing easing)
         {
             if (!_childPositions.TryGetValue(key, out var position))
             {
@@ -392,11 +392,11 @@ namespace UniMob.UI.Widgets
             // special case for elements at begin of list
             y = Math.Max(0, y);
 
-            StartCoroutine(ScrollTo(Vector2.up * y, duration));
+            StartCoroutine(ScrollTo(Vector2.up * y, duration, easing));
             return true;
         }
 
-        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration)
+        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration, ScrollEasing easing)
         {
             var time = 0f;
 
@@ -415,21 +415,13 @@ namespace UniMob.UI.Widgets
                 lastAnchoredPosition = Vector2.LerpUnclamped(
                     contentRoot.anchoredPosition,
                     anchoredPosition,
-                    CircEaseInOut(time, duration)
+                    easing.Invoke(time, duration)
                 );
 
                 contentRoot.anchoredPosition = lastAnchoredPosition;
             }
 
             contentRoot.anchoredPosition = anchoredPosition;
-        }
-
-        public static float CircEaseInOut(float t, float d)
-        {
-            if ((t /= d / 2) < 1)
-                return -0.5f * (Mathf.Sqrt(1 - t * t) - 1);
-
-            return 0.5f * (Mathf.Sqrt(1 - (t -= 2) * t) + 1);
         }
     }
 
