@@ -82,22 +82,24 @@ namespace UniMob.UI
 
             var screen = new Vector2(Screen.width, Screen.height);
             var reference = canvasScaler.referenceResolution;
+            var referenceDpi = canvasScaler.fallbackScreenDPI;
+            var dpiScale = referenceDpi / Screen.dpi;
 
             switch (canvasScaler.screenMatchMode)
             {
                 case CanvasScaler.ScreenMatchMode.MatchWidthOrHeight:
-                    return Mathf.Pow(2f, Mathf.Lerp(
+                    return dpiScale * Mathf.Pow(2f, Mathf.Lerp(
                         Mathf.Log(screen.x / reference.x, 2f),
                         Mathf.Log(screen.y / reference.y, 2f), canvasScaler.matchWidthOrHeight));
 
                 case CanvasScaler.ScreenMatchMode.Expand:
-                    return Mathf.Min(screen.x / reference.x, screen.y / reference.y);
+                    return dpiScale * Mathf.Min(screen.x / reference.x, screen.y / reference.y);
 
                 case CanvasScaler.ScreenMatchMode.Shrink:
-                    return Mathf.Max(screen.x / reference.x, screen.y / reference.y);
+                    return dpiScale * Mathf.Max(screen.x / reference.x, screen.y / reference.y);
 
                 default:
-                    return 1f;
+                    return dpiScale * 1f;
             }
         }
 
