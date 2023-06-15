@@ -1,48 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UniMob.UI.Internal.ViewLoaders;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
-using Debug = UnityEngine.Debug;
 
 namespace UniMob.UI
 {
-    public class UniMobAddressablesPreloadHandle : IDisposable
+    public interface IUniMobAddressablesLoader
     {
-        private static readonly List<UniMobAddressablesPreloadHandle> Handles =
-            new List<UniMobAddressablesPreloadHandle>();
+        bool TryGetPrefab(string path, out GameObject prefab);
+    }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
-        {
-            if (Handles.Count > 0)
-            {
-                Debug.LogError(
-                    "[UniMob] You must Dispose all UniMobAddressablesPreloadHandle when application is closed");
-            }
-
-            Handles.Clear();
-        }
-
+    public class UniMobAddressablesPreloadHandle : IUniMobAddressablesLoader, IDisposable
+    {
         private readonly object _key;
-        private readonly List<AsyncOperationHandle> _operations;
+        private readonly LifetimeController _lifetimeController;
         private readonly Dictionary<string, GameObject> _prefabs;
+
+        public Lifetime Lifetime => _lifetimeController.Lifetime;
 
         private UniMobAddressablesPreloadHandle(object key)
         {
             _key = key;
-            _operations = new List<AsyncOperationHandle>();
+            _lifetimeController = new LifetimeController();
             _prefabs = new Dictionary<string, GameObject>();
+        }
 
-            Handles.Add(this);
+        public bool TryGetPrefab(string path, out GameObject prefab)
+        {
+            return _prefabs.TryGetValue(path, out prefab);
         }
 
         public async Task LoadAsync()
         {
             var loadLocationsOperation = Addressables.LoadResourceLocationsAsync(_key, typeof(GameObject));
-            _operations.Add(loadLocationsOperation);
+            Lifetime.Register(() => Addressables.Release(loadLocationsOperation));
 
             var locations = await loadLocationsOperation.Task;
             var queuedTasks = new List<Task>(locations.Count);
@@ -61,7 +55,7 @@ namespace UniMob.UI
         private async Task LoadAsset(IResourceLocation location)
         {
             var loadOperation = Addressables.LoadAssetAsync<GameObject>(location);
-            _operations.Add(loadOperation);
+            Lifetime.Register(() => Addressables.Release(loadOperation));
 
             var prefab = await loadOperation.Task;
             _prefabs[location.PrimaryKey] = prefab;
@@ -69,31 +63,16 @@ namespace UniMob.UI
 
         public void Dispose()
         {
-            Handles.Remove(this);
-
-            foreach (var operation in _operations)
-            {
-                Addressables.Release(operation);
-            }
-        }
-
-        public static bool TryGetPrefab(string path, out GameObject prefab)
-        {
-            foreach (var handle in Handles)
-            {
-                if (handle._prefabs.TryGetValue(path, out prefab))
-                {
-                    return true;
-                }
-            }
-
-            prefab = default;
-            return false;
+            _lifetimeController.Dispose();
         }
 
         public static UniMobAddressablesPreloadHandle Create(object key)
         {
-            return new UniMobAddressablesPreloadHandle(key);
+            var handle = new UniMobAddressablesPreloadHandle(key);
+
+            AddressableViewLoader.RegisterAddressablesLoader(handle.Lifetime, handle);
+
+            return handle;
         }
     }
 }

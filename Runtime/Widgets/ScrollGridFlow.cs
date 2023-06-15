@@ -1,7 +1,7 @@
 namespace UniMob.UI.Widgets
 {
     using System;
-    using UniMob.UI;
+    using UnityEngine;
 
     public class ScrollGridFlow : MultiChildLayoutWidget
     {
@@ -16,8 +16,11 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent { get; set; } = float.PositiveInfinity;
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
+        public StickyModes StickyMode { get; set; } = StickyModes.Top;
         public Widget BackgroundContent { get; set; } = null;
         public WidgetViewReference View { get; set; } = DefaultView;
+
+        public ScrollController ScrollController { get; set; }
 
         public MovementType MovementType { get; set; } = MovementType.Elastic;
         public override State CreateState() => new ScrollGridFlowState();
@@ -25,6 +28,9 @@ namespace UniMob.UI.Widgets
 
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
+        private static readonly ScrollEasing CircEaseInOutEasing = (t, d) =>
+            (t /= d / 2) < 1 ? -0.5f * (Mathf.Sqrt(1 - t * t) - 1) : 0.5f * (Mathf.Sqrt(1 - (t -= 2) * t) + 1);
+
         private readonly StateHolder _backgroundContent;
 
         private ScrollGridFlowView _gridView;
@@ -39,12 +45,23 @@ namespace UniMob.UI.Widgets
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;
         public Key Sticky => Widget.Sticky;
+        public StickyModes StickyMode => Widget.StickyMode;
         public IState BackgroundContent => _backgroundContent.Value;
+
+        [Atom] public ScrollController ScrollController { get; private set; }
 
         public ScrollGridFlowState()
         {
             _backgroundContent = CreateChild(_ => Widget.BackgroundContent ?? new Empty());
         }
+
+        public override void InitState()
+        {
+            base.InitState();
+
+            ScrollController = Widget.ScrollController ?? new ScrollController(StateLifetime);
+        }
+
         public override WidgetSize CalculateSize()
         {
             return WidgetSize.Stretched;
@@ -112,14 +129,34 @@ namespace UniMob.UI.Widgets
             _gridView = null;
         }
 
-        public bool ScrollTo(Key key, float duration, float offset = 0)
+        public override void DidUpdateWidget(ScrollGridFlow oldWidget)
+        {
+            base.DidUpdateWidget(oldWidget);
+
+            if (Widget.ScrollController != null && Widget.ScrollController != ScrollController)
+            {
+                ScrollController = Widget.ScrollController;
+            }
+        }
+
+        public bool ScrollTo(Key key, float duration, float offset = 0, ScrollEasing easing = null)
         {
             if (_gridView == null)
             {
                 return false;
             }
 
-            return _gridView.ScrollTo(key, duration, offset);
+            return _gridView.ScrollTo(key, duration, offset, easing ?? CircEaseInOutEasing);
         }
     }
+
+    [Flags]
+    public enum StickyModes
+    {
+        Top = 1 << 0,
+        Bottom = 1 << 1,
+        TopAndBottom = Top | Bottom,
+    }
+
+    public delegate float ScrollEasing(float t, float duration);
 }

@@ -16,7 +16,7 @@ namespace UniMob.UI.Widgets
         private ViewMapperBase _mapper;
 
         private readonly MutableAtom<int> _scrollValue = Atom.Value(0);
-        private readonly MutableAtom<bool> _sticked = Atom.Value(false);
+        private readonly MutableAtom<StickyModes?> _sticked = Atom.Value<StickyModes?>(null);
         private readonly List<ChildData> _nextChildren = new List<ChildData>();
 
         private Atom<Vector2Int> _visibilityIndices;
@@ -60,7 +60,22 @@ namespace UniMob.UI.Widgets
                 {
                     using (Atom.NoWatch)
                     {
-                        _sticked.Value = contentPosition > data.cornerPosition.y;
+                        var corner = data.cornerPosition.y;
+                        var stickToTop = (State.StickyMode & StickyModes.Top) != 0;
+                        var stickToBottom = (State.StickyMode & StickyModes.Bottom) != 0;
+
+                        if (stickToTop && contentPosition > corner)
+                        {
+                            _sticked.Value = StickyModes.Top;
+                        }
+                        else if (stickToBottom && contentPosition + Bounds.y < corner + data.childSize.y)
+                        {
+                            _sticked.Value = StickyModes.Bottom;
+                        }
+                        else
+                        {
+                            _sticked.Value = null;
+                        }
                     }
                 }
             }
@@ -84,6 +99,7 @@ namespace UniMob.UI.Widgets
         private void OnContentAnchoredPositionChanged(Vector2 _)
         {
             _scrollValue.Value = (int) contentRoot.anchoredPosition.y;
+            State.ScrollController.NormalizedValue = 1f - scroll.verticalNormalizedPosition;
         }
 
         protected override void Activate()
@@ -98,7 +114,7 @@ namespace UniMob.UI.Widgets
             DoLayout(State, RenderContent);
 
             scroll.horizontalNormalizedPosition = 0f;
-            scroll.verticalNormalizedPosition = 1f;
+            scroll.verticalNormalizedPosition = 1f - State.ScrollController.NormalizedValue;
         }
 
         protected override void Deactivate()
@@ -183,12 +199,17 @@ namespace UniMob.UI.Widgets
 
                     Transform childParent = contentRoot;
 
-                    if (isSticky && _sticked.Value)
+                    if (isSticky && _sticked.Value is var stickyMode && stickyMode != null)
                     {
-                        childParent = transform;
+                        childParent = contentRoot.parent;
 
-                        layout.Corner = Alignment.TopCenter;
-                        layout.CornerPosition = Vector2.zero;
+                        layout.Corner = stickyMode == StickyModes.Top
+                            ? Alignment.TopCenter
+                            : Alignment.BottomCenter;
+
+                        layout.CornerPosition = stickyMode == StickyModes.Top
+                            ? Vector2.zero
+                            : new Vector2(0, Bounds.y);
                     }
 
                     if (childView.rectTransform.parent != childParent)
@@ -364,7 +385,7 @@ namespace UniMob.UI.Widgets
             public Vector2 cornerPosition;
         }
 
-        public bool ScrollTo(Key key, float duration, float offset)
+        public bool ScrollTo(Key key, float duration, float offset, ScrollEasing easing)
         {
             if (!_childPositions.TryGetValue(key, out var position))
             {
@@ -376,11 +397,14 @@ namespace UniMob.UI.Widgets
             // special case for element at end of list
             y -= Mathf.Max(0, Bounds.y - (contentRoot.sizeDelta.y - y));
 
-            StartCoroutine(ScrollTo(Vector2.up * y, duration));
+            // special case for elements at begin of list
+            y = Math.Max(0, y);
+
+            StartCoroutine(ScrollTo(Vector2.up * y, duration, easing));
             return true;
         }
 
-        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration)
+        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration, ScrollEasing easing)
         {
             var time = 0f;
 
@@ -399,21 +423,13 @@ namespace UniMob.UI.Widgets
                 lastAnchoredPosition = Vector2.LerpUnclamped(
                     contentRoot.anchoredPosition,
                     anchoredPosition,
-                    CircEaseInOut(time, duration)
+                    easing.Invoke(time, duration)
                 );
 
                 contentRoot.anchoredPosition = lastAnchoredPosition;
             }
 
             contentRoot.anchoredPosition = anchoredPosition;
-        }
-
-        public static float CircEaseInOut(float t, float d)
-        {
-            if ((t /= d / 2) < 1)
-                return -0.5f * (Mathf.Sqrt(1 - t * t) - 1);
-
-            return 0.5f * (Mathf.Sqrt(1 - (t -= 2) * t) + 1);
         }
     }
 
@@ -426,7 +442,9 @@ namespace UniMob.UI.Widgets
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
         bool UseMask { get; }
+        ScrollController ScrollController { get; }
         Key Sticky { get; }
+        StickyModes StickyMode { get; }
         MovementType MovementType { get; }
     }
 }
