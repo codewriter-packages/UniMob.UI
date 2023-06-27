@@ -88,7 +88,7 @@ namespace UniMob.UI
             switch (canvasScaler.screenMatchMode)
             {
                 case CanvasScaler.ScreenMatchMode.MatchWidthOrHeight:
-                    return dpiScale * Mathf.Pow(2f, Mathf.Lerp(
+                    return Mathf.Pow(2f, Mathf.Lerp(
                         Mathf.Log(screen.x / reference.x, 2f),
                         Mathf.Log(screen.y / reference.y, 2f), canvasScaler.matchWidthOrHeight));
 
