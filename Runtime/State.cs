@@ -1,3 +1,7 @@
+#if (UNITY_EDITOR || DEVELOPMENT_BUILD) && !UNIMOB_DISABLE_REBUILD_RATE_LIMITER
+#define UNIMOB_ENABLE_REBUILD_RATE_LIMITER
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -142,6 +146,10 @@ namespace UniMob.UI
         private readonly WidgetBuilder<TWidget> _builder;
         private readonly Atom<TState> _stateAtom;
 
+#if UNIMOB_ENABLE_REBUILD_RATE_LIMITER
+        private UniMobRebuildRateLimiter _rebuildRateLimiter;
+#endif
+
         private State _state;
 
         public StateHolder(Lifetime lifetime, BuildContext context, WidgetBuilder<TWidget> builder)
@@ -149,6 +157,11 @@ namespace UniMob.UI
             _context = context;
             _builder = builder;
             _stateAtom = Atom.Computed(lifetime, ComputeState);
+
+#if UNIMOB_ENABLE_REBUILD_RATE_LIMITER
+            _rebuildRateLimiter = new UniMobRebuildRateLimiter(context);
+#endif
+
             lifetime.Register(DeactivateState);
         }
 
@@ -158,6 +171,11 @@ namespace UniMob.UI
         private TState ComputeState()
         {
             var newWidget = _builder(_context);
+
+#if UNIMOB_ENABLE_REBUILD_RATE_LIMITER
+            _rebuildRateLimiter.TrackRebuild(newWidget);
+#endif
+
             using (Atom.NoWatch)
             {
                 _state = StateUtilities.UpdateChild(_context, _state, newWidget);
