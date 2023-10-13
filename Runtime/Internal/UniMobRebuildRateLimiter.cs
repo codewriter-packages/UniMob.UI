@@ -1,10 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace UniMob.UI.Internal
 {
     public struct UniMobRebuildRateLimiter
     {
+        private static readonly HashSet<Type> IgnoredOwnerTypes = new HashSet<Type>();
+
         private const int MaxContinuousRebuildCount = 15;
 
         private readonly BuildContext _buildContext;
@@ -34,7 +39,6 @@ namespace UniMob.UI.Internal
             {
                 _continuousRebuildCount = 0;
 
-                var widgetTypeName = widget?.GetType().Name ?? "Unknown";
                 var ownerCtx = _buildContext;
 
                 while (ownerCtx?.Parent != null &&
@@ -46,9 +50,20 @@ namespace UniMob.UI.Internal
 
                 var ownerType = ownerCtx?.State?.GetType();
 
-                Debug.LogError(
-                    $"WARN: {widgetTypeName} at {ownerType} was rebuilt {MaxContinuousRebuildCount} frames in a row");
+                if (ownerType == null || !IgnoredOwnerTypes.Contains(ownerType))
+                {
+                    var widgetTypeName = widget?.GetType().Name ?? "Unknown";
+
+                    Debug.LogError(
+                        $"{widgetTypeName} at {ownerType} was rebuilt {MaxContinuousRebuildCount} frames in a row");
+                }
             }
+        }
+
+        [PublicAPI]
+        public static void Ignore<T>() where T : IState
+        {
+            IgnoredOwnerTypes.Add(typeof(T));
         }
     }
 }
