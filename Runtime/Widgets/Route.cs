@@ -13,6 +13,7 @@ namespace UniMob.UI.Widgets
         private readonly TriggerStateMachine<ScreenState, ScreenEvent, Task> _machine;
         private readonly TaskCompletionSource<object> _popCompleter = new TaskCompletionSource<object>();
         private readonly TaskCompletionSource<object> _pushCompleter = new TaskCompletionSource<object>();
+        private readonly TaskCompletionSource<object> _disposeCompleter = new TaskCompletionSource<object>();
 
         private Func<bool> _backAction;
         private object _popResult = null;
@@ -30,6 +31,7 @@ namespace UniMob.UI.Widgets
         public Task<object> PopTask => _popCompleter.Task;
 
         public Task PushTask => _pushCompleter.Task;
+        public Task DisposeTask => _disposeCompleter.Task;
 
         public string Key => _settings.Name;
 
@@ -120,6 +122,7 @@ namespace UniMob.UI.Widgets
 
         public virtual void Dispose()
         {
+            _disposeCompleter.SetResult(null);
         }
 
         protected virtual Task OnInitialize() => Task.CompletedTask;
