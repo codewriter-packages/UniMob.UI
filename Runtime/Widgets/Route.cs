@@ -201,4 +201,19 @@ namespace UniMob.UI.Widgets
             ModalType = modalType;
         }
     }
+    
+    public class RouteBuilder : Route
+    {
+        private readonly Func<BuildContext, Widget> _pageBuilder;
+
+        public RouteBuilder(RouteSettings settings, Func<BuildContext, Widget> pageBuilder) : base(settings)
+        {
+            _pageBuilder = pageBuilder;
+        }
+
+        public override Widget Build(BuildContext context)
+        {
+            return _pageBuilder(context);
+        }
+    }
 }
