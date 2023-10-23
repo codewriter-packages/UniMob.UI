@@ -120,7 +120,6 @@ namespace UniMob.UI.Widgets
 
         public virtual void Dispose()
         {
-            _popCompleter.SetResult(_popResult);
         }
 
         protected virtual Task OnInitialize() => Task.CompletedTask;
@@ -135,7 +134,11 @@ namespace UniMob.UI.Widgets
 
         protected virtual Task OnFocusLost() => Task.CompletedTask;
 
-        protected virtual Task OnDestroy() => Task.CompletedTask;
+        protected virtual Task OnDestroy()
+        {
+            _popCompleter.SetResult(_popResult);
+            return Task.CompletedTask;
+        }
 
         public bool HandleBack() => _backAction?.Invoke() ?? false;
 
