@@ -10,6 +10,8 @@ namespace UniMob.UI.Internal.ViewLoaders
         private readonly Dictionary<string, Func<GameObject>> _builders = new Dictionary<string, Func<GameObject>>();
         private readonly Dictionary<string, IView> _cache = new Dictionary<string, IView>();
 
+        private GameObject templatesRootObject;
+
         public InternalViewLoader()
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -55,9 +57,14 @@ namespace UniMob.UI.Internal.ViewLoaders
                 throw new InvalidOperationException("No builder");
             }
 
+            if (templatesRootObject == null)
+            {
+                templatesRootObject = new GameObject("UniMob Runtime View Templates");
+                Object.DontDestroyOnLoad(templatesRootObject);
+            }
+
             var template = builder();
-            Object.DontDestroyOnLoad(template);
-            template.hideFlags = HideFlags.HideInHierarchy;
+            template.transform.parent = templatesRootObject.transform;
 
             view = template.GetComponent<IView>();
 
