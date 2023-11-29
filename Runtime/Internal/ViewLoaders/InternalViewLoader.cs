@@ -64,7 +64,7 @@ namespace UniMob.UI.Internal.ViewLoaders
             }
 
             var template = builder();
-            template.transform.parent = templatesRootObject.transform;
+            template.transform.SetParent(templatesRootObject.transform, worldPositionStays: true);
 
             view = template.GetComponent<IView>();
 
