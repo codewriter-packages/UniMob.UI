@@ -39,10 +39,24 @@ namespace UniMob.UI.Widgets
             var children = State.Children;
             var bounds = Bounds;
             var tabSize = (Vector2) bounds;
-            var tabValue = State.TabController.Value;
-            var tabCount = State.TabController.TabCount;
-            var firstTab = Convert.ToInt32(Math.Floor(tabValue));
-            var secondTab = Convert.ToInt32(Math.Ceiling(tabValue));
+            var tabController = State.TabController;
+            var tabValue = tabController.Value;
+            var tabIndex = tabController.Index;
+            var tabCount = tabController.TabCount;
+            var firstTab = Mathf.RoundToInt(Mathf.Floor(tabValue));
+            var secondTab = Mathf.RoundToInt(Mathf.Ceil(tabValue));
+
+            if (firstTab == secondTab && !Mathf.Approximately(tabValue, tabIndex))
+            {
+                if (tabValue < tabIndex)
+                {
+                    secondTab += 1;
+                }
+                else
+                {
+                    firstTab -= 1;
+                }
+            }
 
             if (tabCount != children.Length)
             {
