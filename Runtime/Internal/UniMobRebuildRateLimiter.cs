@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -24,6 +25,7 @@ namespace UniMob.UI.Internal
             _lastRebuildFrame = 0;
         }
 
+        [Conditional("UNIMOB_UI_ENABLE_REBUILD_RATE_LIMITER")]
         public void TrackRebuild(Widget widget)
         {
             var frame = Time.frameCount;
