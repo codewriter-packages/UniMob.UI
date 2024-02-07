@@ -93,7 +93,7 @@ namespace UniMob.UI.Widgets
                 DoLayout(State, ContentRender, ChildRender);
 
                 return new Vector2Int(hidden, visible - 1);
-            });
+            }, debugName: "ScrollGridFlowView._visibilityIndices");
         }
 
         private void OnContentAnchoredPositionChanged(Vector2 _)

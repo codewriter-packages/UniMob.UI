@@ -101,7 +101,7 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _statesAtom = Atom.Computed(lifetime, ComputeStates);
+            _statesAtom = Atom.Computed(lifetime, ComputeStates, debugName: "StateCollectionHolder._statesAtom");
 
             lifetime.Register(DeactivateStates);
         }
@@ -156,7 +156,7 @@ namespace UniMob.UI
         {
             _context = context;
             _builder = builder;
-            _stateAtom = Atom.Computed(lifetime, ComputeState);
+            _stateAtom = Atom.Computed(lifetime, ComputeState, debugName: "StateHolder._statesAtom");
 
 #if UNIMOB_ENABLE_REBUILD_RATE_LIMITER
             _rebuildRateLimiter = new UniMobRebuildRateLimiter(context);

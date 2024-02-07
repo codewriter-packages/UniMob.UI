@@ -52,7 +52,7 @@ namespace UniMob.UI
                     {
                         var size = rectTransform.rect.size;
                         return new Vector2Int((int) size.x, (int) size.y);
-                    });
+                    }, debugName: "View._bounds");
                 }
 
                 return _bounds.Value;
@@ -84,8 +84,8 @@ namespace UniMob.UI
         {
             if (_doRebind == null)
             {
-                _doRebind = Atom.Computed(ViewLifetime, DoRebind, keepAlive: true);
-                _doRender = Atom.Computed(ViewLifetime, DoRender, keepAlive: true);
+                _doRebind = Atom.Computed(ViewLifetime, DoRebind, keepAlive: true, debugName: $"View._doRebind");
+                _doRender = Atom.Computed(ViewLifetime, DoRender, keepAlive: true, debugName: $"View._doRender");
             }
 
             _renderScope.Link(this);
