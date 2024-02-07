@@ -116,13 +116,14 @@ namespace UniMob.UI.Widgets
 
         public Task Initialize()
         {
-            _pushCompleter.SetResult(null);
+            Zone.Current.NextFrame(() => _pushCompleter.SetResult(null));
+
             return OnInitialize() ?? Task.CompletedTask;
         }
 
         public virtual void Dispose()
         {
-            _disposeCompleter.SetResult(null);
+            Zone.Current.NextFrame(() => _disposeCompleter.SetResult(null));
         }
 
         protected virtual Task OnInitialize() => Task.CompletedTask;
@@ -139,7 +140,8 @@ namespace UniMob.UI.Widgets
 
         protected virtual Task OnDestroy()
         {
-            _popCompleter.SetResult(_popResult);
+            Zone.Current.NextFrame(() => _popCompleter.SetResult(_popResult));
+
             return Task.CompletedTask;
         }
 
@@ -201,7 +203,7 @@ namespace UniMob.UI.Widgets
             ModalType = modalType;
         }
     }
-    
+
     public class RouteBuilder : Route
     {
         private readonly Func<BuildContext, Widget> _pageBuilder;
