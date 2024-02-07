@@ -25,8 +25,11 @@ namespace UniMob.UI.Widgets
 
         public override void Dispose()
         {
-            Widget.OnDispose?.Invoke();
-        
+            using (Atom.NoWatch)
+            {
+                Widget.OnDispose?.Invoke();
+            }
+
             base.Dispose();
         }
     }

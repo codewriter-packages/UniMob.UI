@@ -21,6 +21,12 @@ namespace UniMob.UI.Widgets
 
         public bool Interactable => Widget.Interactable;
 
-        public void OnClick() => Widget.OnClick?.Invoke();
+        public void OnClick()
+        {
+            using (Atom.NoWatch)
+            {
+                Widget.OnClick?.Invoke();
+            }
+        }
     }
 }
