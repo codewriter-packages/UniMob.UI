@@ -178,7 +178,7 @@ namespace UniMob.UI.Widgets
             {
                 if (status == AnimationStatus.Dismissed)
                 {
-                    lc.Dispose();
+                    Zone.Current.NextFrame(lc.Dispose);
                 }
             }, fireImmediately: false);
 

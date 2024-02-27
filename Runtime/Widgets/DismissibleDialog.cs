@@ -84,7 +84,10 @@ namespace UniMob.UI.Widgets
             Offset += ExpandedHeight.Value - CollapsedHeight.Value;
             ExpandedByUser = true;
 
-            Widget.OnExpand?.Invoke();
+            using (Atom.NoWatch)
+            {
+                Widget.OnExpand?.Invoke();
+            }
         }
 
         public void OnCollapse()
@@ -98,14 +101,20 @@ namespace UniMob.UI.Widgets
             Offset -= ExpandedHeight.Value - CollapsedHeight.Value;
             ExpandedByUser = false;
 
-            Widget.OnCollapse?.Invoke();
+            using (Atom.NoWatch)
+            {
+                Widget.OnCollapse?.Invoke();
+            }
         }
 
         public void OnDismiss()
         {
             Dismissed = true;
 
-            Widget.OnDismiss?.Invoke();
+            using (Atom.NoWatch)
+            {
+                Widget.OnDismiss?.Invoke();
+            }
         }
     }
 }

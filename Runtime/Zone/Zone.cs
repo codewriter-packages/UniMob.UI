@@ -53,6 +53,8 @@ namespace UniMob
                     HandleUncaughtException(ex);
                 }
             }
+
+            _nextFrameExecuting.Clear();
         }
 
         public void HandleUncaughtException(Exception exception)

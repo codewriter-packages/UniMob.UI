@@ -29,6 +29,7 @@ namespace UniMob.UI.Widgets
         public bool AutoFocus { get; set; } = true;
 
         public IState[] Screens => _states.Value;
+        public Route TopmostRoute => _stack.TopmostRoute;
 
         public override void InitState()
         {
@@ -407,6 +408,15 @@ namespace UniMob.UI.Widgets
         private readonly MutableAtom<int> _version = Atom.Value(int.MinValue);
 
         public int Count => _stack.Count;
+
+        public Route TopmostRoute
+        {
+            get
+            {
+                _version.Get();
+                return _stack.Peek();
+            }
+        }
 
         public List<Widget> Widgets
         {

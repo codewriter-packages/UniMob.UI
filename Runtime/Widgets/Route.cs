@@ -13,6 +13,7 @@ namespace UniMob.UI.Widgets
         private readonly TriggerStateMachine<ScreenState, ScreenEvent, Task> _machine;
         private readonly TaskCompletionSource<object> _popCompleter = new TaskCompletionSource<object>();
         private readonly TaskCompletionSource<object> _pushCompleter = new TaskCompletionSource<object>();
+        private readonly TaskCompletionSource<object> _disposeCompleter = new TaskCompletionSource<object>();
 
         private Func<bool> _backAction;
         private object _popResult = null;
@@ -30,6 +31,7 @@ namespace UniMob.UI.Widgets
         public Task<object> PopTask => _popCompleter.Task;
 
         public Task PushTask => _pushCompleter.Task;
+        public Task DisposeTask => _disposeCompleter.Task;
 
         public string Key => _settings.Name;
 
@@ -114,12 +116,14 @@ namespace UniMob.UI.Widgets
 
         public Task Initialize()
         {
-            _pushCompleter.SetResult(null);
+            Zone.Current.NextFrame(() => _pushCompleter.SetResult(null));
+
             return OnInitialize() ?? Task.CompletedTask;
         }
 
         public virtual void Dispose()
         {
+            Zone.Current.NextFrame(() => _disposeCompleter.SetResult(null));
         }
 
         protected virtual Task OnInitialize() => Task.CompletedTask;
@@ -136,7 +140,8 @@ namespace UniMob.UI.Widgets
 
         protected virtual Task OnDestroy()
         {
-            _popCompleter.SetResult(_popResult);
+            Zone.Current.NextFrame(() => _popCompleter.SetResult(_popResult));
+
             return Task.CompletedTask;
         }
 
@@ -196,6 +201,21 @@ namespace UniMob.UI.Widgets
         {
             Name = name;
             ModalType = modalType;
+        }
+    }
+
+    public class RouteBuilder : Route
+    {
+        private readonly Func<BuildContext, Widget> _pageBuilder;
+
+        public RouteBuilder(RouteSettings settings, Func<BuildContext, Widget> pageBuilder) : base(settings)
+        {
+            _pageBuilder = pageBuilder;
+        }
+
+        public override Widget Build(BuildContext context)
+        {
+            return _pageBuilder(context);
         }
     }
 }

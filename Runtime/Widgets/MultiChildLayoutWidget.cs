@@ -7,6 +7,7 @@ namespace UniMob.UI.Widgets
     public abstract class MultiChildLayoutWidget : StatefulWidget
     {
         [NotNull] public List<Widget> Children { get; set; } = new List<Widget>();
+        [CanBeNull] public Func<List<Widget>> ChildrenBuilder { get; set; }
     }
 
     public abstract class MultiChildLayoutState<TWidget> : ViewState<TWidget>
@@ -16,7 +17,7 @@ namespace UniMob.UI.Widgets
 
         protected MultiChildLayoutState()
         {
-            _children = CreateChildren(context => Widget.Children);
+            _children = CreateChildren(context => Widget.ChildrenBuilder?.Invoke() ?? Widget.Children);
         }
 
         public IState[] Children => _children.Value;
