@@ -18,6 +18,7 @@ namespace UniMob.UI
         public Alignment WithCenterY() => new Alignment(X, Center.Y);
         
         public Alignment WithLeft() => new Alignment(CenterLeft.X, Y);
+        public Alignment WithRight() => new Alignment(CenterRight.X, Y);
         
         public Alignment WithCenterX() => new Alignment(Center.X, Y);
 
