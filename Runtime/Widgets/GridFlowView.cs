@@ -1,4 +1,3 @@
-using System;
 using UniMob.UI.Internal;
 using UniMob.UI.Widgets;
 using UnityEngine;
@@ -49,62 +48,34 @@ namespace UniMob.UI.Widgets
 
             using (var render = _mapper.CreateRender())
             {
-                var newLine = true;
-                var lineLastChildIndex = 0;
-                var lineHeight = 0f;
-                var lineMaxWidth = State.MaxCrossAxisExtent;
-                var lineMaxChildCount = State.MaxCrossAxisCount;
+                var data = State.LayoutData;
 
-                for (var childIndex = 0; childIndex < children.Length; childIndex++)
+                var startLineChildIndex = 0;
+
+                while (GridLayoutUtility.LayoutLine(ref data, State.LayoutDelegate, children, startLineChildIndex,
+                    out var lastLineChildIndex))
                 {
-                    var child = children[childIndex];
-                    var childSize = child.Size.GetSize(Bounds);
+                    cornerPosition.x = -data.lineWidth * offsetMultiplierX;
 
-                    if (newLine)
+                    for (var childIndex = startLineChildIndex; childIndex <= lastLineChildIndex; childIndex++)
                     {
-                        newLine = false;
-                        lineHeight = childSize.y;
-                        var lineWidth = childSize.x;
-                        var lineChildCount = 1;
+                        var child = children[childIndex];
+                        var childSize = child.Size.GetSize(Bounds);
+                        var childView = render.RenderItem(child);
 
-                        for (int i = childIndex + 1; i < children.Length; i++)
-                        {
-                            var nextChildSize = children[i].Size.GetSize(Bounds);
-                            if (lineChildCount + 1 <= lineMaxChildCount &&
-                                lineWidth + nextChildSize.x <= lineMaxWidth)
-                            {
-                                lineChildCount++;
-                                lineWidth += nextChildSize.x;
-                                lineHeight = Math.Max(lineHeight, nextChildSize.y);
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
+                        LayoutData layout;
+                        layout.Size = childSize;
+                        layout.Alignment = childAlignment;
+                        layout.Corner = childAlignment.WithLeft();
+                        layout.CornerPosition = cornerPosition + new Vector2(0, data.lineHeight * offsetMultiplierY);
+                        ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
 
-                        lineLastChildIndex = childIndex + lineChildCount - 1;
-                        cornerPosition.x = -lineWidth * offsetMultiplierX;
-                    }
-
-                    var childView = render.RenderItem(child);
-
-                    LayoutData layout;
-                    layout.Size = childSize;
-                    layout.Alignment = childAlignment;
-                    layout.Corner = childAlignment.WithLeft();
-                    layout.CornerPosition = cornerPosition + new Vector2(0, lineHeight * offsetMultiplierY);
-                    ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
-
-                    if (childIndex == lineLastChildIndex)
-                    {
-                        newLine = true;
-                        cornerPosition.y += lineHeight;
-                    }
-                    else
-                    {
                         cornerPosition.x += childSize.x;
                     }
+
+                    cornerPosition.y += data.lineHeight;
+
+                    startLineChildIndex = lastLineChildIndex + 1;
                 }
             }
         }
@@ -118,5 +89,8 @@ namespace UniMob.UI.Widgets
         MainAxisAlignment MainAxisAlignment { get; }
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
+
+        GridLayoutData LayoutData { get; }
+        GridLayoutDelegate LayoutDelegate { get; }
     }
 }
