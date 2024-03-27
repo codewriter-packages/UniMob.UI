@@ -9,5 +9,7 @@ namespace UniMob.UI
         IViewState InnerViewState { get; }
 
         WidgetSize Size { get; }
+        
+        Lifetime StateLifetime { get; }
     }
 }
