@@ -99,7 +99,11 @@ namespace UniMob.UI.Widgets
         private void OnContentAnchoredPositionChanged(Vector2 _)
         {
             _scrollValue.Value = (int) contentRoot.anchoredPosition.y;
-            State.ScrollController.NormalizedValue = 1f - scroll.verticalNormalizedPosition;
+
+            if (HasState && !State.StateLifetime.IsDisposed)
+            {
+                State.ScrollController.NormalizedValue = 1f - scroll.verticalNormalizedPosition;
+            }
         }
 
         protected override void Activate()
