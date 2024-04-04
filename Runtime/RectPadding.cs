@@ -26,5 +26,7 @@ namespace UniMob.UI
 
         public float Horizontal => Left + Right;
         public float Vertical => Top + Bottom;
+
+        public Vector2 Center => new Vector2(Left - Right, Top - Bottom);
     }
 }

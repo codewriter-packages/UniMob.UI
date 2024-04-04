@@ -5,56 +5,95 @@ namespace UniMob.UI.Widgets
 {
     public static class GridLayoutUtility
     {
-        public static readonly GridLayoutDelegate RowLayoutDelegate = data => true;
-        public static readonly GridLayoutDelegate ColumnLayoutDelegate = data => false;
+        public static readonly GridLayoutDelegate RowLayoutDelegate = (settings, data) => true;
+        public static readonly GridLayoutDelegate ColumnLayoutDelegate = (settings, data) => false;
+        public static readonly GridLayoutDelegate DefaultLayoutDelegate = (settings, data) => true;
 
-        public static readonly GridLayoutDelegate DefaultLayoutDelegate = data =>
-            data.lineChildIndex < data.maxLineChildNum &&
-            data.lineWidth + data.child.Size.MaxWidth <= data.maxLineWidth;
-
-        public static void LayoutGrid(ref GridLayoutData data, GridLayoutDelegate layoutDelegate, IState[] children)
+        public static WidgetSize CalculateSize(GridLayoutSettings settings, GridLayoutDelegate layoutDelegate)
         {
-            var startLineChildIndex = 0;
+            var data = PreLayout(settings);
 
-            while (GridLayoutUtility.LayoutLine(ref data, layoutDelegate, children, startLineChildIndex,
-                out var lastLineChildIndex))
+            while (LayoutLine(settings, ref data, layoutDelegate))
             {
-                startLineChildIndex = lastLineChildIndex + 1;
+                //
             }
 
-            data.gridWidth = Math.Min(data.gridWidth, data.maxLineWidth);
+            AfterLayout(settings, ref data);
+
+            return WidgetSize.Fixed(data.gridSize.x, data.gridSize.y);
         }
 
-        public static bool LayoutLine(ref GridLayoutData data, GridLayoutDelegate layoutDelegate, IState[] children,
-            int childIndex, out int lastChildIndex)
+        public static GridLayoutData PreLayout(GridLayoutSettings settings)
         {
-            if (childIndex >= children.Length)
+            var data = new GridLayoutData();
+
+            data.gridSize.y += settings.gridPadding.Top;
+
+            return data;
+        }
+
+        public static void AfterLayout(GridLayoutSettings settings, ref GridLayoutData data)
+        {
+            data.gridSize.y += settings.gridPadding.Bottom - settings.spacing.y;
+
+            data.gridSize.x = Math.Min(data.gridSize.x, settings.maxLineWidth);
+        }
+
+        public static bool LayoutLine(GridLayoutSettings settings, ref GridLayoutData data,
+            GridLayoutDelegate layoutDelegate)
+        {
+            if (data.gridChildIndex >= settings.children.Length)
             {
-                lastChildIndex = children.Length;
                 return false;
             }
 
             data.lineChildIndex = 0;
-            data.lineWidth = 0;
-            data.lineHeight = 0;
+            data.lineSize = new Vector2(settings.gridPadding.Left, 0);
+            data.lineContentCornerPosition = new Vector2(data.lineSize.x, data.gridSize.y);
 
-            for (var i = childIndex; i < children.Length; i++)
+            var startChildIndex = data.gridChildIndex;
+
+            for (var i = startChildIndex; i < settings.children.Length; i++)
             {
-                data.child = children[i];
+                var child = settings.children[i];
+                var childSize = child.Size.GetSizeUnbounded();
 
-                var childSize = children[i].Size;
-
-                if (float.IsInfinity(childSize.MaxWidth) || float.IsInfinity(childSize.MaxHeight))
+                if (float.IsInfinity(childSize.x))
                 {
-                    continue;
+                    if (settings.maxLineChildNum == 1)
+                    {
+                        childSize.x = 0f;
+                        data.gridSize.x = float.PositiveInfinity;
+                    }
+                    else
+                    {
+                        Debug.LogError(
+                            $"Cannot render multiple horizontally stretched widgets inside Grid.\n" +
+                            $"Try to wrap {child.GetType().Name} into another widget of fixed width or to set MaxCrossAxisCount to 1");
+
+                        return false;
+                    }
                 }
 
-                if (i == childIndex || layoutDelegate.Invoke(data))
+                if (float.IsInfinity(childSize.y))
                 {
-                    data.childIndex++;
+                    Debug.LogError(
+                        $"Cannot render vertically stretched widgets inside Grid.\n" +
+                        $"Try to wrap {child.GetType().Name} into another widget of fixed height");
+
+                    return false;
+                }
+
+                var newLine = data.lineChildIndex >= settings.maxLineChildNum ||
+                              data.lineSize.x + childSize.x > settings.maxLineWidth - settings.gridPadding.Right;
+
+                if (i == startChildIndex || (!newLine && layoutDelegate.Invoke(settings, data)))
+                {
+                    data.gridChildIndex++;
                     data.lineChildIndex++;
-                    data.lineWidth += childSize.MaxWidth;
-                    data.lineHeight = Math.Max(data.lineHeight, childSize.MaxHeight);
+
+                    data.lineSize.x += childSize.x + settings.spacing.x;
+                    data.lineSize.y = Math.Max(data.lineSize.y, childSize.y);
                 }
                 else
                 {
@@ -63,33 +102,36 @@ namespace UniMob.UI.Widgets
             }
 
             data.lineIndex++;
-            data.gridWidth = Math.Max(data.gridWidth, data.lineWidth);
-            data.gridHeight += data.lineHeight;
+            data.lineSize.x += settings.gridPadding.Right - settings.spacing.x;
 
-            lastChildIndex = childIndex + data.lineChildIndex - 1;
+            data.gridSize.x = Math.Max(data.gridSize.x, data.lineSize.x);
+            data.gridSize.y += data.lineSize.y + settings.spacing.y;
 
             return true;
         }
     }
 
-    public delegate bool GridLayoutDelegate(GridLayoutData data);
+    public delegate bool GridLayoutDelegate(GridLayoutSettings settings, GridLayoutData data);
+
+    public struct GridLayoutSettings
+    {
+        public IState[] children;
+        public float maxLineWidth;
+        public int maxLineChildNum;
+        public RectPadding gridPadding;
+        public Vector2 spacing;
+    }
 
     public struct GridLayoutData
     {
-        public int childrenCount;
-        public float maxLineWidth;
-        public int maxLineChildNum;
-
-        public IState child;
-        public int childIndex;
+        public int gridChildIndex;
         public int lineChildIndex;
         public int lineIndex;
 
-        public float gridWidth;
-        public float gridHeight;
+        public Vector2 gridSize;
+        public Vector2 lineSize;
 
-        public float lineWidth;
-        public float lineHeight;
+        public Vector2 lineContentCornerPosition;
 
         public override string ToString()
         {

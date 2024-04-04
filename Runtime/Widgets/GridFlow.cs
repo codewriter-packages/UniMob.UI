@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace UniMob.UI.Widgets
 {
     public class GridFlow : MultiChildLayoutWidget
@@ -6,6 +8,8 @@ namespace UniMob.UI.Widgets
         public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
+        public RectPadding Padding { get; set; }
+        public Vector2 Spacing { get; set; }
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
         public GridLayoutDelegate LayoutDelegate { get; set; }
@@ -21,14 +25,14 @@ namespace UniMob.UI.Widgets
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
-        public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
-        public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
 
-        public GridLayoutData LayoutData => new GridLayoutData
+        public GridLayoutSettings LayoutSettings => new GridLayoutSettings
         {
-            childrenCount = Children.Length,
-            maxLineWidth = MaxCrossAxisExtent,
-            maxLineChildNum = MaxCrossAxisCount,
+            children = Children,
+            gridPadding = Widget.Padding,
+            spacing = Widget.Spacing,
+            maxLineWidth = Widget.MaxCrossAxisExtent,
+            maxLineChildNum = Widget.MaxCrossAxisCount,
         };
 
         public GridLayoutDelegate LayoutDelegate => Widget.LayoutDelegate ?? GridLayoutUtility.DefaultLayoutDelegate;
@@ -52,9 +56,7 @@ namespace UniMob.UI.Widgets
 
         private WidgetSize CalculateInnerSize()
         {
-            var data = LayoutData;
-            GridLayoutUtility.LayoutGrid(ref data, LayoutDelegate, Children);
-            return WidgetSize.Fixed(data.gridWidth, data.gridHeight);
+            return GridLayoutUtility.CalculateSize(LayoutSettings, LayoutDelegate);
         }
     }
 }
