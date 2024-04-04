@@ -8,6 +8,7 @@ namespace UniMob.UI.Widgets
         public static WidgetViewReference DefaultView =
             WidgetViewReference.Resource("UniMob.ScrollGridFlow");
 
+        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
         public RectPadding Padding { get; set; }
         public Vector2 Spacing { get; set; }
@@ -37,6 +38,7 @@ namespace UniMob.UI.Widgets
         [Atom] public override WidgetViewReference View => Widget.View;
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
+        public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public bool UseMask => Widget.UseMask;
         public Key Sticky => Widget.Sticky;

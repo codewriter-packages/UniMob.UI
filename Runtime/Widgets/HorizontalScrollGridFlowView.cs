@@ -186,7 +186,7 @@ namespace UniMob.UI.Widgets
                     LayoutData layout;
                     layout.Size = data.childSize;
                     layout.Alignment = data.childAlignment;
-                    layout.Corner = data.childAlignment.WithTop();
+                    layout.Corner = Alignment.TopLeft;
                     layout.CornerPosition = data.cornerPosition;
 
                     Transform childParent = contentRoot;
@@ -243,48 +243,17 @@ namespace UniMob.UI.Widgets
         private static void DoLayout(IHorizontalScrollGridFlowState state, ContentRenderDelegate renderContentPanel,
             ChildRenderDelegate renderChild = null)
         {
-            var children = state.Children;
             var crossAxis = state.CrossAxisAlignment;
+            var mainAxis = state.MainAxisAlignment;
             var gridSize = state.InnerSize.GetSizeUnbounded();
 
-            if (float.IsInfinity(gridSize.x))
-            {
-                foreach (var child in state.Children)
-                {
-                    if (float.IsInfinity(child.Size.MaxWidth))
-                    {
-                        Debug.LogError(
-                            "Cannot render horizontally stretched widgets inside HorizontalScrollGridFlow.\n" +
-                            $"Try to wrap '{child.GetType().Name}' into another widget with fixed width");
-                    }
-                }
-
-                return;
-            }
-
-            var alignY = crossAxis == CrossAxisAlignment.Start ? Alignment.TopLeft.Y
-                : crossAxis == CrossAxisAlignment.End ? Alignment.BottomLeft.Y
-                : Alignment.Center.Y;
-
-            var alignX = Alignment.CenterLeft.X;
-
-            var offsetMultiplierY = crossAxis == CrossAxisAlignment.Start ? 0.0f
-                : crossAxis == CrossAxisAlignment.End ? 1.0f
-                : 0.5f;
-            
-            var childAlignment = new Alignment(alignX, alignY);
-            var cornerPosition = new Vector2(0.0f, gridSize.y * offsetMultiplierY);
+            var offsetMultiplier = AlignmentUtility.ToHorizontalOffset(mainAxis, crossAxis);
+            var childAlignment = AlignmentUtility.ToHorizontalAlignment(mainAxis, crossAxis);
 
             // content root
             {
-                var contentPivotY = crossAxis == CrossAxisAlignment.Start ? 1.0f
-                    : crossAxis == CrossAxisAlignment.End ? 0.0f
-                    : 0.5f;
-
-                var contentPivotX = 0.0f;
-
-                var contentPivot = new Vector2(contentPivotX, contentPivotY);
-                renderContentPanel(contentPivot, gridSize, childAlignment);
+                var contentPivot = AlignmentUtility.ToHorizontalPivot(mainAxis, crossAxis);
+                renderContentPanel(contentPivot, gridSize, Alignment.CenterLeft);
             }
 
             if (renderChild == null)
@@ -292,79 +261,34 @@ namespace UniMob.UI.Widgets
                 return;
             }
 
-            var newLine = true;
-            var lineLastChildIndex = 0;
-            var lineWidth = 0f;
-            var lineMaxHeight = state.MaxCrossAxisExtent;
-            var lineMaxChildCount = state.MaxCrossAxisCount;
+            var settings = state.LayoutSettings;
+            var data = GridLayoutUtility.PreLayout(settings);
 
-            for (var childIndex = 0; childIndex < children.Length; childIndex++)
+            while (GridLayoutUtility.LayoutLine(settings, ref data, state.LayoutDelegate))
             {
-                var child = children[childIndex];
-                var childSize = child.Size.GetSizeUnbounded();
+                var cornerPosition = data.lineContentCornerPosition + new Vector2(
+                    -gridSize.x * offsetMultiplier.x,
+                    -data.lineSize.y * offsetMultiplier.y);
 
-                if (newLine)
+                for (var i = 0; i < data.lineChildIndex; i++)
                 {
-                    newLine = false;
-                    lineWidth = childSize.x;
-                    var lineHeight = childSize.y;
+                    var childIndex = data.gridChildIndex - data.lineChildIndex + i;
+                    var child = settings.children[childIndex];
+                    var childSize = child.Size.GetSizeUnbounded();
 
-                    if (float.IsInfinity(childSize.y))
-                    {
-                        if (lineMaxChildCount == 1)
-                        {
-                            // This is not right, in theory, as it messes with the cornerPosition.x calculation.
-                            // However, as long as there is only one child per line, it works.
-                            lineHeight = 0;
-                        }
-                        else
-                        {
-                            Debug.LogError(
-                                $"Cannot render multiple vertically stretched widgets inside HorizontalScrollGridFlow.\n" +
-                                $"Try to wrap {child.GetType().Name} into another widget of fixed height or to set {nameof(state.MaxCrossAxisCount)} to 1");
-                        }
-                    }
+                    ChildData childData;
+                    childData.childIndex = childIndex;
+                    childData.child = child;
+                    childData.childSize = childSize;
+                    childData.childAlignment = childAlignment;
+                    childData.cornerPosition = cornerPosition;
+                    renderChild(childData);
 
-                    var lineChildCount = 1;
-
-                    for (int i = childIndex + 1; i < children.Length; i++)
-                    {
-                        var nextChildSize = children[i].Size.GetSizeUnbounded();
-                        if (lineChildCount + 1 <= lineMaxChildCount &&
-                            lineHeight + nextChildSize.y <= lineMaxHeight)
-                        {
-                            lineChildCount++;
-                            lineHeight += nextChildSize.y;
-                            lineWidth = Math.Max(lineWidth, nextChildSize.x);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    lineLastChildIndex = childIndex + lineChildCount - 1;
-                    cornerPosition.y = -lineHeight * offsetMultiplierY;
-                }
-
-                ChildData data;
-                data.childIndex = childIndex;
-                data.child = child;
-                data.childSize = childSize;
-                data.childAlignment = childAlignment;
-                data.cornerPosition = cornerPosition;
-                renderChild(data);
-
-                if (childIndex == lineLastChildIndex)
-                {
-                    newLine = true;
-                    cornerPosition.x += lineWidth;
-                }
-                else
-                {
-                    cornerPosition.y += childSize.y;
+                    cornerPosition.y += childSize.y + settings.spacing.y;
                 }
             }
+
+            GridLayoutUtility.AfterLayout(settings, ref data);
         }
 
         private delegate void ContentRenderDelegate(Vector2 contentPivot, Vector2 gridSize, Alignment childAlignment);
@@ -434,6 +358,7 @@ namespace UniMob.UI.Widgets
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
         IState BackgroundContent { get; }
+        MainAxisAlignment MainAxisAlignment { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
         int MaxCrossAxisCount { get; }
         float MaxCrossAxisExtent { get; }
@@ -441,5 +366,7 @@ namespace UniMob.UI.Widgets
         ScrollController ScrollController { get; }
         Key Sticky { get; }
         StickyModes StickyMode { get; }
+        GridLayoutSettings LayoutSettings { get; }
+        GridLayoutDelegate LayoutDelegate { get; }
     }
 }

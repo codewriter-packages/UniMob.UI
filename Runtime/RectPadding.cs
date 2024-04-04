@@ -28,5 +28,10 @@ namespace UniMob.UI
         public float Vertical => Top + Bottom;
 
         public Vector2 Center => new Vector2(Left - Right, Top - Bottom);
+
+        internal float GetLeft(int axis) => axis == 0 ? Left : Top;
+        internal float GetRight(int axis) => axis == 0 ? Right : Bottom;
+        internal float GetTop(int axis) => axis == 0 ? Top : Left;
+        internal float GetBottom(int axis) => axis == 0 ? Bottom : Right;
     }
 }

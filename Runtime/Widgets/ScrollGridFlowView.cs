@@ -244,7 +244,7 @@ namespace UniMob.UI.Widgets
             ChildRenderDelegate renderChild = null)
         {
             var crossAxis = state.CrossAxisAlignment;
-            var mainAxis = MainAxisAlignment.Start;
+            var mainAxis = state.MainAxisAlignment;
             var gridSize = state.InnerSize.GetSizeUnbounded();
 
             var offsetMultiplier = AlignmentUtility.ToOffset(mainAxis, crossAxis);
@@ -252,14 +252,8 @@ namespace UniMob.UI.Widgets
 
             // content root
             {
-                var contentPivotX = crossAxis == CrossAxisAlignment.Start ? 0.0f
-                    : crossAxis == CrossAxisAlignment.End ? 1.0f
-                    : 0.5f;
-
-                var contentPivotY = 1.0f;
-
-                var contentPivot = new Vector2(contentPivotX, contentPivotY);
-                renderContentPanel(contentPivot, gridSize, childAlignment.WithTop());
+                var contentPivot = AlignmentUtility.ToPivot(mainAxis, crossAxis);
+                renderContentPanel(contentPivot, gridSize, Alignment.TopCenter);
             }
 
             if (renderChild == null)
@@ -364,6 +358,7 @@ namespace UniMob.UI.Widgets
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
         IState BackgroundContent { get; }
+        MainAxisAlignment MainAxisAlignment { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
         bool UseMask { get; }
         ScrollController ScrollController { get; }

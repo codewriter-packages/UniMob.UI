@@ -1,6 +1,5 @@
 namespace UniMob.UI.Widgets
 {
-    using System;
     using UnityEngine;
 
     public class HorizontalScrollGridFlow : MultiChildLayoutWidget
@@ -8,9 +7,13 @@ namespace UniMob.UI.Widgets
         public static WidgetViewReference DefaultView =
             WidgetViewReference.Resource("UniMob.HorizontalScrollGridFlow");
 
+        public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
+        public RectPadding Padding { get; set; }
+        public Vector2 Spacing { get; set; }
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = float.PositiveInfinity;
+        public GridLayoutDelegate LayoutDelegate { get; set; }
         public bool UseMask { get; set; } = true;
         public Key Sticky { get; set; } = null;
         public StickyModes StickyMode { get; set; } = StickyModes.Top;
@@ -35,6 +38,7 @@ namespace UniMob.UI.Widgets
         [Atom] public override WidgetViewReference View => Widget.View;
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
+        public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
@@ -42,6 +46,18 @@ namespace UniMob.UI.Widgets
         public Key Sticky => Widget.Sticky;
         public StickyModes StickyMode => Widget.StickyMode;
         public IState BackgroundContent => _backgroundContent.Value;
+
+        public GridLayoutSettings LayoutSettings => new GridLayoutSettings
+        {
+            mainAxis = 1,
+            children = Children,
+            gridPadding = Widget.Padding,
+            spacing = Widget.Spacing,
+            maxLineWidth = Widget.MaxCrossAxisExtent,
+            maxLineChildNum = Widget.MaxCrossAxisCount,
+        };
+
+        public GridLayoutDelegate LayoutDelegate => Widget.LayoutDelegate ?? GridLayoutUtility.DefaultLayoutDelegate;
 
         [Atom] public ScrollController ScrollController { get; private set; }
 
@@ -64,50 +80,7 @@ namespace UniMob.UI.Widgets
 
         private WidgetSize CalculateInnerSize()
         {
-            var width = 0f;
-            var height = 0f;
-
-            var lineWidth = 0.0f;
-            var lineHeight = 0.0f;
-            var lineChildNum = 0;
-
-            var maxLineHeight = Widget.MaxCrossAxisExtent;
-            var maxLineChildNum = Widget.MaxCrossAxisCount;
-
-            foreach (var child in Children)
-            {
-                var childSize = child.Size;
-
-                if (float.IsInfinity(childSize.MaxWidth))
-                {
-                    width = float.PositiveInfinity;
-                    continue;
-                }
-
-                if (lineChildNum + 1 <= maxLineChildNum &&
-                    lineHeight + childSize.MaxHeight <= maxLineHeight)
-                {
-                    lineChildNum++;
-                    lineHeight += childSize.MaxHeight;
-                    lineWidth = Math.Max(lineWidth, childSize.MaxWidth);
-                }
-                else
-                {
-                    height = Math.Max(height, lineHeight);
-                    width += lineWidth;
-
-                    lineChildNum = 1;
-                    lineHeight = childSize.MaxHeight;
-                    lineWidth = childSize.MaxWidth;
-                }
-            }
-
-            height = Math.Max(height, lineHeight);
-            width += lineWidth;
-
-            height = Math.Min(height, MaxCrossAxisExtent);
-
-            return WidgetSize.Fixed(width, height);
+            return GridLayoutUtility.CalculateSize(LayoutSettings, LayoutDelegate);
         }
 
         public override void DidViewMount(IView view)
