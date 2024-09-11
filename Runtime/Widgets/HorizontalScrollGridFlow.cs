@@ -1,12 +1,11 @@
 namespace UniMob.UI.Widgets
 {
-    using System;
     using UnityEngine;
 
-    public class ScrollGridFlow : MultiChildLayoutWidget
+    public class HorizontalScrollGridFlow : MultiChildLayoutWidget
     {
         public static WidgetViewReference DefaultView =
-            WidgetViewReference.Resource("UniMob.ScrollGridFlow");
+            WidgetViewReference.Resource("UniMob.HorizontalScrollGridFlow");
 
         public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public CrossAxisAlignment CrossAxisAlignment { get; set; } = CrossAxisAlignment.Start;
@@ -23,26 +22,24 @@ namespace UniMob.UI.Widgets
 
         public ScrollController ScrollController { get; set; }
 
-        public MovementType MovementType { get; set; } = MovementType.Elastic;
-        public override State CreateState() => new ScrollGridFlowState();
+        public override State CreateState() => new HorizontalScrollGridFlowState();
     }
 
-    public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
+    public class HorizontalScrollGridFlowState : MultiChildLayoutState<HorizontalScrollGridFlow>,
+        IHorizontalScrollGridFlowState
     {
         private static readonly ScrollEasing CircEaseInOutEasing = (t, d) =>
             (t /= d / 2) < 1 ? -0.5f * (Mathf.Sqrt(1 - t * t) - 1) : 0.5f * (Mathf.Sqrt(1 - (t -= 2) * t) + 1);
 
         private readonly StateHolder _backgroundContent;
 
-        private ScrollGridFlowView _gridView;
+        private HorizontalScrollGridFlowView _gridView;
 
         [Atom] public override WidgetViewReference View => Widget.View;
 
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
-
-        public MovementType MovementType => Widget.MovementType;
         public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
         public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
         public bool UseMask => Widget.UseMask;
@@ -52,6 +49,7 @@ namespace UniMob.UI.Widgets
 
         public GridLayoutSettings LayoutSettings => new GridLayoutSettings
         {
+            mainAxis = 1,
             children = Children,
             gridPadding = Widget.Padding,
             spacing = Widget.Spacing,
@@ -63,7 +61,7 @@ namespace UniMob.UI.Widgets
 
         [Atom] public ScrollController ScrollController { get; private set; }
 
-        public ScrollGridFlowState()
+        public HorizontalScrollGridFlowState()
         {
             _backgroundContent = CreateChild(_ => Widget.BackgroundContent ?? new Empty());
         }
@@ -89,7 +87,7 @@ namespace UniMob.UI.Widgets
         {
             base.DidViewMount(view);
 
-            _gridView = view as ScrollGridFlowView;
+            _gridView = view as HorizontalScrollGridFlowView;
         }
 
         public override void DidViewUnmount(IView view)
@@ -99,7 +97,7 @@ namespace UniMob.UI.Widgets
             _gridView = null;
         }
 
-        public override void DidUpdateWidget(ScrollGridFlow oldWidget)
+        public override void DidUpdateWidget(HorizontalScrollGridFlow oldWidget)
         {
             base.DidUpdateWidget(oldWidget);
 
@@ -119,14 +117,4 @@ namespace UniMob.UI.Widgets
             return _gridView.ScrollTo(key, duration, offset, easing ?? CircEaseInOutEasing);
         }
     }
-
-    [Flags]
-    public enum StickyModes
-    {
-        Top = 1 << 0,
-        Bottom = 1 << 1,
-        TopAndBottom = Top | Bottom,
-    }
-
-    public delegate float ScrollEasing(float t, float duration);
 }

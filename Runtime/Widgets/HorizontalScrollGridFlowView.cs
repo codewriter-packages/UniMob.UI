@@ -7,7 +7,7 @@ namespace UniMob.UI.Widgets
     using UnityEngine;
     using UnityEngine.UI;
 
-    public class ScrollGridFlowView : View<IScrollGridFlowState>
+    public class HorizontalScrollGridFlowView : View<IHorizontalScrollGridFlowState>
     {
         [SerializeField] private RectTransform contentRoot;
         [SerializeField] private RectMask2D rectMask;
@@ -46,12 +46,12 @@ namespace UniMob.UI.Widgets
 
             void ChildRender(ChildData data)
             {
-                if (contentPosition > data.cornerPosition.y + data.childSize.y)
+                if (contentPosition > data.cornerPosition.x + data.childSize.x)
                 {
                     hidden++;
                 }
 
-                if (data.cornerPosition.y < contentPosition + bounds.y)
+                if (data.cornerPosition.x < contentPosition + bounds.x)
                 {
                     visible++;
                 }
@@ -60,7 +60,7 @@ namespace UniMob.UI.Widgets
                 {
                     using (Atom.NoWatch)
                     {
-                        var corner = data.cornerPosition.y;
+                        var corner = data.cornerPosition.x;
                         var stickToTop = (State.StickyMode & StickyModes.Top) != 0;
                         var stickToBottom = (State.StickyMode & StickyModes.Bottom) != 0;
 
@@ -68,7 +68,7 @@ namespace UniMob.UI.Widgets
                         {
                             _sticked.Value = StickyModes.Top;
                         }
-                        else if (stickToBottom && contentPosition + Bounds.y < corner + data.childSize.y)
+                        else if (stickToBottom && contentPosition + Bounds.x < corner + data.childSize.x)
                         {
                             _sticked.Value = StickyModes.Bottom;
                         }
@@ -84,7 +84,7 @@ namespace UniMob.UI.Widgets
             {
                 _scrollValue.Get();
 
-                contentPosition = contentRoot.anchoredPosition.y;
+                contentPosition = -contentRoot.anchoredPosition.x;
                 bounds = Bounds;
                 hidden = 0;
                 visible = 0;
@@ -98,12 +98,8 @@ namespace UniMob.UI.Widgets
 
         private void OnContentAnchoredPositionChanged(Vector2 _)
         {
-            _scrollValue.Value = (int) contentRoot.anchoredPosition.y;
-
-            if (HasState && !State.StateLifetime.IsDisposed)
-            {
-                State.ScrollController.NormalizedValue = 1f - scroll.verticalNormalizedPosition;
-            }
+            _scrollValue.Value = (int) -contentRoot.anchoredPosition.x;
+            State.ScrollController.NormalizedValue = scroll.horizontalNormalizedPosition;
         }
 
         protected override void Activate()
@@ -117,8 +113,8 @@ namespace UniMob.UI.Widgets
             // to prevent unnecessary scrolling in ScrollView
             DoLayout(State, RenderContent);
 
-            scroll.horizontalNormalizedPosition = 0f;
-            scroll.verticalNormalizedPosition = 1f - State.ScrollController.NormalizedValue;
+            scroll.verticalNormalizedPosition = 1f;
+            scroll.horizontalNormalizedPosition = State.ScrollController.NormalizedValue;
         }
 
         protected override void Deactivate()
@@ -137,14 +133,6 @@ namespace UniMob.UI.Widgets
             if (rectMask.enabled != useMask)
             {
                 rectMask.enabled = useMask;
-            }
-            if (((int) scroll.movementType) != (int) State.MovementType)
-            {
-                scroll.movementType = State.MovementType switch
-                {
-                    MovementType.Clamped => ScrollRect.MovementType.Clamped,
-                    _ => ScrollRect.MovementType.Elastic,
-                };
             }
 
             var visibilityIndices = _visibilityIndices.Value;
@@ -207,13 +195,17 @@ namespace UniMob.UI.Widgets
                     {
                         childParent = contentRoot.parent;
 
-                        layout.Corner = stickyMode == StickyModes.Top
-                            ? Alignment.TopCenter
-                            : Alignment.BottomCenter;
-
-                        layout.CornerPosition = stickyMode == StickyModes.Top
-                            ? Vector2.zero
-                            : new Vector2(0, Bounds.y);
+                        switch (stickyMode)
+                        {
+                            case StickyModes.Top:
+                                layout.Corner = layout.Corner.WithLeft();
+                                layout.CornerPosition = new Vector2(0, data.cornerPosition.y);
+                                break;
+                            case StickyModes.Bottom:
+                                layout.Corner = layout.Corner.WithRight();
+                                layout.CornerPosition = new Vector2(Bounds.x, data.cornerPosition.y);
+                                break;
+                        }
                     }
 
                     if (childView.rectTransform.parent != childParent)
@@ -231,7 +223,7 @@ namespace UniMob.UI.Widgets
             contentRoot.pivot = contentPivot;
 
             LayoutData contentLayout;
-            contentLayout.Size = new Vector2(float.PositiveInfinity, gridSize.y);
+            contentLayout.Size = new Vector2(gridSize.x, float.PositiveInfinity);
             contentLayout.Alignment = childAlignment;
             contentLayout.Corner = childAlignment;
             contentLayout.CornerPosition = null;
@@ -248,20 +240,20 @@ namespace UniMob.UI.Widgets
             _nextChildren.Add(data);
         }
 
-        private static void DoLayout(IScrollGridFlowState state, ContentRenderDelegate renderContentPanel,
+        private static void DoLayout(IHorizontalScrollGridFlowState state, ContentRenderDelegate renderContentPanel,
             ChildRenderDelegate renderChild = null)
         {
             var crossAxis = state.CrossAxisAlignment;
             var mainAxis = state.MainAxisAlignment;
             var gridSize = state.InnerSize.GetSizeUnbounded();
 
-            var offsetMultiplier = AlignmentUtility.ToOffset(mainAxis, crossAxis);
-            var childAlignment = AlignmentUtility.ToAlignment(mainAxis, crossAxis);
+            var offsetMultiplier = AlignmentUtility.ToHorizontalOffset(mainAxis, crossAxis);
+            var childAlignment = AlignmentUtility.ToHorizontalAlignment(mainAxis, crossAxis);
 
             // content root
             {
-                var contentPivot = AlignmentUtility.ToPivot(mainAxis, crossAxis);
-                renderContentPanel(contentPivot, gridSize, Alignment.TopCenter);
+                var contentPivot = AlignmentUtility.ToHorizontalPivot(mainAxis, crossAxis);
+                renderContentPanel(contentPivot, gridSize, Alignment.CenterLeft);
             }
 
             if (renderChild == null)
@@ -275,8 +267,8 @@ namespace UniMob.UI.Widgets
             while (GridLayoutUtility.LayoutLine(settings, ref data, state.LayoutDelegate))
             {
                 var cornerPosition = data.lineContentCornerPosition + new Vector2(
-                    -data.lineSize.x * offsetMultiplier.x,
-                    -gridSize.y * offsetMultiplier.y);
+                    -gridSize.x * offsetMultiplier.x,
+                    -data.lineSize.y * offsetMultiplier.y);
 
                 for (var i = 0; i < data.lineChildIndex; i++)
                 {
@@ -292,7 +284,7 @@ namespace UniMob.UI.Widgets
                     childData.cornerPosition = cornerPosition;
                     renderChild(childData);
 
-                    cornerPosition.x += childSize.x + settings.spacing.x;
+                    cornerPosition.y += childSize.y + settings.spacing.y;
                 }
             }
 
@@ -320,15 +312,15 @@ namespace UniMob.UI.Widgets
                 return false;
             }
 
-            var y = position.y - offset;
+            var x = position.x - offset;
 
             // special case for element at end of list
-            y -= Mathf.Max(0, Bounds.y - (contentRoot.sizeDelta.y - y));
+            x -= Mathf.Max(0, Bounds.x - (contentRoot.sizeDelta.x - x));
 
             // special case for elements at begin of list
-            y = Math.Max(0, y);
+            x = Math.Max(0, x);
 
-            StartCoroutine(ScrollTo(Vector2.up * y, duration, easing));
+            StartCoroutine(ScrollTo(Vector2.left * x, duration, easing));
             return true;
         }
 
@@ -361,19 +353,20 @@ namespace UniMob.UI.Widgets
         }
     }
 
-    public interface IScrollGridFlowState : IViewState
+    public interface IHorizontalScrollGridFlowState : IViewState
     {
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
         IState BackgroundContent { get; }
         MainAxisAlignment MainAxisAlignment { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
+        int MaxCrossAxisCount { get; }
+        float MaxCrossAxisExtent { get; }
         bool UseMask { get; }
         ScrollController ScrollController { get; }
         Key Sticky { get; }
         StickyModes StickyMode { get; }
         GridLayoutSettings LayoutSettings { get; }
         GridLayoutDelegate LayoutDelegate { get; }
-        MovementType MovementType { get; }
     }
 }

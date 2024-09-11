@@ -1,4 +1,3 @@
-using System;
 using UniMob.UI.Internal;
 using UniMob.UI.Widgets;
 using UnityEngine;
@@ -21,91 +20,43 @@ namespace UniMob.UI.Widgets
 
         protected override void Render()
         {
-            var children = State.Children;
             var crossAxis = State.CrossAxisAlignment;
             var mainAxis = State.MainAxisAlignment;
-            var gridSize = State.InnerSize.GetSize(Bounds);
+            var gridSize = State.InnerSize.GetSizeUnbounded();
 
-            var alignX = crossAxis == CrossAxisAlignment.Start ? Alignment.TopLeft.X
-                : crossAxis == CrossAxisAlignment.End ? Alignment.TopRight.X
-                : Alignment.Center.X;
-
-            var alignY = mainAxis == MainAxisAlignment.Start ? Alignment.TopCenter.Y
-                : mainAxis == MainAxisAlignment.End ? Alignment.BottomCenter.Y
-                : Alignment.Center.Y;
-
-            var offsetMultiplierX = crossAxis == CrossAxisAlignment.Start ? 0.0f
-                : crossAxis == CrossAxisAlignment.End ? 1.0f
-                : 0.5f;
-
-            var offsetMultiplierY = mainAxis == MainAxisAlignment.Start ? 0.0f
-                : mainAxis == MainAxisAlignment.End ? 1.0f
-                : 0.5f;
-
-            var childAlignment = new Alignment(alignX, alignY);
-            var cornerPosition = new Vector2(
-                -gridSize.x * offsetMultiplierX,
-                -gridSize.y * offsetMultiplierY);
+            var offsetMultiplier = AlignmentUtility.ToOffset(mainAxis, crossAxis);
+            var childAlignment = AlignmentUtility.ToAlignment(mainAxis, crossAxis);
 
             using (var render = _mapper.CreateRender())
             {
-                var newLine = true;
-                var lineLastChildIndex = 0;
-                var lineHeight = 0f;
-                var lineMaxWidth = State.MaxCrossAxisExtent;
-                var lineMaxChildCount = State.MaxCrossAxisCount;
+                var settings = State.LayoutSettings;
+                var data = GridLayoutUtility.PreLayout(settings);
 
-                for (var childIndex = 0; childIndex < children.Length; childIndex++)
+                while (GridLayoutUtility.LayoutLine(settings, ref data, State.LayoutDelegate))
                 {
-                    var child = children[childIndex];
-                    var childSize = child.Size.GetSize(Bounds);
+                    var cornerPosition = data.lineContentCornerPosition + new Vector2(
+                        -data.lineSize.x * offsetMultiplier.x,
+                        -gridSize.y * offsetMultiplier.y);
 
-                    if (newLine)
+                    for (var i = 0; i < data.lineChildIndex; i++)
                     {
-                        newLine = false;
-                        lineHeight = childSize.y;
-                        var lineWidth = childSize.x;
-                        var lineChildCount = 1;
+                        var childIndex = data.gridChildIndex - data.lineChildIndex + i;
+                        var child = settings.children[childIndex];
+                        var childSize = child.Size.GetSizeUnbounded();
+                        var childView = render.RenderItem(child);
 
-                        for (int i = childIndex + 1; i < children.Length; i++)
-                        {
-                            var nextChildSize = children[i].Size.GetSize(Bounds);
-                            if (lineChildCount + 1 <= lineMaxChildCount &&
-                                lineWidth + nextChildSize.x <= lineMaxWidth)
-                            {
-                                lineChildCount++;
-                                lineWidth += nextChildSize.x;
-                                lineHeight = Math.Max(lineHeight, nextChildSize.y);
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
+                        LayoutData layout;
+                        layout.Size = childSize;
+                        layout.Alignment = childAlignment;
+                        layout.Corner = Alignment.TopLeft;
+                        layout.CornerPosition = cornerPosition;
+                        ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
 
-                        lineLastChildIndex = childIndex + lineChildCount - 1;
-                        cornerPosition.x = -lineWidth * offsetMultiplierX;
-                    }
-
-                    var childView = render.RenderItem(child);
-
-                    LayoutData layout;
-                    layout.Size = childSize;
-                    layout.Alignment = childAlignment;
-                    layout.Corner = childAlignment.WithLeft();
-                    layout.CornerPosition = cornerPosition + new Vector2(0, lineHeight * offsetMultiplierY);
-                    ViewLayoutUtility.SetLayout(childView.rectTransform, layout);
-
-                    if (childIndex == lineLastChildIndex)
-                    {
-                        newLine = true;
-                        cornerPosition.y += lineHeight;
-                    }
-                    else
-                    {
-                        cornerPosition.x += childSize.x;
+                        cornerPosition.x += childSize.x + settings.spacing.x;
                     }
                 }
+
+                GridLayoutUtility.AfterLayout(settings, ref data);
             }
         }
     }
@@ -113,10 +64,10 @@ namespace UniMob.UI.Widgets
     internal interface IGridFlowState : IViewState
     {
         WidgetSize InnerSize { get; }
-        IState[] Children { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
         MainAxisAlignment MainAxisAlignment { get; }
-        int MaxCrossAxisCount { get; }
-        float MaxCrossAxisExtent { get; }
+
+        GridLayoutSettings LayoutSettings { get; }
+        GridLayoutDelegate LayoutDelegate { get; }
     }
 }

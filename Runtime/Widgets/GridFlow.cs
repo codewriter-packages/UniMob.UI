@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
+using UnityEngine;
 
 namespace UniMob.UI.Widgets
 {
@@ -10,8 +8,11 @@ namespace UniMob.UI.Widgets
         public MainAxisAlignment MainAxisAlignment { get; set; } = MainAxisAlignment.Start;
         public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
+        public RectPadding Padding { get; set; }
+        public Vector2 Spacing { get; set; }
         public int MaxCrossAxisCount { get; set; } = int.MaxValue;
         public float MaxCrossAxisExtent { get; set; } = int.MaxValue;
+        public GridLayoutDelegate LayoutDelegate { get; set; }
 
         public override State CreateState() => new GridFlowState();
     }
@@ -24,8 +25,17 @@ namespace UniMob.UI.Widgets
         [Atom] public WidgetSize InnerSize => CalculateInnerSize();
         public CrossAxisAlignment CrossAxisAlignment => Widget.CrossAxisAlignment;
         public MainAxisAlignment MainAxisAlignment => Widget.MainAxisAlignment;
-        public int MaxCrossAxisCount => Widget.MaxCrossAxisCount;
-        public float MaxCrossAxisExtent => Widget.MaxCrossAxisExtent;
+
+        public GridLayoutSettings LayoutSettings => new GridLayoutSettings
+        {
+            children = Children,
+            gridPadding = Widget.Padding,
+            spacing = Widget.Spacing,
+            maxLineWidth = Widget.MaxCrossAxisExtent,
+            maxLineChildNum = Widget.MaxCrossAxisCount,
+        };
+
+        public GridLayoutDelegate LayoutDelegate => Widget.LayoutDelegate ?? GridLayoutUtility.DefaultLayoutDelegate;
 
         public override WidgetSize CalculateSize()
         {
@@ -46,49 +56,7 @@ namespace UniMob.UI.Widgets
 
         private WidgetSize CalculateInnerSize()
         {
-            var width = 0f;
-            var height = 0f;
-
-            var lineWidth = 0.0f;
-            var lineHeight = 0.0f;
-            var lineChildNum = 0;
-
-            var maxLineWidth = Widget.MaxCrossAxisExtent;
-            var maxLineChildNum = Widget.MaxCrossAxisCount;
-
-            foreach (var child in Children)
-            {
-                var childSize = child.Size;
-
-                if (float.IsInfinity(childSize.MaxWidth) || float.IsInfinity(childSize.MaxHeight))
-                {
-                    continue;
-                }
-
-                if (lineChildNum + 1 <= maxLineChildNum &&
-                    lineWidth + childSize.MaxWidth <= maxLineWidth)
-                {
-                    lineChildNum++;
-                    lineWidth += childSize.MaxWidth;
-                    lineHeight = Math.Max(lineHeight, childSize.MaxHeight);
-                }
-                else
-                {
-                    width = Math.Max(width, lineWidth);
-                    height += lineHeight;
-
-                    lineChildNum = 1;
-                    lineWidth = childSize.MaxWidth;
-                    lineHeight = childSize.MaxHeight;
-                }
-            }
-
-            width = Math.Max(width, lineWidth);
-            height += lineHeight;
-
-            width = Math.Min(width, MaxCrossAxisExtent);
-
-            return WidgetSize.Fixed(width, height);
+            return GridLayoutUtility.CalculateSize(LayoutSettings, LayoutDelegate);
         }
     }
 }
