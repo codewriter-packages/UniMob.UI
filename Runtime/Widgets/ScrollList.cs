@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace UniMob.UI.Widgets
 {
     public class ScrollList : MultiChildLayoutWidget
@@ -40,6 +42,16 @@ namespace UniMob.UI.Widgets
             base.InitState();
 
             ScrollController = Widget.ScrollController ?? new ScrollController(StateLifetime);
+        }
+
+        public override void DidUpdateWidget([NotNull] ScrollList oldWidget)
+        {
+            base.DidUpdateWidget(oldWidget);
+
+            if (Widget.ScrollController != null && Widget.ScrollController != ScrollController)
+            {
+                ScrollController = Widget.ScrollController;
+            }
         }
 
         private WidgetSize CalculateInnerSize()
