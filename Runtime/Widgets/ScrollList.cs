@@ -11,6 +11,8 @@ namespace UniMob.UI.Widgets
         public MovementType MovementType { get; set; } = MovementType.Elastic;
         public WidgetViewReference View { get; set; } = DefaultView;
 
+        public ScrollController ScrollController { get; set; }
+
         public override State CreateState() => new ScrollListState();
     }
 
@@ -29,6 +31,16 @@ namespace UniMob.UI.Widgets
         public bool UseMask => Widget.UseMask;
 
         public MovementType MovementType => Widget.MovementType;
+
+        [Atom]
+        public ScrollController ScrollController { get; private set; }
+
+        public override void InitState()
+        {
+            base.InitState();
+
+            ScrollController = Widget.ScrollController ?? new ScrollController(StateLifetime);
+        }
 
         private WidgetSize CalculateInnerSize()
         {

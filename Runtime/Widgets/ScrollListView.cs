@@ -1,3 +1,4 @@
+using System;
 using UniMob.UI.Internal;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,18 +12,32 @@ namespace UniMob.UI.Widgets
         [SerializeField] private ScrollRect scroll;
 
         private ViewMapperBase _mapper;
-        
+
         protected override void Awake()
         {
             base.Awake();
+            scroll.onValueChanged.Bind(OnContentAnchoredPositionChanged);
+        }
+
+        private void OnContentAnchoredPositionChanged(Vector2 _)
+        {
+            if (HasState && !State.StateLifetime.IsDisposed)
+            {
+                State.ScrollController.NormalizedValue = 1f - scroll.verticalNormalizedPosition;
+            }
         }
 
         protected override void Activate()
         {
             base.Activate();
-
+            
             if (_mapper == null)
                 _mapper = new PooledViewMapper(contentRoot);
+
+            
+
+            scroll.horizontalNormalizedPosition = 0f;
+            scroll.verticalNormalizedPosition = 1f - State.ScrollController.NormalizedValue;
         }
 
         protected override void Render()
@@ -110,6 +125,8 @@ namespace UniMob.UI.Widgets
 
     internal interface IScrollListState : IViewState
     {
+        ScrollController ScrollController { get; }
+
         WidgetSize InnerSize { get; }
         IState[] Children { get; }
         CrossAxisAlignment CrossAxisAlignment { get; }
