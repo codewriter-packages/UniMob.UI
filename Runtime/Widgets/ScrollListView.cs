@@ -11,6 +11,7 @@ namespace UniMob.UI.Widgets
         [SerializeField] private RectMask2D rectMask;
         [SerializeField] private ScrollRect scroll;
 
+        private float? _previousHeight;
         private ViewMapperBase _mapper;
 
         protected override void Awake()
@@ -33,8 +34,6 @@ namespace UniMob.UI.Widgets
             
             if (_mapper == null)
                 _mapper = new PooledViewMapper(contentRoot);
-
-            
 
             scroll.horizontalNormalizedPosition = 0f;
             scroll.verticalNormalizedPosition = 1f - State.ScrollController.NormalizedValue;
@@ -73,6 +72,9 @@ namespace UniMob.UI.Widgets
 
                 return;
             }
+
+            // save the current size to maybe restore the scroll position
+            _previousHeight = listSize.y;
 
             var alignX = crossAxis == CrossAxisAlignment.Start ? Alignment.TopLeft.X
                 : crossAxis == CrossAxisAlignment.End ? Alignment.TopRight.X
@@ -120,6 +122,10 @@ namespace UniMob.UI.Widgets
                     cornerPosition += new Vector2(0, childSize.y);
                 }
             }
+
+            // here we _maybe_ restore scroll size. We only do that if the height of the list is preserved
+            if (_previousHeight.HasValue && Mathf.Approximately(listSize.y, _previousHeight.Value))
+                scroll.verticalNormalizedPosition = 1 - State.ScrollController.NormalizedValue;
         }
     }
 
