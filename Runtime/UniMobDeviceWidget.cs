@@ -33,6 +33,8 @@ namespace UniMob.UI
             return Widget.Child;
         }
 
+        
+
         public override void InitState()
         {
             base.InitState();
@@ -55,6 +57,20 @@ namespace UniMob.UI
             {
                 RefreshSafeArea();
             }
+        }
+        /// <summary>
+        /// Converts a screen point to a widget-relative point.
+        /// Origin of both coordinates is at the bottom left corner of the screen/canvas.
+        /// </summary>
+        /// <remarks>The conversion takes into account the safe area and the current scale of the
+        /// canvas.</remarks>
+        /// <param name="screenPoint">The point in screen coordinates to be converted.</param>
+        /// <returns>A <see cref="Vector2"/> representing the equivalent point in widget-relative coordinates.</returns>
+        public Vector2 ScreenPointToWidgetPoint(Vector2 screenPoint)
+        {
+            var safeArea = GetSafeArea();
+            var adjustedForSafeArea = new Vector2(screenPoint.x - safeArea.xMin, screenPoint.y - safeArea.yMin);
+            return adjustedForSafeArea / GetScale();
         }
 
         public void RefreshSafeArea()
