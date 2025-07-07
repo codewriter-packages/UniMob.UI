@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UniMob.UI
 {
-    public class StateProvider
+    public class StateProvider : IStateProvider
     {
         private readonly Dictionary<Type, Func<State>> _stateFactories = new Dictionary<Type, Func<State>>();
 

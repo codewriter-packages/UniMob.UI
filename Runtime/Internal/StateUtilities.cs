@@ -185,10 +185,18 @@ namespace UniMob.UI.Internal
             var newChild = newWidget.CreateState();
             if (newChild == null)
             {
-                var rootState = context.AncestorStateOfType<UniMobDeviceState>();
-                var stateProvider = rootState.StateProvider;
-                newChild = newWidget.CreateState(stateProvider);
+
+                var providerSource = context.FindAncestorStateImplementing<IStateProviderSource>();
+                if (providerSource != null)
+                {
+                    newChild = providerSource.StateProvider.Of(newWidget);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Widget {newWidget} requires a StateProvider, but no IStateProviderSource was found in the context.");
+                }
             }
+
 
             newChild.Mount(context);
             newChild.Update(newWidget);

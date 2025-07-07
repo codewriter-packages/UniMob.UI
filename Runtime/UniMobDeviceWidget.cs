@@ -19,7 +19,7 @@ namespace UniMob.UI
         public override State CreateState() => new UniMobDeviceState();
     }
 
-    public class UniMobDeviceState : HocState<UniMobDeviceWidget>
+    public class UniMobDeviceState : HocState<UniMobDeviceWidget>, IStateProviderSource
     {
         private RectInt _lastFullArea;
         private RectInt _lastSafeArea;
@@ -28,12 +28,14 @@ namespace UniMob.UI
 
         public StateProvider StateProvider => Widget.StateProvider;
 
+        IStateProvider IStateProviderSource.StateProvider => StateProvider;
+
         public override Widget Build(BuildContext context)
         {
             return Widget.Child;
         }
 
-        
+
 
         public override void InitState()
         {
