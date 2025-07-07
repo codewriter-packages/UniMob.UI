@@ -10,12 +10,12 @@ namespace UniMob.UI
     {
         public IStateProvider StateProvider { get; }
         
-        public StateProviderWidget(Func<Widget> childBuilder, IStateProvider stateProvider) : base(childBuilder)
+        public StateProviderWidget(IStateProvider stateProvider, Func<Widget> childBuilder) : base(childBuilder)
         {
             StateProvider = stateProvider;
         }
 
-        public StateProviderWidget(Widget child, IStateProvider stateProvider) : base(child)
+        public StateProviderWidget(IStateProvider stateProvider, Widget child) : base(child)
         {
             StateProvider = stateProvider;
         }
