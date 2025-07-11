@@ -14,7 +14,7 @@ namespace UniMob.UI.Widgets
 
         private readonly Queue<NavigatorCommand[]> _pendingCommands = new Queue<NavigatorCommand[]>();
         private readonly Stack<Route> _pendingPause = new Stack<Route>();
-        
+
         private Task _task = Task.CompletedTask;
 
         public override WidgetViewReference View { get; }
@@ -28,7 +28,13 @@ namespace UniMob.UI.Widgets
 
         public bool AutoFocus { get; set; } = true;
 
+        [Atom]
         public IState[] Screens => _states.Value;
+
+        [Atom]
+        public IReadOnlyCollection<Route> NavigationStack => _stack.Routes;
+
+        [Atom]
         public Route TopmostRoute => _stack.TopmostRoute;
 
         public override void InitState()
@@ -68,7 +74,7 @@ namespace UniMob.UI.Widgets
             ApplyCommands(new NavigatorCommand.Push(route));
             return route;
         }
-        
+
         public async Task<TResult> Push<TResult>(Route route)
         {
             if (route == null) throw new ArgumentNullException(nameof(route));
@@ -315,7 +321,7 @@ namespace UniMob.UI.Widgets
             var first = _stack.Peek();
 
             first.SetResult(result);
-            
+
             var destroyTask = first.ApplyScreenEvent(ScreenEvent.Destroy);
 
             if (first.ModalType == RouteModalType.Fullscreen)
@@ -426,6 +432,16 @@ namespace UniMob.UI.Widgets
                 return _widgets;
             }
         }
+
+        public IReadOnlyCollection<Route> Routes
+        {
+            get
+            {
+                _version.Get();
+                return _stack;
+            }
+        }
+
 
         public Route Peek() => _stack.Peek();
 
