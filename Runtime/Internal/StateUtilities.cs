@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UniMob.UI.Layout;
 using UnityEngine.Assertions;
 
 namespace UniMob.UI.Internal
@@ -157,24 +158,44 @@ namespace UniMob.UI.Internal
         public static State UpdateChild(BuildContext context, [CanBeNull] State child, [NotNull] Widget newWidget)
         {
             Assert.IsNull(Atom.CurrentScope);
+            
+            
+            
 
             if (child != null)
             {
                 if (child.RawWidget == newWidget)
                 {
+                    if (child is ILayoutState {RenderObject: not null} l)
+                    {
+                        l.RenderObject.Context = context;
+                    }
+                    
                     return child;
                 }
 
                 if (CanUpdateWidget(child.RawWidget, newWidget))
                 {
                     child.Update(newWidget);
+                    if(child is ILayoutState {RenderObject: not null} l)
+                    {
+                        l.RenderObject.Context = context;
+                    }
                     return child;
                 }
 
                 DeactivateChild(child);
             }
+            
+            var newChild = InflateWidget(context, newWidget);
 
-            return InflateWidget(context, newWidget);
+            if (newChild is ILayoutState layoutState)
+            {
+                var renderObject = layoutState.RenderObject;
+                renderObject.Context = context;
+            }
+
+            return newChild;
         }
 
         public static State InflateWidget(BuildContext context, [NotNull] Widget newWidget)

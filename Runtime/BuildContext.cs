@@ -1,3 +1,5 @@
+using UniMob.UI.Layout;
+
 namespace UniMob.UI
 {
     public class BuildContext
@@ -6,10 +8,15 @@ namespace UniMob.UI
 
         public BuildContext Parent { get; protected set; }
 
-        public BuildContext(IState state, BuildContext parent)
+        private readonly LayoutConstraints? _explicitConstraints;
+
+        public LayoutConstraints Constraints => _explicitConstraints ?? Parent?.Constraints ?? default;
+
+        public BuildContext(IState state, BuildContext parent, LayoutConstraints? constraints = null)
         {
             State = state;
             Parent = parent;
+            _explicitConstraints = constraints;
         }
 
         public TState AncestorStateOfType<TState>()
@@ -52,8 +59,8 @@ namespace UniMob.UI
 
     public class MutableBuildContext : BuildContext
     {
-        public MutableBuildContext(IState state, BuildContext parent)
-            : base(state, parent)
+        public MutableBuildContext(IState state, BuildContext parent, LayoutConstraints? constraints = null)
+            : base(state, parent, constraints)
         {
         }
 

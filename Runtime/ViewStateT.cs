@@ -12,7 +12,7 @@ namespace UniMob.UI
 
         protected TWidget Widget => _widget.Value;
 
-        internal sealed override void Update(Widget widget)
+        internal override void Update(Widget widget)
         {
             base.Update(widget);
 
