@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UniMob.Core;
+using UniMob.UI.Layout;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
@@ -249,6 +250,18 @@ namespace UniMob.UI
             if (currentState == null)
             {
                 return null;
+            }
+
+            if (currentState is ILayoutState layoutState)
+            {
+                try
+                {
+                    layoutState.RenderObject.PerformLayout();
+                }
+                catch (Exception ex)
+                {
+                    Zone.Current.HandleUncaughtException(ex);
+                }
             }
 
             using (_renderScope.Enter(this))

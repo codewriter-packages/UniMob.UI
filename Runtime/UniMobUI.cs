@@ -1,6 +1,8 @@
 using System;
 using JetBrains.Annotations;
+using UniMob.UI.Layout;
 using UniMob.UI.Widgets;
+using UnityEngine;
 
 namespace UniMob.UI
 {
@@ -13,14 +15,19 @@ namespace UniMob.UI
             if (root == null) throw new ArgumentNullException(nameof(root));
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-            IView view = root;
-            var context = new BuildContext(null, null);
-            var stateHolder = State.Create<Widget, IState>(lifetime, context, ctx =>
+            var rootSize = (root.transform as RectTransform).rect.size;
+            
+            var rootConstraints = LayoutConstraints.Tight(rootSize.x, rootSize.y);
+            var rootContext = new BuildContext(null, null, rootConstraints);
+          
+            
+            var stateHolder = State.Create<Widget, IState>(lifetime, rootContext, ctx =>
             {
                 var child = builder.Invoke(ctx);
                 return new UniMobDeviceWidget(child, root.gameObject, stateProvider);
             });
 
+            IView view = root;
             lifetime.Register(() => view.ResetSource());
 
             Atom.Reaction(lifetime, () => root.Render(stateHolder.Value), debugName: debugName);

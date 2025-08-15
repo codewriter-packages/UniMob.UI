@@ -1,4 +1,5 @@
 using UniMob.UI.Internal;
+using UniMob.UI.Layout;
 using UnityEngine;
 
 namespace UniMob.UI.Widgets
@@ -29,11 +30,24 @@ namespace UniMob.UI.Widgets
             {
                 var child = State;
 
+                Vector2 finalSize;
+                if (child is ILayoutState layoutState)
+                {
+                    // If the root widget is layout-aware, we MUST use its RenderObject's size.
+                    // The PerformLayout() call was already handled in the base View.DoRender().
+                    finalSize = layoutState.RenderObject.Size;
+                }
+                else
+                {
+                    // Fallback for a legacy root widget.
+                    finalSize = child.Size.GetSizeUnbounded();
+                }
+                
                 var childView = render.RenderItem(child);
-                var childSize = child.Size;
+                
 
                 LayoutData layout;
-                layout.Size = childSize.GetSizeUnbounded();
+                layout.Size = finalSize;
                 layout.Alignment = Alignment.Center;
                 layout.Corner = Alignment.Center;
                 layout.CornerPosition = Vector2.zero;
