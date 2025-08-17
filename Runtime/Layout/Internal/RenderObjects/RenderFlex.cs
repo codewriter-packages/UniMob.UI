@@ -8,8 +8,8 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     // The shared interface for Row/Column widgets.
     public interface IFlexWidget : IMultiChildLayoutWidget
     {
-        FlexCrossAxisAlignment CrossAxisAlignment { get; }
-        FlexMainAxisAlignment MainAxisAlignment { get; }
+        CrossAxisAlignment CrossAxisAlignment { get; }
+        MainAxisAlignment MainAxisAlignment { get; }
         AxisSize MainAxisSize { get; }
     }
 
@@ -120,7 +120,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             _unconstrainedMainAxisSize = mainAxisTotalSize + (totalFlexFactor > 0 ? freeSpace : 0);
 
-            if (_widget.CrossAxisAlignment == FlexCrossAxisAlignment.Stretch)
+            if (_widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
             {
                 crossAxisMaxSize = maxCrossAxis;
             }
@@ -149,23 +149,23 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 // --- MAIN AXIS ALIGNMENT ---
                 switch (_widget.MainAxisAlignment)
                 {
-                    case FlexMainAxisAlignment.Start:
+                    case MainAxisAlignment.Start:
                         mainAxisPos = 0;
                         break;
-                    case FlexMainAxisAlignment.Center:
+                    case MainAxisAlignment.Center:
                         mainAxisPos = freeSpace / 2f;
                         break;
-                    case FlexMainAxisAlignment.End:
+                    case MainAxisAlignment.End:
                         mainAxisPos = freeSpace;
                         break;
-                    case FlexMainAxisAlignment.SpaceAround:
+                    case MainAxisAlignment.SpaceAround:
                         spacing = childCount > 0 ? freeSpace / childCount : 0;
                         mainAxisPos = spacing / 2f;
                         break;
-                    case FlexMainAxisAlignment.SpaceBetween:
+                    case MainAxisAlignment.SpaceBetween:
                         spacing = childCount > 1 ? freeSpace / (childCount - 1) : 0;
                         break;
-                    case FlexMainAxisAlignment.SpaceEvenly:
+                    case MainAxisAlignment.SpaceEvenly:
                         spacing = childCount > 0 ? freeSpace / (childCount + 1) : 0;
                         mainAxisPos = spacing;
                         break;
@@ -181,7 +181,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 var childCrossAxisSize = _axis == Axis.Horizontal ? layout.Size.y : layout.Size.x;
 
                 // Handle Stretch for this specific child
-                if (_widget.CrossAxisAlignment == FlexCrossAxisAlignment.Stretch)
+                if (_widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
                 {
                     var newSize = _axis == Axis.Horizontal
                         ? new Vector2(layout.Size.x, crossAxisSize)
@@ -194,8 +194,8 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
                 var crossAxisPos = _widget.CrossAxisAlignment switch
                 {
-                    FlexCrossAxisAlignment.Center => (crossAxisSize - childCrossAxisSize) / 2f,
-                    FlexCrossAxisAlignment.End => crossAxisSize - childCrossAxisSize,
+                    CrossAxisAlignment.Center => (crossAxisSize - childCrossAxisSize) / 2f,
+                    CrossAxisAlignment.End => crossAxisSize - childCrossAxisSize,
                     _ => 0, // Start and Stretch align to 0
                 };
                 var newLayoutData = _childrenLayout[i];

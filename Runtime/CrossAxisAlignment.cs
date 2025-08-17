@@ -16,11 +16,11 @@ namespace UniMob.UI
         /// Place the children so that their centers align with the middle of the cross axis.
         /// </summary>
         Center = 2,
-        /*
+
         /// <summary>
         /// This causes the constraints passed to the children to be tight in the cross axis.
         /// </summary>
+        /// <remarks>Only supported in Layout widgets.</remarks>
         Stretch = 3,
-        */
     }
 }
