@@ -256,7 +256,11 @@ namespace UniMob.UI
             {
                 try
                 {
-                    layoutState.RenderObject.PerformLayout(currentState.Constraints);
+                    // We MUST perform layout here so that the inheritors in the Render() method
+                    // receive a fully up-to-date RenderObject and can use its properties, even non-reactive ones.
+                    //
+                    // Also we MUST do a DoRender() if the layout is recomputed, so subscribe to it.
+                    layoutState.WatchedPerformLayout();
                 }
                 catch (Exception ex)
                 {
