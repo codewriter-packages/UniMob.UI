@@ -15,7 +15,7 @@ namespace UniMob.UI.Layout
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
             // THIS IS THE FIX: It now creates its own, correct RenderObject.
-            return new RenderAlign(this, (AlignState)state);
+            return new RenderAlign((AlignState) state);
         }
     }
 

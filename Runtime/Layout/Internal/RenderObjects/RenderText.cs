@@ -61,12 +61,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         }
 
 
-        private readonly Text _widget;
         private readonly TextState _state;
 
-        public RenderText(Text widget, TextState state)
+        private Text Widget => (Text) _state.RawWidget;
+
+        public RenderText(TextState state)
         {
-            _widget = widget;
             _state = state;
 
             // Ensure static sizer is initialized
@@ -139,8 +139,10 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
-            var effectiveMaxWidth = Mathf.Min(constraints.MaxWidth, _widget.MaxWidth ?? float.PositiveInfinity);
-            var effectiveMaxHeight = Mathf.Min(constraints.MaxHeight, _widget.MaxHeight ?? float.PositiveInfinity);
+            var widget = this.Widget;
+
+            var effectiveMaxWidth = Mathf.Min(constraints.MaxWidth, widget.MaxWidth ?? float.PositiveInfinity);
+            var effectiveMaxHeight = Mathf.Min(constraints.MaxHeight, widget.MaxHeight ?? float.PositiveInfinity);
 
 
             var preferredSize = GetPreferredSize(effectiveMaxWidth, effectiveMaxHeight);
@@ -158,13 +160,17 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicHeight(float width)
         {
-            var effectiveWidth = Mathf.Min(width, _widget.MaxWidth ?? float.PositiveInfinity);
+            var widget = this.Widget;
+
+            var effectiveWidth = Mathf.Min(width, widget.MaxWidth ?? float.PositiveInfinity);
             return GetPreferredSize(effectiveWidth, float.PositiveInfinity).y;
         }
 
         public override float GetIntrinsicWidth(float height)
         {
-            var effectiveHeight = Mathf.Min(height, _widget.MaxHeight ?? float.PositiveInfinity);
+            var widget = this.Widget;
+
+            var effectiveHeight = Mathf.Min(height, widget.MaxHeight ?? float.PositiveInfinity);
             return GetPreferredSize(float.PositiveInfinity, effectiveHeight).x;
         }
     }

@@ -16,7 +16,7 @@ namespace UniMob.UI.Layout
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderContainer(this, (ContainerState) state);
+            return new RenderContainer((ContainerState) state);
         }
     }
 

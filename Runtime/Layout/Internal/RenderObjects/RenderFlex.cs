@@ -15,22 +15,24 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
     internal class RenderFlex : RenderObject, IMultiChildRenderObject
     {
-        private readonly IFlexWidget _widget;
         private readonly IMultiChildLayoutState _state;
         private readonly Axis _axis;
         private float _unconstrainedMainAxisSize;
         private readonly List<LayoutData> _childrenLayout = new();
+
+        private IFlexWidget Widget => (IFlexWidget) _state.RawWidget;
         public IReadOnlyList<LayoutData> ChildrenLayout => _childrenLayout;
 
-        public RenderFlex(IFlexWidget widget, IMultiChildLayoutState state, Axis axis)
+        public RenderFlex(IMultiChildLayoutState state, Axis axis)
         {
-            _widget = widget;
             _state = state;
             _axis = axis;
         }
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
+            var widget = this.Widget;
+
             _childrenLayout.Clear();
             var mainAxisTotalSize = 0f;
             var crossAxisMaxSize = 0f;
@@ -120,12 +122,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             _unconstrainedMainAxisSize = mainAxisTotalSize + (totalFlexFactor > 0 ? freeSpace : 0);
 
-            if (_widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
+            if (widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
             {
                 crossAxisMaxSize = maxCrossAxis;
             }
 
-            var finalMainAxisSize = _widget.MainAxisSize == AxisSize.Max ? maxMainAxis : _unconstrainedMainAxisSize;
+            var finalMainAxisSize = widget.MainAxisSize == AxisSize.Max ? maxMainAxis : _unconstrainedMainAxisSize;
 
             var finalSize = isHorizontal
                 ? new Vector2(finalMainAxisSize, crossAxisMaxSize)
@@ -139,6 +141,8 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         protected override void PerformPositioning()
         {
+            var widget = this.Widget;
+
             var mainAxisSize = _axis == Axis.Horizontal ? this.Size.x : this.Size.y;
             var freeSpace = (_axis == Axis.Horizontal ? this.Size.x : this.Size.y) - _unconstrainedMainAxisSize;
             float mainAxisPos = 0;
@@ -147,7 +151,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             if (freeSpace > 0 && !float.IsInfinity(mainAxisSize))
             {
                 // --- MAIN AXIS ALIGNMENT ---
-                switch (_widget.MainAxisAlignment)
+                switch (widget.MainAxisAlignment)
                 {
                     case MainAxisAlignment.Start:
                         mainAxisPos = 0;
@@ -181,7 +185,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 var childCrossAxisSize = _axis == Axis.Horizontal ? layout.Size.y : layout.Size.x;
 
                 // Handle Stretch for this specific child
-                if (_widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
+                if (widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
                 {
                     var newSize = _axis == Axis.Horizontal
                         ? new Vector2(layout.Size.x, crossAxisSize)
@@ -192,7 +196,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                     childCrossAxisSize = crossAxisSize;
                 }
 
-                var crossAxisPos = _widget.CrossAxisAlignment switch
+                var crossAxisPos = widget.CrossAxisAlignment switch
                 {
                     CrossAxisAlignment.Center => (crossAxisSize - childCrossAxisSize) / 2f,
                     CrossAxisAlignment.End => crossAxisSize - childCrossAxisSize,

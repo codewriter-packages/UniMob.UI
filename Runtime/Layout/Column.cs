@@ -15,7 +15,7 @@ namespace UniMob.UI.Layout
         public override State CreateState() => new ColumnState();
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderFlex(this, (ColumnState)state, Axis.Vertical);
+            return new RenderFlex((ColumnState) state, Axis.Vertical);
         }
     }
     

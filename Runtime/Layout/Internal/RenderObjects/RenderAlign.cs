@@ -6,15 +6,13 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 {
     internal class RenderAlign : RenderObject, ISingleChildRenderObject
     {
-        private readonly Align _widget;
         private readonly AlignState _state;
 
         public Vector2 ChildPosition { get; private set; }
         public Vector2 ChildSize { get; private set; }
 
-        public RenderAlign(Align widget, AlignState state)
+        public RenderAlign(AlignState state)
         {
-            _widget = widget;
             _state = state;
         }
 
