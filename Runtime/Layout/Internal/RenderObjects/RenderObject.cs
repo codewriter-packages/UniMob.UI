@@ -8,7 +8,6 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     /// </summary>
     public abstract class RenderObject
     {
-        public BuildContext Context { get; internal set; }
         public Vector2 Size { get; private set; } // The final size after layout
 
         /// <summary>
@@ -29,10 +28,10 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         ///   </item>
         /// </list>
         /// </remarks>
-        public void PerformLayout()
+        public void PerformLayout(LayoutConstraints constraints)
         {
             // Phase 1: Perform this widget's own size.
-            this.Size = PerformSizing(this.Context.Constraints);
+            this.Size = PerformSizing(constraints);
 
             // Phase 2: Perform layout for children.
             PerformPositioning();
@@ -84,13 +83,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             if (child is null)
                 return Vector2.zero;
 
-            var childContext = new BuildContext(child, this.Context, constraints);
-
             if (child is ILayoutState childLayoutState && childLayoutState.RenderObject != null)
             {
+                childLayoutState.UpdateConstraints(constraints);
+
                 var childRenderObject = childLayoutState.RenderObject;
-                childRenderObject.Context = childContext;
-                childRenderObject.PerformLayout();
+                childRenderObject.PerformLayout(childLayoutState.Constraints);
                 return childRenderObject.Size;
             }
 

@@ -166,36 +166,19 @@ namespace UniMob.UI.Internal
             {
                 if (child.RawWidget == newWidget)
                 {
-                    if (child is ILayoutState {RenderObject: not null} l)
-                    {
-                        l.RenderObject.Context = context;
-                    }
-                    
                     return child;
                 }
 
                 if (CanUpdateWidget(child.RawWidget, newWidget))
                 {
                     child.Update(newWidget);
-                    if(child is ILayoutState {RenderObject: not null} l)
-                    {
-                        l.RenderObject.Context = context;
-                    }
                     return child;
                 }
 
                 DeactivateChild(child);
             }
             
-            var newChild = InflateWidget(context, newWidget);
-
-            if (newChild is ILayoutState layoutState)
-            {
-                var renderObject = layoutState.RenderObject;
-                renderObject.Context = context;
-            }
-
-            return newChild;
+            return InflateWidget(context, newWidget);
         }
 
         public static State InflateWidget(BuildContext context, [NotNull] Widget newWidget)
