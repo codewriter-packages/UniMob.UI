@@ -1,4 +1,4 @@
-﻿namespace UniMob.UI.Layout
+﻿namespace UniMob.UI
 {
     public enum Axis
     {
