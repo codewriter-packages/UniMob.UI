@@ -16,7 +16,7 @@ namespace UniMob.UI.Layout
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderFlex(this, (RowState) (context.State), Axis.Horizontal);
+            return new RenderFlex((RowState) state, Axis.Horizontal);
         }
     }
     

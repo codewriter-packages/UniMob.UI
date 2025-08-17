@@ -27,13 +27,6 @@ namespace UniMob.UI.Layout
             }
         }
 
-        internal sealed override void Update(Widget widget)
-        {
-            base.Update(widget);
-            // If the widget is updated, we need to reset the RenderObject.
-            this._renderObject = null;
-        }
-
         // This method provides the bridge TO the old layout system.
         // When a legacy widget contains a new layout-aware widget, this is called.
         public override WidgetSize CalculateSize()

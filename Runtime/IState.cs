@@ -6,6 +6,8 @@ namespace UniMob.UI
     {
         Key Key { get; }
 
+        Widget RawWidget { get; }
+
         LayoutConstraints Constraints { get; }
 
         BuildContext Context { get; }

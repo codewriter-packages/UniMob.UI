@@ -43,7 +43,7 @@ namespace UniMob.UI.Layout
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderText(this, (TextState) state);
+            return new RenderText((TextState) state);
         }
     }
 

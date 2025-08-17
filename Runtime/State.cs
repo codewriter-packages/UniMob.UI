@@ -21,6 +21,7 @@ namespace UniMob.UI
         public BuildContext Context => _context;
 
         internal Widget RawWidget { get; private set; }
+        Widget IState.RawWidget => RawWidget;
 
         public LayoutConstraints Constraints =>
             _explicitConstraints.Value ?? _context.Parent?.State?.Constraints ?? default;
