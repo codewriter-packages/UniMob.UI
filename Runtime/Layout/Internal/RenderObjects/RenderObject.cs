@@ -28,7 +28,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         ///   </item>
         /// </list>
         /// </remarks>
-        public void PerformLayout(LayoutConstraints constraints)
+        public void PerformLayoutImmediate(LayoutConstraints constraints)
         {
             // Phase 1: Perform this widget's own size.
             this.Size = PerformSizing(constraints);
@@ -87,8 +87,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             {
                 childLayoutState.UpdateConstraints(constraints);
 
+                childLayoutState.WatchedPerformLayout();
+
+                // After WatchedPerformLayout() RenderObject's state is up-do-date,
+                // so we can safely use Size here.
                 var childRenderObject = childLayoutState.RenderObject;
-                childRenderObject.PerformLayout(childLayoutState.Constraints);
                 return childRenderObject.Size;
             }
 
