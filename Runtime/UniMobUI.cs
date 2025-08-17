@@ -15,10 +15,7 @@ namespace UniMob.UI
             if (root == null) throw new ArgumentNullException(nameof(root));
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-            var rootSize = (root.transform as RectTransform).rect.size;
-            
-            var rootConstraints = LayoutConstraints.Tight(rootSize.x, rootSize.y);
-            var rootContext = new BuildContext(null, null, rootConstraints);
+            var rootContext = new BuildContext(null, null);
           
             
             var stateHolder = State.Create<Widget, IState>(lifetime, rootContext, ctx =>

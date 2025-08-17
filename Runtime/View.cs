@@ -256,7 +256,7 @@ namespace UniMob.UI
             {
                 try
                 {
-                    layoutState.RenderObject.PerformLayout();
+                    layoutState.RenderObject.PerformLayout(currentState.Constraints);
                 }
                 catch (Exception ex)
                 {
