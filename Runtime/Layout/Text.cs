@@ -50,11 +50,11 @@ namespace UniMob.UI.Layout
     public class TextState : LayoutState<Text>, IUniMobTextState
     {
         // Exposing all properties for the View, resolving defaults from context.
-        public string Value => Widget.Value; // Assuming localization is handled elsewhere now for simplicity
-        public Color Color => Widget.Color ?? Color.white; // Or from ThemeProvider
+        public string Value => Widget.Value; 
+        public Color Color => Widget.Color ?? Color.white; 
         public int FontSize => Widget.FontSize ?? 14;
 
-        public TMP_StyleSheet StyleSheet => Widget.StyleSheet ?? TMP_Settings.defaultStyleSheet;
+        private TMP_StyleSheet StyleSheet => Widget.StyleSheet ?? TMP_Settings.defaultStyleSheet;
 
         public TMP_Style Style
         {
@@ -70,8 +70,6 @@ namespace UniMob.UI.Layout
         }
 
 
-        public float MaxWidth => Widget.MaxWidth ?? float.PositiveInfinity;
-        public float MaxHeight => Widget.MaxHeight ?? float.PositiveInfinity;
         public int MaxLines => Widget.MaxLines ?? int.MaxValue;
 
         public FontWeight FontWeight => Widget.FontWeight ?? FontWeight.Regular;

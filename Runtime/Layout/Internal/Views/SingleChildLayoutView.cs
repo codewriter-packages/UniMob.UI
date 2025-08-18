@@ -32,7 +32,6 @@ namespace UniMob.UI.Layout.Internal.Views
             if (State.RenderObject is not ISingleChildRenderObject renderObject)
                 return;
 
-            // 3. Render the child
             using (var render = _mapper.CreateRender())
             {
                 var child = State.Child;
@@ -48,14 +47,11 @@ namespace UniMob.UI.Layout.Internal.Views
                 var childSize = renderObject.ChildSize;
                 var topLeftPosition = renderObject.ChildPosition;
 
-                // 3. We must translate this top-left position into the PIVOT's position,
-                //    which is what RectTransform.anchoredPosition requires.
                 var pivotOffset = new Vector2(
                     childSize.x * rt.pivot.x,
                     -childSize.y * (1.0f - rt.pivot.y)
                 );
 
-                // 4. Apply the final values to the RectTransform.
                 rt.sizeDelta = childSize;
                 rt.anchoredPosition = new Vector2(topLeftPosition.x, -topLeftPosition.y) + pivotOffset;
             }
