@@ -42,8 +42,7 @@ namespace UniMob.UI.Layout
         public Sprite BackgroundImage => Widget.BackgroundImage != null
             ? Widget.BackgroundImage
             : UniMobViewContext.DefaultWhiteImage;
-
-        // The View for a layout-aware widget needs to be different to apply the RenderObject's data.
+        
         public override WidgetViewReference View => 
             WidgetViewReference.Resource("$$_Layout.ContainerView");
     }

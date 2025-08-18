@@ -20,10 +20,8 @@ namespace UniMob.UI.Layout.Internal.Views
 
         protected override void Render()
         {
-            // First, let the base class handle all the complex child layout logic.
             base.Render();
 
-            // Then, do the one thing this specific view is responsible for.
             if (_backgroundImage == null) return;
             
             _backgroundImage.sprite = State.BackgroundImage;

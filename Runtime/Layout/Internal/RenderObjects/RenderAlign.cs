@@ -22,12 +22,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             // 1. Give the child LOOSE constraints to discover its ideal, shrink-wrapped size.
             var childConstraints = new LayoutConstraints(0, 0, float.PositiveInfinity, float.PositiveInfinity);
-            this.ChildSize = LayoutChild(child, childConstraints);
+            ChildSize = LayoutChild(child, childConstraints);
 
             // 2. The Align widget's own size BECOMES the child's size, but clamped by the parent's rules.
             return new Vector2(
-                Mathf.Clamp(this.ChildSize.x, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(this.ChildSize.y, constraints.MinHeight, constraints.MaxHeight)
+                Mathf.Clamp(ChildSize.x, constraints.MinWidth, constraints.MaxWidth),
+                Mathf.Clamp(ChildSize.y, constraints.MinHeight, constraints.MaxHeight)
             );
         }
 

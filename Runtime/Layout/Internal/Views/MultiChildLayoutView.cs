@@ -63,7 +63,7 @@ namespace UniMob.UI.Layout.Views
 
                 var pivotOffset = new Vector2(
                     layoutData.Size.x * rt.pivot.x,
-                    -layoutData.Size.y * (1.0f - rt.pivot.y) // Note: Mistake in previous version, should be -y
+                    -layoutData.Size.y * (1.0f - rt.pivot.y) 
                 );
             
                 rt.sizeDelta = layoutData.Size;
