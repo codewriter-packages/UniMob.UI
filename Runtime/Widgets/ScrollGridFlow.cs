@@ -28,9 +28,6 @@ namespace UniMob.UI.Widgets
 
     public class ScrollGridFlowState : MultiChildLayoutState<ScrollGridFlow>, IScrollGridFlowState
     {
-        private static readonly ScrollEasing CircEaseInOutEasing = (t, d) =>
-            (t /= d / 2) < 1 ? -0.5f * (Mathf.Sqrt(1 - t * t) - 1) : 0.5f * (Mathf.Sqrt(1 - (t -= 2) * t) + 1);
-
         private readonly StateHolder _backgroundContent;
 
         private ScrollGridFlowView _gridView;
@@ -104,14 +101,14 @@ namespace UniMob.UI.Widgets
             }
         }
 
-        public bool ScrollTo(Key key, float duration, float offset = 0, ScrollEasing easing = null)
+        public bool ScrollTo(Key key, float duration, float offset = 0, Easing easing = null)
         {
             if (_gridView == null)
             {
                 return false;
             }
 
-            return _gridView.ScrollTo(key, duration, offset, easing ?? CircEaseInOutEasing);
+            return _gridView.ScrollTo(key, duration, offset, easing ?? Ease.InOutCirc);
         }
     }
 
@@ -122,6 +119,4 @@ namespace UniMob.UI.Widgets
         Bottom = 1 << 1,
         TopAndBottom = Top | Bottom,
     }
-
-    public delegate float ScrollEasing(float t, float duration);
 }
