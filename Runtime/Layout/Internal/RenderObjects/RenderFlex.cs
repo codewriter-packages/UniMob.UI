@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UniMob.UI.Layout.Views;
+using UniMob.UI.Layout.Internal.Views;
 using UniMob.UI.Widgets;
 using UnityEngine;
 

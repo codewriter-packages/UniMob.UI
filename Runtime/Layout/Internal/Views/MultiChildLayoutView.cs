@@ -6,11 +6,11 @@ using UniMob.UI.Internal;
 using UniMob.UI.Layout.Internal.RenderObjects;
 using UniMob.UI.Widgets;
 
-[assembly: UniMob.UI.Internal.RegisterComponentViewFactory("$$_Layout.MultiChildLayoutView", 
-    typeof(UnityEngine.RectTransform), 
-    typeof(UniMob.UI.Layout.Views.MultiChildLayoutView))]
+[assembly: RegisterComponentViewFactory("$$_Layout.MultiChildLayoutView", 
+    typeof(RectTransform), 
+    typeof(UniMob.UI.Layout.Internal.Views.MultiChildLayoutView))]
 
-namespace UniMob.UI.Layout.Views
+namespace UniMob.UI.Layout.Internal.Views
 {
     public interface IMultiChildLayoutState : ILayoutState
     {
