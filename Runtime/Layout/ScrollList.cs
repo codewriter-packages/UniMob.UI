@@ -17,6 +17,12 @@ namespace UniMob.UI.Layout
         public bool UseMask { get; set; } = true;
         public ScrollRect.MovementType? MovementType { get; set; }
 
+        /// <summary>
+        ///     The size, in pixels, of the (bidirectional) cache extent for virtualization.
+        ///     <para>If the value is not set, the cache extent will be determined automatically based on the viewport size.</para>
+        /// </summary>
+        public float? VirtualizationCacheExtent { get; set; }
+
 
         public override State CreateState()
         {
@@ -80,34 +86,26 @@ namespace UniMob.UI.Layout
         [Atom]
         public IState[] Children => _visibleChildren.Value;
 
+        [Atom]
         public bool UseMask => Widget.UseMask;
+
+        [Atom]
         public ScrollRect.MovementType MovementType => Widget.MovementType ?? ScrollRect.MovementType.Elastic;
 
-
         [Atom] public ScrollController ScrollController { get; private set; }
-
-
-        // These properties are required by the ISliverListState interface.
-        // The RenderSliverList will read them during layout.
         [Atom] public Vector2 ViewportSize { get; set; }
         [Atom] public float ScrollOffset { get; set; }
-
 
         [Atom]
         public IState[] AllChildren => _allChildren.Value;
 
+        [Atom]
         public Axis Axis => Widget.Axis;
 
-        void ISliverState.SetVisibleChildren(List<IndexedLayoutData> visibleChildren)
-        {
-            var indices = new List<int>(visibleChildren.Count);
-            for (var i = 0; i < visibleChildren.Count; i++) indices.Add(visibleChildren[i].ChildIndex);
+        [Atom]
+        public float VirtualizationCacheExtent =>
+            Widget.VirtualizationCacheExtent ?? ComputeVirtualizationCacheExtent();
 
-            using (Atom.NoWatch)
-            {
-                _visibleIndices.Value = new List<int>(indices);
-            }
-        }
 
         public override void DidViewMount(IView view)
         {
@@ -122,6 +120,30 @@ namespace UniMob.UI.Layout
         }
 
         public override WidgetViewReference View => WidgetViewReference.Resource("Layout/UniMob.ScrollList");
+
+        void ISliverState.SetVisibleChildren(List<IndexedLayoutData> visibleChildren)
+        {
+            var indices = new List<int>(visibleChildren.Count);
+            for (var i = 0; i < visibleChildren.Count; i++) indices.Add(visibleChildren[i].ChildIndex);
+
+            using (Atom.NoWatch)
+            {
+                _visibleIndices.Value = new List<int>(indices);
+            }
+        }
+
+        private float ComputeVirtualizationCacheExtent()
+        {
+            var isHorizontal = Widget.Axis == Axis.Horizontal;
+            var viewportSize = isHorizontal ? ViewportSize.x : ViewportSize.y;
+
+            // Default to 1x the viewport size if not set.
+            // Note: This means that we have 'three' screens worth of cache:
+            // - 1 screen before the viewport
+            // - 1 screen in the viewport
+            // - 1 screen after the viewport
+            return viewportSize;
+        }
 
         public override void InitState()
         {

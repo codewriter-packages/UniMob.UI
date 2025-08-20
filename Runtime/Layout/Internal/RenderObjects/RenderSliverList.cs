@@ -12,15 +12,14 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         public LayoutData Layout;
     }
 
-    // We expand the interface to include everything the RenderObject needs from the State.
     internal interface ISliverState : ILayoutState
     {
         IState[] AllChildren { get; }
         Axis Axis { get; }
         Vector2 ViewportSize { get; }
         float ScrollOffset { get; }
+        float VirtualizationCacheExtent { get; }
 
-        // A method for the RenderObject to push the calculated layout back to the State.
         internal void SetVisibleChildren(List<IndexedLayoutData> visibleChildren);
     }
 
@@ -87,7 +86,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         protected override void PerformPositioning()
         {
             var visibleChildrenData = new List<IndexedLayoutData>();
-            var cacheExtent = 250.0f; // The buffer for smooth scrolling.
+            var cacheExtent = _state.VirtualizationCacheExtent; // The buffer for smooth scrolling.
 
             var isHorizontal = _state.Axis == Axis.Horizontal;
             var scrollOffset = _state.ScrollOffset;
