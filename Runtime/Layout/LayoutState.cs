@@ -1,4 +1,5 @@
 ﻿using UniMob.UI.Layout.Internal.RenderObjects;
+using UniMob.UI.Widgets;
 
 namespace UniMob.UI.Layout
 {
@@ -46,14 +47,27 @@ namespace UniMob.UI.Layout
         // When a legacy widget contains a new layout-aware widget, this is called.
         public override WidgetSize CalculateSize()
         {
+#if UNITY_EDITOR
+            if (Context.Parent.State is Widgets.RowState or Widgets.ColumnState)
+            {
+                UnityEngine.Debug.LogWarning("CalculateSize() on a LayoutState is meant as a last resort for interop " +
+                                             "with the legacy layout system. \n" +
+                                             $"Consider wrapping your modern widgets in a {nameof(LayoutHost)} for " +
+                                             "smoother integration.");
+            }
+#endif
             var ro = RenderObject;
 
-            // For legacy parents, report the unconstrained intrinsic size.
-            // This is a "best guess" since no constraints are provided.
             var intrinsicWidth = ro.GetIntrinsicWidth(float.PositiveInfinity);
-            var intrinsicHeight = ro.GetIntrinsicHeight(intrinsicWidth);
+            var intrinsicHeight = ro.GetIntrinsicHeight(float.PositiveInfinity);
 
-            return WidgetSize.Fixed(intrinsicWidth, intrinsicHeight);
+            var minWidth = float.IsInfinity(intrinsicWidth) ? 0 : intrinsicWidth;
+            var maxWidth = float.IsInfinity(intrinsicWidth) ? float.PositiveInfinity : intrinsicWidth;
+
+            var minHeight = float.IsInfinity(intrinsicHeight) ? 0 : intrinsicHeight;
+            var maxHeight = float.IsInfinity(intrinsicHeight) ? float.PositiveInfinity : intrinsicHeight;
+
+            return new WidgetSize(minWidth, minHeight, maxWidth, maxHeight);
         }
 
         private Atom<int> CreateTrackedLayout()
