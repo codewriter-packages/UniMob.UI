@@ -1,10 +1,11 @@
 ﻿using TMPro;
 using UniMob.UI.Internal;
+using UniMob.UI.Layout.Internal.Views;
 using UniMob.UI.Widgets;
 using UnityEngine;
 
 [assembly: RegisterComponentViewFactory("$$_Layout.Text",
-    typeof(UniMob.UI.Layout.Internal.Views.LayoutTextView),
+    typeof(LayoutTextView),
     typeof(UniMobTextMeshProBehaviour))]
 
 namespace UniMob.UI.Layout.Internal.Views

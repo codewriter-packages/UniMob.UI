@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using UnityEngine;
 using UniMob.UI.Internal;
 using UniMob.UI.Layout.Internal.RenderObjects;
-using UniMob.UI.Widgets;
+using UniMob.UI.Layout.Internal.Views;
+using UnityEngine;
 
-[assembly: RegisterComponentViewFactory("$$_Layout.MultiChildLayoutView", 
-    typeof(RectTransform), 
-    typeof(UniMob.UI.Layout.Internal.Views.MultiChildLayoutView))]
+[assembly: RegisterComponentViewFactory("$$_Layout.MultiChildLayoutView",
+    typeof(RectTransform),
+    typeof(MultiChildLayoutView))]
 
 namespace UniMob.UI.Layout.Internal.Views
 {
@@ -16,7 +14,7 @@ namespace UniMob.UI.Layout.Internal.Views
     {
         IState[] Children { get; }
     }
-    
+
     public class MultiChildLayoutView : View<IMultiChildLayoutState>
     {
         private ViewMapperBase _mapper;
@@ -31,7 +29,7 @@ namespace UniMob.UI.Layout.Internal.Views
         {
             if (State.RenderObject is not IMultiChildRenderObject multiChildRenderObject)
                 return;
-            
+
             var childrenLayout = multiChildRenderObject.ChildrenLayout;
 
             using var render = _mapper.CreateRender();
@@ -39,40 +37,33 @@ namespace UniMob.UI.Layout.Internal.Views
             for (var i = 0; i < State.Children.Length; i++)
             {
                 var child = State.Children[i];
-                if (child is ExpandedState expandedState)
-                {
-                    child = expandedState.Child;
-                }
-                
-                
+                if (child is ExpandedState expandedState) child = expandedState.Child;
+
+
                 var layoutData = childrenLayout[i];
-                
-                if(float.IsInfinity(layoutData.Size.x) || float.IsInfinity(layoutData.Size.y))
-                {
+
+                if (float.IsInfinity(layoutData.Size.x) || float.IsInfinity(layoutData.Size.y))
                     throw new InvalidOperationException(
                         $"Child {i} has an unbounded size. This is not supported in MultiChildLayoutView.");
-                }
-                
-                
-                
+
+
                 var childView = render.RenderItem(child);
                 var rt = childView.rectTransform;
-            
+
                 rt.anchorMin = new Vector2(0, 1);
                 rt.anchorMax = new Vector2(0, 1);
 
                 var pivotOffset = new Vector2(
                     layoutData.Size.x * rt.pivot.x,
-                    -layoutData.Size.y * (1.0f - rt.pivot.y) 
+                    -layoutData.Size.y * (1.0f - rt.pivot.y)
                 );
-            
+
                 rt.sizeDelta = layoutData.Size;
                 if (!layoutData.CornerPosition.HasValue)
-                {
                     throw new InvalidOperationException(
                         $"LayoutData for child {i} does not have a CornerPosition set. This is required for positioning.");
-                }
-                rt.anchoredPosition = new Vector2(layoutData.CornerPosition.Value.x, -layoutData.CornerPosition.Value.y) + pivotOffset;
+                rt.anchoredPosition =
+                    new Vector2(layoutData.CornerPosition.Value.x, -layoutData.CornerPosition.Value.y) + pivotOffset;
             }
         }
     }

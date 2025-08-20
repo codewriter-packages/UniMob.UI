@@ -1,20 +1,20 @@
 ﻿using UniMob.UI.Internal;
 using UniMob.UI.Layout.Internal.RenderObjects;
+using UniMob.UI.Layout.Internal.Views;
 using UnityEngine;
-using UnityEngine.UI;
-
-
 
 [assembly: RegisterComponentViewFactory("$$_Layout.AlignView",
-    typeof(UnityEngine.RectTransform), typeof(UnityEngine.CanvasRenderer), typeof(
-        UniMob.UI.Layout.Internal.Views.AlignView))]
+    typeof(RectTransform), typeof(CanvasRenderer), typeof(
+        AlignView))]
 
 
 namespace UniMob.UI.Layout.Internal.Views
 {
-    internal class AlignView : SingleChildLayoutView<AlignState>{}
-    
-    
+    internal class AlignView : SingleChildLayoutView<AlignState>
+    {
+    }
+
+
     [RequireComponent(typeof(RectTransform), typeof(CanvasRenderer))]
     public abstract class SingleChildLayoutView<TState> : View<TState>
         where TState : class, ISingleChildLayoutState
@@ -43,7 +43,7 @@ namespace UniMob.UI.Layout.Internal.Views
                 var rt = childView.rectTransform;
                 rt.anchorMin = Vector2.up;
                 rt.anchorMax = Vector2.up;
-                
+
                 var childSize = renderObject.ChildSize;
                 var topLeftPosition = renderObject.ChildPosition;
 

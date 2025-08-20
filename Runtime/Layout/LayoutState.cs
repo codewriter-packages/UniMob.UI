@@ -8,36 +8,38 @@ namespace UniMob.UI.Layout
         RenderObject RenderObject { get; }
 
         /// <summary>
-        /// <b>[Atom]</b> Performs re-layout on RenderObject if necessary (e.g. constraints or dependencies have changed)
-        /// and subscribes to future re-layouts via the UniMob's reactivity system.
+        ///     <b>[Atom]</b> Performs re-layout on RenderObject if necessary (e.g. constraints or dependencies have changed)
+        ///     and subscribes to future re-layouts via the UniMob's reactivity system.
         /// </summary>
         /// <remarks>
-        /// This method can be safely called multiple times because
-        /// it will not cause the layout to be recalculated every time.
+        ///     This method can be safely called multiple times because
+        ///     it will not cause the layout to be recalculated every time.
         /// </remarks>
         void WatchedPerformLayout();
     }
 
     /// <summary>
-    /// The base State for a LayoutWidget. It creates and owns the RenderObject.
+    ///     The base State for a LayoutWidget. It creates and owns the RenderObject.
     /// </summary>
     public abstract class LayoutState<TWidget> : ViewState<TWidget>, ILayoutState where TWidget : LayoutWidget, Widget
     {
+        private RenderObject _renderObject;
         private int _renderVersion = int.MinValue;
         private Atom<int> _trackedLayoutPerformer;
-
-        private RenderObject _renderObject;
 
         public RenderObject RenderObject
         {
             get
             {
-                if (_renderObject == null)
-                {
-                    _renderObject = Widget.CreateRenderObject(Context, this);
-                }
+                if (_renderObject == null) _renderObject = Widget.CreateRenderObject(Context, this);
                 return _renderObject;
             }
+        }
+
+        void ILayoutState.WatchedPerformLayout()
+        {
+            _trackedLayoutPerformer ??= CreateTrackedLayout();
+            _trackedLayoutPerformer.Get();
         }
 
         // This method provides the bridge TO the old layout system.
@@ -54,12 +56,6 @@ namespace UniMob.UI.Layout
             return WidgetSize.Fixed(intrinsicWidth, intrinsicHeight);
         }
 
-        void ILayoutState.WatchedPerformLayout()
-        {
-            _trackedLayoutPerformer ??= CreateTrackedLayout();
-            _trackedLayoutPerformer.Get();
-        }
-
         private Atom<int> CreateTrackedLayout()
         {
             return Atom.Computed(StateLifetime, () =>
@@ -73,7 +69,7 @@ namespace UniMob.UI.Layout
 
                 // The PerformLayout() was done and we need all subscribers to be invalidated,
                 // so we always return a new number.
-                return _renderVersion = ((_renderVersion + 1) % int.MaxValue);
+                return _renderVersion = (_renderVersion + 1) % int.MaxValue;
             });
         }
     }

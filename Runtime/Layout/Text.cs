@@ -3,11 +3,10 @@ using TMPro;
 using UniMob.UI.Layout.Internal.RenderObjects;
 using UnityEngine;
 
-
 namespace UniMob.UI.Layout
 {
     /// <summary>
-    /// Horizontal text alignment options.
+    ///     Horizontal text alignment options.
     /// </summary>
     public enum HorizontalTextAlignment
     {
@@ -39,7 +38,10 @@ namespace UniMob.UI.Layout
 
         public int? MaxLines { get; set; }
 
-        public override State CreateState() => new TextState();
+        public override State CreateState()
+        {
+            return new TextState();
+        }
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
@@ -49,21 +51,19 @@ namespace UniMob.UI.Layout
 
     public class TextState : LayoutState<Text>, IUniMobTextState
     {
-        // Exposing all properties for the View, resolving defaults from context.
-        public string Value => Widget.Value; 
-        public Color Color => Widget.Color ?? Color.white; 
-        public int FontSize => Widget.FontSize ?? 14;
-
         private TMP_StyleSheet StyleSheet => Widget.StyleSheet ?? TMP_Settings.defaultStyleSheet;
+
+        // Exposing all properties for the View, resolving defaults from context.
+        public string Value => Widget.Value;
+        public Color Color => Widget.Color ?? Color.white;
+        public int FontSize => Widget.FontSize ?? 14;
 
         public TMP_Style Style
         {
             get
             {
                 if (!string.IsNullOrEmpty(Widget.StyleName) && StyleSheet?.GetStyle(Widget.StyleName) is { } style)
-                {
                     return style;
-                }
 
                 return TMP_Style.NormalStyle;
             }

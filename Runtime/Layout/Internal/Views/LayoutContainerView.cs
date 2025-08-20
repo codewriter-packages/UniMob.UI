@@ -1,9 +1,10 @@
 ﻿using UniMob.UI.Internal;
+using UniMob.UI.Layout.Internal.Views;
 using UnityEngine;
 using UnityEngine.UI;
 
 [assembly: RegisterComponentViewFactory("$$_Layout.ContainerView",
-    typeof(UniMob.UI.Layout.Internal.Views.LayoutContainerView))]
+    typeof(LayoutContainerView))]
 
 namespace UniMob.UI.Layout.Internal.Views
 {
@@ -23,11 +24,9 @@ namespace UniMob.UI.Layout.Internal.Views
             base.Render();
 
             if (_backgroundImage == null) return;
-            
+
             _backgroundImage.sprite = State.BackgroundImage;
             _backgroundImage.color = State.BackgroundColor;
         }
     }
-
-    
 }

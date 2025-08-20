@@ -18,13 +18,16 @@ namespace UniMob.UI.Layout
         }
 
         /// <summary>
-        /// Creates a set of tight constraints, forcing an exact size.
+        ///     Creates a set of tight constraints, forcing an exact size.
         /// </summary>
         public static LayoutConstraints Tight(float width, float height)
         {
             return new LayoutConstraints(width, height, width, height);
         }
 
+
+        public bool HasBoundedWidth => MinWidth >= 0 && float.IsFinite(MinWidth);
+        public bool HasBoundedHeight => MinHeight >= 0 && float.IsFinite(MinHeight);
 
         public override string ToString()
         {

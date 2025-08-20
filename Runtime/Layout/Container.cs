@@ -1,4 +1,5 @@
 ﻿using UniMob.UI.Layout.Internal.RenderObjects;
+using UniMob.UI.Widgets;
 using UnityEngine;
 
 namespace UniMob.UI.Layout
@@ -12,7 +13,10 @@ namespace UniMob.UI.Layout
         public float? Width { get; set; }
         public float? Height { get; set; }
 
-        public override State CreateState() => new ContainerState();
+        public override State CreateState()
+        {
+            return new ContainerState();
+        }
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
@@ -26,24 +30,26 @@ namespace UniMob.UI.Layout
         Color BackgroundColor { get; }
         Sprite BackgroundImage { get; }
     }
-    
+
     public class ContainerState : LayoutState<Container>, IContainerState
     {
         private readonly StateHolder _child;
 
         public ContainerState()
         {
-            _child = CreateChild(context => Widget.Child ?? new Widgets.Empty());
+            _child = CreateChild(context => Widget.Child ?? new Empty());
         }
 
-        public IState Child => _child.Value;
         public Alignment Alignment => Widget.Alignment;
+
+        public IState Child => _child.Value;
         public Color BackgroundColor => Widget.BackgroundColor;
+
         public Sprite BackgroundImage => Widget.BackgroundImage != null
             ? Widget.BackgroundImage
             : UniMobViewContext.DefaultWhiteImage;
-        
-        public override WidgetViewReference View => 
+
+        public override WidgetViewReference View =>
             WidgetViewReference.Resource("$$_Layout.ContainerView");
     }
 }

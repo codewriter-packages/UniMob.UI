@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using System;
 using UnityEngine;
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
@@ -8,13 +7,13 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     {
         private readonly AlignState _state;
 
-        public Vector2 ChildPosition { get; private set; }
-        public Vector2 ChildSize { get; private set; }
-
         public RenderAlign(AlignState state)
         {
             _state = state;
         }
+
+        public Vector2 ChildPosition { get; private set; }
+        public Vector2 ChildSize { get; private set; }
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
@@ -36,16 +35,14 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             // The Align widget's job is done after sizing. Its child is positioned
             // at (0,0) relative to the Align widget itself. The parent of the Align
             // widget is responsible for aligning it.
-            this.ChildPosition = Vector2.zero;
+            ChildPosition = Vector2.zero;
         }
 
         public override float GetIntrinsicWidth(float height)
         {
             if (_state.Child is ILayoutState childLayoutState)
-            {
                 return childLayoutState.RenderObject.GetIntrinsicWidth(height);
-            }
-            
+
             // Fallback for legacy widgets
             return _state.Child?.Size.GetSizeUnbounded().x ?? 0;
         }
@@ -53,9 +50,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         public override float GetIntrinsicHeight(float width)
         {
             if (_state.Child is ILayoutState childLayoutState)
-            {
                 return childLayoutState.RenderObject.GetIntrinsicHeight(width);
-            }
 
             // Fallback for legacy widgets
             return _state.Child?.Size.GetSizeUnbounded().y ?? 0;
