@@ -44,7 +44,9 @@ namespace UniMob.UI.Layout.Internal.Views
 
                 if (float.IsInfinity(layoutData.Size.x) || float.IsInfinity(layoutData.Size.y))
                     throw new InvalidOperationException(
-                        $"Child {i} has an unbounded size. This is not supported in MultiChildLayoutView.");
+                        $"Child {child.GetType().Name} at position {i} has an unbounded size." +
+                        $"This is not supported in MultiChildLayoutView." +
+                        $"Try wrapping it in a Container or similar widget to constrain its size.");
 
 
                 var childView = render.RenderItem(child);
