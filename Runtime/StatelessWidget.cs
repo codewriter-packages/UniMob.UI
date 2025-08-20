@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace UniMob.UI
 {
+    /// <summary>
+    /// A StatelessWidget is a widget that does not own mutable state.
+    /// </summary>
     public abstract class StatelessWidget : Widget
     {
         private Type _type;
@@ -35,23 +34,14 @@ namespace UniMob.UI
     /// </summary>
     internal class StatelessElement : State
     {
-        private readonly StateHolder _child;
+        private StateHolder _child;
 
-        public StatelessWidget StatelessWidget { get; private set; }
-
-        // Delegates to the child's state to properly integrate into the view tree.
         public override IViewState InnerViewState => _child.Value.InnerViewState;
         public override WidgetSize Size => _child.Value.Size;
 
         public StatelessElement(StatelessWidget widget)
         {
-            StatelessWidget = widget;
-            _child = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), Build);
-        }
-
-        private Widget Build(BuildContext context)
-        {
-            return StatelessWidget.Build(context);
+            _child = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), widget.Build);
         }
 
         internal override void Update(Widget widget)
@@ -60,8 +50,13 @@ namespace UniMob.UI
 
             if (widget is StatelessWidget statelessWidget)
             {
-                StatelessWidget = statelessWidget;
+                _child = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), statelessWidget.Build);
             }
+            else
+            {
+                throw new InvalidOperationException("StatelessElement can only update with a StatelessWidget");
+            }
+
         }
     }
 }
