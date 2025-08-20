@@ -305,7 +305,7 @@ namespace UniMob.UI.Widgets
             public Vector2 cornerPosition;
         }
 
-        public bool ScrollTo(Key key, float duration, float offset, ScrollEasing easing)
+        public bool ScrollTo(Key key, float duration, float offset, Easing easing)
         {
             if (!_childPositions.TryGetValue(key, out var position))
             {
@@ -324,7 +324,7 @@ namespace UniMob.UI.Widgets
             return true;
         }
 
-        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration, ScrollEasing easing)
+        private IEnumerator ScrollTo(Vector2 anchoredPosition, float duration, Easing easing)
         {
             var time = 0f;
 

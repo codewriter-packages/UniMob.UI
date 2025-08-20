@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UniMob.Core;
+using UniMob.UI.Layout;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
@@ -249,6 +250,22 @@ namespace UniMob.UI
             if (currentState == null)
             {
                 return null;
+            }
+
+            if (currentState is ILayoutState layoutState)
+            {
+                try
+                {
+                    // We MUST perform layout here so that the inheritors in the Render() method
+                    // receive a fully up-to-date RenderObject and can use its properties, even non-reactive ones.
+                    //
+                    // Also we MUST do a DoRender() if the layout is recomputed, so subscribe to it.
+                    layoutState.WatchedPerformLayout();
+                }
+                catch (Exception ex)
+                {
+                    Zone.Current.HandleUncaughtException(ex);
+                }
             }
 
             using (_renderScope.Enter(this))

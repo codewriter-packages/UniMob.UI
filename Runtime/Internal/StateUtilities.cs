@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UniMob.UI.Layout;
 using UnityEngine.Assertions;
 
 namespace UniMob.UI.Internal
@@ -157,6 +158,9 @@ namespace UniMob.UI.Internal
         public static State UpdateChild(BuildContext context, [CanBeNull] State child, [NotNull] Widget newWidget)
         {
             Assert.IsNull(Atom.CurrentScope);
+            
+            
+            
 
             if (child != null)
             {
@@ -173,7 +177,7 @@ namespace UniMob.UI.Internal
 
                 DeactivateChild(child);
             }
-
+            
             return InflateWidget(context, newWidget);
         }
 

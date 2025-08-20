@@ -6,11 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniMob.UI.Internal;
+using UniMob.UI.Layout;
 
 namespace UniMob.UI
 {
     public abstract class State : IState, IDisposable, ILifetimeScope
     {
+        private readonly MutableAtom<LayoutConstraints?> _explicitConstraints = Atom.Value(default(LayoutConstraints?));
+        
         private readonly MutableBuildContext _context;
 
         private LifetimeController _stateLifetimeController;
@@ -18,6 +21,10 @@ namespace UniMob.UI
         public BuildContext Context => _context;
 
         internal Widget RawWidget { get; private set; }
+        Widget IState.RawWidget => RawWidget;
+
+        public LayoutConstraints Constraints =>
+            _explicitConstraints.Value ?? _context.Parent?.State?.Constraints ?? default;
 
         public abstract IViewState InnerViewState { get; }
 
@@ -50,6 +57,14 @@ namespace UniMob.UI
             RawWidget = widget;
         }
 
+        internal virtual void UpdateConstraints(LayoutConstraints constraints)
+        {
+            using (Atom.NoWatch)
+            {
+                _explicitConstraints.Value = constraints;
+            }
+        }
+
         internal void Mount(BuildContext context)
         {
             if (Context.Parent != null)
@@ -66,6 +81,8 @@ namespace UniMob.UI
         {
             _stateLifetimeController?.Dispose();
         }
+
+        void IState.UpdateConstraints(LayoutConstraints constraints) => UpdateConstraints(constraints);
 
         internal static StateHolder<TState> Create<TWidget, TState>(
             Lifetime lifetime,
