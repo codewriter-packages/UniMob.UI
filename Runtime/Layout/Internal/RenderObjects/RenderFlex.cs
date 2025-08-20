@@ -240,13 +240,29 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         private float GetChildIntrinsicWidth(IState child, float height)
         {
+            if ((child as State)?.RawWidget is Expanded)
+            {
+                // An Expanded widget has infinite intrinsic width in a Row.
+                return _axis == Axis.Horizontal ? float.PositiveInfinity : 0;
+            }
+
             if (child is ILayoutState cls) return cls.RenderObject.GetIntrinsicWidth(height);
+            
+            // Legacy sizing fallback -- it's a best guess
             return child.Size.GetSizeUnbounded().x;
         }
 
         private float GetChildIntrinsicHeight(IState child, float width)
         {
+            if ((child as State)?.RawWidget is Expanded)
+            {
+                // An Expanded widget has infinite intrinsic height in a Column.
+                return _axis == Axis.Vertical ? float.PositiveInfinity : 0;
+            }
+
             if (child is ILayoutState cls) return cls.RenderObject.GetIntrinsicHeight(width);
+            
+            // Legacy sizing fallback -- it's a best guess
             return child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y;
         }
     }
