@@ -76,14 +76,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         /// <param name="child">The child state to layout.</param>
         /// <param name="constraints">The constraints to apply to the child.</param>
         /// <returns>The final size of the child after layout.</returns>
-
-// Replace the entire LayoutChild method with this version.
         protected Vector2 LayoutChild(IState child, LayoutConstraints constraints)
         {
             if (child is null)
                 return Vector2.zero;
 
-            if (child is ILayoutState childLayoutState && childLayoutState.RenderObject != null)
+            if (child.InnerViewState is ILayoutState childLayoutState && childLayoutState.RenderObject != null)
             {
                 childLayoutState.UpdateConstraints(constraints);
 
