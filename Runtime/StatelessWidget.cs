@@ -32,7 +32,7 @@ namespace UniMob.UI
     /// It acts as a lightweight proxy, holding the immutable widget and calling its Build method.
     /// It delegates its View and Size properties to its child.
     /// </summary>
-    internal class StatelessElement : State
+    internal sealed class StatelessElement : State
     {
         private StateHolder _child;
 
