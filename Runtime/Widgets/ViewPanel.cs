@@ -39,7 +39,7 @@ namespace UniMob.UI.Widgets
                 var child = State;
 
                 Vector2 finalSize;
-                if (child is ILayoutState layoutState)
+                if (child.AsLayoutState(out var layoutState))
                 {
                     // If the root widget is layout-aware, we MUST use its RenderObject's size.
                     // The PerformLayout() call was already handled in the base View.DoRender().

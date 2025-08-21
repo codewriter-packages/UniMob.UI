@@ -24,7 +24,7 @@ namespace UniMob.UI.Layout
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
             var childState = ((ExpandedState) state).Child;
-            if (childState is ILayoutState layoutChild) return layoutChild.RenderObject;
+            if (childState.AsLayoutState(out var layoutChild)) return layoutChild.RenderObject;
 
             throw new InvalidOperationException("Expanded can only be used with layout-aware widgets.");
         }
