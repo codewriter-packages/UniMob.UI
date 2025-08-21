@@ -23,7 +23,6 @@ namespace UniMob.UI.Widgets
     {
         private readonly StateHolder _child;
         public IState Child => _child.Value;
-        private ILayoutState LayoutChild => _child.Value.InnerViewState as ILayoutState;
 
         public LayoutHostState()
         {
@@ -32,9 +31,10 @@ namespace UniMob.UI.Widgets
 
         public override WidgetSize CalculateSize()
         {
-            if (LayoutChild is null)
-                throw new InvalidOperationException($"{nameof(Child)} must implement {nameof(ILayoutState)}");
-            var ro = LayoutChild.RenderObject;
+            if (!Child.AsLayoutState(out var layoutChild))
+                throw new InvalidOperationException(
+                    $"{nameof(LayoutHost)} can only be used to host layout-aware widgets.");
+            var ro = layoutChild.RenderObject;
             if (ro == null)
             {
                 return WidgetSize.Zero;
@@ -53,7 +53,7 @@ namespace UniMob.UI.Widgets
             var tightSize = new WidgetSize(minWidth, minHeight, maxWidth, maxHeight);
 
             if (Widget.AxisSize == AxisSize.Min) return tightSize;
-            
+
             // Traverse the tree upwards to find whether we are in a row or column.
             // Check if they offer any expansion space.
             var parent = Context.Parent;
@@ -61,7 +61,7 @@ namespace UniMob.UI.Widgets
             {
                 switch (parent.State)
                 {
-                    case RowState { RawWidget: Row r }:
+                    case RowState {RawWidget: Row r}:
                     {
                         var finalMaxWidth = r.MainAxisSize == AxisSize.Max ? float.PositiveInfinity : maxWidth;
                         var finalMaxHeight = r.CrossAxisSize == AxisSize.Max ? float.PositiveInfinity : maxHeight;
@@ -69,12 +69,34 @@ namespace UniMob.UI.Widgets
                     }
 
                     // For a Column, Main Axis is Vertical, Cross Axis is Horizontal.
-                    case ColumnState { RawWidget: Column c }:
+                    case ColumnState {RawWidget: Column c}:
                     {
                         var finalMaxHeight = c.MainAxisSize == AxisSize.Max ? float.PositiveInfinity : maxHeight;
                         var finalMaxWidth = c.CrossAxisSize == AxisSize.Max ? float.PositiveInfinity : maxWidth;
                         return new WidgetSize(minWidth, minHeight, finalMaxWidth, finalMaxHeight);
                     }
+
+
+                    // case RowState {RawWidget: Row r}:
+                    //     return (r.CrossAxisSize, r.MainAxisSize) switch
+                    //     {
+                    //         (AxisSize.Min, AxisSize.Min) => tightSize,
+                    //         (AxisSize.Min, AxisSize.Max) => WidgetSize.FixedHeight(intrinsicWidth),
+                    //         (AxisSize.Max, AxisSize.Min) => WidgetSize.FixedWidth(intrinsicHeight),
+                    //         (AxisSize.Max, AxisSize.Max) => WidgetSize.Stretched,
+                    //         _ => throw new NotSupportedException(
+                    //             $"Unsupported combination of AxisSize: {r.MainAxisSize}, {r.CrossAxisSize}")
+                    //     };
+                    // case ColumnState {RawWidget: Column c}:
+                    //     return (c.MainAxisSize, c.CrossAxisSize) switch
+                    //     {
+                    //         (AxisSize.Min, AxisSize.Min) => tightSize,
+                    //         (AxisSize.Min, AxisSize.Max) => WidgetSize.FixedHeight(intrinsicWidth),
+                    //         (AxisSize.Max, AxisSize.Min) => WidgetSize.FixedWidth(intrinsicHeight),
+                    //         (AxisSize.Max, AxisSize.Max) => WidgetSize.Stretched,
+                    //         _ => throw new NotSupportedException(
+                    //             $"Unsupported combination of AxisSize: {c.MainAxisSize}, {c.CrossAxisSize}")
+                    //     };
                     case ISingleChildLayoutState or ScrollGridFlowState:
                         // we found our container either way... lets stop the search.
                         return tightSize;
@@ -87,7 +109,7 @@ namespace UniMob.UI.Widgets
             return tightSize;
         }
 
-        
+
         public override WidgetViewReference View => WidgetViewReference.Resource("$$_LayoutHostView");
     }
 }
