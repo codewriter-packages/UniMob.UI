@@ -23,7 +23,7 @@ namespace UniMob.UI.Widgets
     {
         private readonly StateHolder _child;
         public IState Child => _child.Value;
-        private ILayoutState LayoutChild => _child.Value as ILayoutState;
+        private ILayoutState LayoutChild => _child.Value.InnerViewState as ILayoutState;
 
         public LayoutHostState()
         {
@@ -75,28 +75,6 @@ namespace UniMob.UI.Widgets
                         var finalMaxWidth = c.CrossAxisSize == AxisSize.Max ? float.PositiveInfinity : maxWidth;
                         return new WidgetSize(minWidth, minHeight, finalMaxWidth, finalMaxHeight);
                     }
-                    
-                    
-                    // case RowState {RawWidget: Row r}:
-                    //     return (r.CrossAxisSize, r.MainAxisSize) switch
-                    //     {
-                    //         (AxisSize.Min, AxisSize.Min) => tightSize,
-                    //         (AxisSize.Min, AxisSize.Max) => WidgetSize.FixedHeight(intrinsicWidth),
-                    //         (AxisSize.Max, AxisSize.Min) => WidgetSize.FixedWidth(intrinsicHeight),
-                    //         (AxisSize.Max, AxisSize.Max) => WidgetSize.Stretched,
-                    //         _ => throw new NotSupportedException(
-                    //             $"Unsupported combination of AxisSize: {r.MainAxisSize}, {r.CrossAxisSize}")
-                    //     };
-                    // case ColumnState {RawWidget: Column c}:
-                    //     return (c.MainAxisSize, c.CrossAxisSize) switch
-                    //     {
-                    //         (AxisSize.Min, AxisSize.Min) => tightSize,
-                    //         (AxisSize.Min, AxisSize.Max) => WidgetSize.FixedHeight(intrinsicWidth),
-                    //         (AxisSize.Max, AxisSize.Min) => WidgetSize.FixedWidth(intrinsicHeight),
-                    //         (AxisSize.Max, AxisSize.Max) => WidgetSize.Stretched,
-                    //         _ => throw new NotSupportedException(
-                    //             $"Unsupported combination of AxisSize: {c.MainAxisSize}, {c.CrossAxisSize}")
-                    //     };
                     case ISingleChildLayoutState or ScrollGridFlowState:
                         // we found our container either way... lets stop the search.
                         return tightSize;
