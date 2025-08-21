@@ -11,22 +11,18 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         {
             _state = state;
         }
-
-        private Container Widget => (Container) _state.RawWidget;
-
+        
         // ADD THIS: A place to store the final result of the positioning pass.
         public Vector2 ChildPosition { get; private set; }
         public Vector2 ChildSize { get; private set; }
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
-            var widget = Widget;
-            
             // These are the constraints that the Container widget imposes on itself.
             // They are equivalent to an unbounded constraints if the widget's Width or Height are not set.
             var selfConstraints = LayoutConstraints.Loose(
-                widget.Width ?? float.PositiveInfinity, 
-                widget.Height ?? float.PositiveInfinity
+                _state.Width ?? float.PositiveInfinity, 
+                _state.Height ?? float.PositiveInfinity
             );
             
             // The child's constraints are the parent's constraints, further restricted
@@ -40,9 +36,9 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             
             // Now we determine the final size of this Container widget, by applying the
             // Width and Height properties if they are set, or using the child's size otherwise.
-            var finalWidth = widget.Width ??
+            var finalWidth = _state.Width ??
                              (float.IsInfinity(constraints.MaxWidth) ? ChildSize.x : constraints.MaxWidth);
-            var finalHeight = widget.Height ??
+            var finalHeight = _state.Height ??
                               (float.IsInfinity(constraints.MaxHeight) ? ChildSize.y : constraints.MaxHeight);
             
             // Constrain the final size to the parent's constraints.
@@ -68,9 +64,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicWidth(float height)
         {
-            var widget = Widget;
-
-            if (widget.Width.HasValue) return widget.Width.Value;
+            if (_state.Width.HasValue) return _state.Width.Value;
 
             if (_state.Child.AsLayoutState(out var childLayoutState))
                 return childLayoutState.RenderObject.GetIntrinsicWidth(height);
@@ -81,9 +75,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicHeight(float width)
         {
-            var widget = Widget;
-
-            if (widget.Height.HasValue) return widget.Height.Value;
+            if (_state.Height.HasValue) return _state.Height.Value;
 
             if (_state.Child.AsLayoutState(out var childLayoutState))
                 return childLayoutState.RenderObject.GetIntrinsicHeight(width);

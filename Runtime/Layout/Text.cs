@@ -38,6 +38,12 @@ namespace UniMob.UI.Layout
 
         public int? MaxLines { get; set; }
 
+        /// <summary>
+        ///     Forces the text to a fixed square size. Useful for icons or fixed-size text elements.
+        ///     If not set, the text will size itself based on its content.
+        /// </summary>
+        public float? FixedSize { get; set; }
+
         public override State CreateState()
         {
             return new TextState();
@@ -57,7 +63,8 @@ namespace UniMob.UI.Layout
         public string Value => Widget.Value;
         public Color Color => Widget.Color ?? Color.white;
         public int FontSize => Widget.FontSize ?? 14;
-        public float? FixedSize => null;
+        
+        public float? FixedSize => Widget.FixedSize;
         
         public TMP_Style Style
         {
@@ -91,7 +98,6 @@ namespace UniMob.UI.Layout
         string Value { get; }
         Color Color { get; }
         
-        float? FixedSize { get; }
         int FontSize { get; }
         
         TMP_Style Style { get; }

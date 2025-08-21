@@ -101,12 +101,6 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
-            // If the widget asks for a fixed size we respect that as a square.
-            // This is useful for icons or fixed-size text elements.
-            if (_state.FixedSize is { } fixedSize)
-                return constraints.Constrain(new Vector2(fixedSize, fixedSize));
-
-
             // The text must be sized based on its content, respecting the constraints.
             var preferredSize = GetPreferredSize(constraints.MaxWidth, constraints.MaxHeight);
             return constraints.Constrain(preferredSize);
@@ -120,16 +114,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicHeight(float width)
         {
-            if(_state.FixedSize is { } fixedSize)
-                return fixedSize;
             return GetPreferredSize(width, float.PositiveInfinity).y;
         }
 
         public override float GetIntrinsicWidth(float height)
         {
-            if(_state.FixedSize is { } fixedSize)
-                return fixedSize;
-            
             return GetPreferredSize(float.PositiveInfinity, height).x;
         }
 
