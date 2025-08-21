@@ -1,7 +1,5 @@
 using System;
 using JetBrains.Annotations;
-using UniMob.UI.Layout;
-using UniMob.UI.Layout.Internal.RenderObjects;
 
 namespace UniMob.UI
 {
@@ -34,14 +32,12 @@ namespace UniMob.UI
     /// It acts as a lightweight proxy, holding the immutable widget and calling its Build method.
     /// It delegates its View and Size properties to its child.
     /// </summary>
-    internal class StatelessElement : State, ILayoutState
+    internal class StatelessElement : State
     {
         private StateHolder _child;
 
         public override IViewState InnerViewState => _child.Value.InnerViewState;
         public override WidgetSize Size => _child.Value.Size;
-        
-        
 
         public StatelessElement(StatelessWidget widget)
         {
@@ -61,28 +57,6 @@ namespace UniMob.UI
                 throw new InvalidOperationException("StatelessElement can only update with a StatelessWidget");
             }
 
-        }
-        
-        WidgetViewReference IViewState.View => _child.Value.InnerViewState.View;
-        
-        void IViewState.DidViewMount(IView view)
-        {
-            _child.Value.InnerViewState.DidViewMount(view);
-        }
-
-        void IViewState.DidViewUnmount(IView view)
-        {
-            _child.Value.InnerViewState.DidViewUnmount(view);
-        }
-
-        RenderObject ILayoutState.RenderObject => (_child.Value as ILayoutState)?.RenderObject;
-
-        void ILayoutState.WatchedPerformLayout()
-        {
-            if (_child.Value is ILayoutState layoutChildState)
-            {
-                layoutChildState.WatchedPerformLayout();
-            }
         }
     }
 }
