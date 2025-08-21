@@ -29,9 +29,6 @@ namespace UniMob.UI.Layout
         public int? FontSize { get; set; }
         public string? StyleName { get; set; }
 
-        public float? MaxWidth { get; set; }
-        public float? MaxHeight { get; set; }
-
         public FontWeight? FontWeight { get; set; }
         public HorizontalTextAlignment? HorizontalTextAlignment { get; set; }
         public bool? WrappingEnabled { get; set; }

@@ -120,18 +120,17 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicHeight(float width)
         {
-            var widget = Widget;
-
-            var effectiveWidth = Mathf.Min(width, widget.MaxWidth ?? float.PositiveInfinity);
-            return GetPreferredSize(effectiveWidth, float.PositiveInfinity).y;
+            if(_state.FixedSize is { } fixedSize)
+                return fixedSize;
+            return GetPreferredSize(width, float.PositiveInfinity).y;
         }
 
         public override float GetIntrinsicWidth(float height)
         {
-            var widget = Widget;
-
-            var effectiveHeight = Mathf.Min(height, widget.MaxHeight ?? float.PositiveInfinity);
-            return GetPreferredSize(float.PositiveInfinity, effectiveHeight).x;
+            if(_state.FixedSize is { } fixedSize)
+                return fixedSize;
+            
+            return GetPreferredSize(float.PositiveInfinity, height).x;
         }
 
 
