@@ -73,6 +73,6 @@ namespace UniMob.UI.Layout
 
 
         public override WidgetViewReference View =>
-            WidgetViewReference.Resource("$$_Layout.SingleChildLayoutView");
+            WidgetViewReference.Resource("$$_Layout.SizedBoxView");
     }
 }
