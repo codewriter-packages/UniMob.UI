@@ -1,17 +1,35 @@
-﻿using UniMob.UI.Layout.Internal.RenderObjects;
+﻿using JetBrains.Annotations;
+using UniMob.UI.Layout.Internal.RenderObjects;
 using UniMob.UI.Widgets;
 using UnityEngine;
 
 namespace UniMob.UI.Layout
 {
+    internal interface IContainerState : ISizedBoxState
+    {
+        Color BackgroundColor { get; }
+        Sprite BackgroundImage { get; }
+    }
+
+    
+    /// <summary>
+    /// A container widget that can hold a single child widget and provides layout options such as alignment,
+    /// background color, and size.
+    /// </summary>
     public class Container : LayoutWidget
     {
-        public Widget Child { get; set; }
+        [CanBeNull] public Widget Child { get; set; }
         public Color BackgroundColor { get; set; } = Color.clear;
-        public Sprite BackgroundImage { get; set; } = null; // Or implement as needed
+        public Sprite BackgroundImage { get; set; } = null;
         public Alignment Alignment { get; set; } = Alignment.Center;
         public float? Width { get; set; }
         public float? Height { get; set; }
+
+        public Container(float? width = null, float? height = null)
+        {
+            this.Width = width;
+            this.Height = height;
+        }
 
         public override State CreateState()
         {
@@ -20,18 +38,12 @@ namespace UniMob.UI.Layout
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderContainer((ContainerState) state);
+            return new RenderContainer((ISizedBoxState) state);
         }
     }
 
-    // A shared interface for container-like states
-    internal interface IContainerState : ISingleChildLayoutState
-    {
-        Color BackgroundColor { get; }
-        Sprite BackgroundImage { get; }
-    }
 
-    public class ContainerState : LayoutState<Container>, IContainerState
+    internal class ContainerState : LayoutState<Container>, IContainerState
     {
         private readonly StateHolder _child;
 
@@ -41,6 +53,9 @@ namespace UniMob.UI.Layout
         }
 
         public Alignment Alignment => Widget.Alignment;
+
+        public float? Width => Widget.Width;
+        public float? Height => Widget.Height;
 
         public IState Child => _child.Value;
         public Color BackgroundColor => Widget.BackgroundColor;

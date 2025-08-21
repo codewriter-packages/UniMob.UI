@@ -5,9 +5,9 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 {
     internal class RenderContainer : RenderObject, ISingleChildRenderObject
     {
-        private readonly ContainerState _state;
+        private readonly ISizedBoxState _state;
 
-        public RenderContainer(ContainerState state)
+        public RenderContainer(ISizedBoxState state)
         {
             _state = state;
         }
@@ -52,14 +52,13 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         protected override void PerformPositioning()
         {
             var child = _state.Child;
+            var alignment = _state.Alignment;
             if (child == null)
             {
                 ChildPosition = Vector2.zero;
                 return;
             }
 
-            var widget = Widget;
-            var alignment = widget.Alignment;
 
             var x = (Size.x - ChildSize.x) * (alignment.X * 0.5f + 0.5f);
             var y = (Size.y - ChildSize.y) * (alignment.Y * 0.5f + 0.5f);
