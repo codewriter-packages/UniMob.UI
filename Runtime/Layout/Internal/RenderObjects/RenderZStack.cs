@@ -63,7 +63,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         {
             float maxWidth = 0;
             foreach (var child in _state.Children)
-                if (child is ILayoutState childLayoutState)
+                if (child.AsLayoutState(out var childLayoutState))
                     maxWidth = Mathf.Max(maxWidth, childLayoutState.RenderObject.GetIntrinsicWidth(height));
                 else
                     maxWidth = Mathf.Max(maxWidth, child.Size.GetSizeUnbounded().x);
@@ -75,7 +75,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         {
             float maxHeight = 0;
             foreach (var child in _state.Children)
-                if (child is ILayoutState childLayoutState)
+                if (child.AsLayoutState(out var childLayoutState))
                     maxHeight = Mathf.Max(maxHeight, childLayoutState.RenderObject.GetIntrinsicHeight(width));
                 else
                     maxHeight = Mathf.Max(maxHeight, child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y);

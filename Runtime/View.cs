@@ -252,7 +252,7 @@ namespace UniMob.UI
                 return null;
             }
 
-            if (currentState is ILayoutState layoutState)
+            if (currentState.AsLayoutState(out var layoutState))
             {
                 try
                 {

@@ -1,5 +1,6 @@
 ﻿using UniMob.UI.Layout.Internal.RenderObjects;
 using UniMob.UI.Widgets;
+using UnityEngine;
 
 namespace UniMob.UI.Layout
 {
@@ -49,12 +50,10 @@ namespace UniMob.UI.Layout
         {
 #if UNITY_EDITOR
             if (Context.Parent.State is Widgets.RowState or Widgets.ColumnState)
-            {
-                UnityEngine.Debug.LogWarning("CalculateSize() on a LayoutState is meant as a last resort for interop " +
-                                             "with the legacy layout system. \n" +
-                                             $"Consider wrapping your modern widgets in a {nameof(LayoutHost)} for " +
-                                             "smoother integration.");
-            }
+                Debug.LogWarning("CalculateSize() on a LayoutState is meant as a last resort for interop " +
+                                 "with the legacy layout system. \n" +
+                                 $"Consider wrapping your modern widgets in a {nameof(LayoutHost)} for " +
+                                 "smoother integration.");
 #endif
             var ro = RenderObject;
 

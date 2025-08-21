@@ -60,9 +60,19 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                     isFlexible = true;
                     flexFactor = expanded.Flex;
                 }
+                else if (childState.AsLayoutState(out var layoutState)) // check for layout widgets, e.g another row 
+                {
+                    var intrinsicSize = isHorizontal
+                        ? layoutState.RenderObject.GetIntrinsicWidth(maxCrossAxis)
+                        : layoutState.RenderObject.GetIntrinsicHeight(maxCrossAxis);
 
-                // This is the key: if it's NOT a new layout widget, check if it's stretched.
-                if (childWidget is not LayoutWidget)
+                    if (float.IsInfinity(intrinsicSize))
+                    {
+                        isFlexible = true;
+                        flexFactor = 1; // Default flex factor for layout widgets
+                    }
+                }
+                else if (childWidget is not LayoutWidget) // check for legacy widgets...
                 {
                     var legacySize = childState.Size;
                     if (isHorizontal ? float.IsInfinity(legacySize.MaxWidth) : float.IsInfinity(legacySize.MaxHeight))
@@ -241,13 +251,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         private float GetChildIntrinsicWidth(IState child, float height)
         {
             if ((child as State)?.RawWidget is Expanded)
-            {
                 // An Expanded widget has infinite intrinsic width in a Row.
                 return _axis == Axis.Horizontal ? float.PositiveInfinity : 0;
-            }
 
-            if (child is ILayoutState cls) return cls.RenderObject.GetIntrinsicWidth(height);
-            
+            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicWidth(height);
+
             // Legacy sizing fallback -- it's a best guess
             return child.Size.GetSizeUnbounded().x;
         }
@@ -255,13 +263,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         private float GetChildIntrinsicHeight(IState child, float width)
         {
             if ((child as State)?.RawWidget is Expanded)
-            {
                 // An Expanded widget has infinite intrinsic height in a Column.
                 return _axis == Axis.Vertical ? float.PositiveInfinity : 0;
-            }
 
-            if (child is ILayoutState cls) return cls.RenderObject.GetIntrinsicHeight(width);
-            
+            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicHeight(width);
+
             // Legacy sizing fallback -- it's a best guess
             return child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y;
         }
