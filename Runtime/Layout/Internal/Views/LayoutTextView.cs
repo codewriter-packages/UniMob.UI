@@ -11,7 +11,7 @@ using UnityEngine;
 namespace UniMob.UI.Layout.Internal.Views
 {
     [RequireComponent(typeof(UniMobTextMeshProBehaviour))]
-    public class LayoutTextView : View<IUniMobTextState>
+    public class LayoutTextView : View<ITextState>
     {
         [SerializeField] private UniMobTextMeshProBehaviour text;
 

@@ -46,7 +46,7 @@ namespace UniMob.UI.Layout
 
         // This method provides the bridge TO the old layout system.
         // When a legacy widget contains a new layout-aware widget, this is called.
-        public override WidgetSize CalculateSize()
+        public sealed override WidgetSize CalculateSize()
         {
 #if UNITY_EDITOR
             if (Context.Parent.State is Widgets.RowState or Widgets.ColumnState)

@@ -52,7 +52,7 @@ namespace UniMob.UI.Layout
         }
     }
 
-    public class TextState : LayoutState<Text>, IUniMobTextState
+    public class TextState : LayoutState<Text>, ITextState
     {
         private TMP_StyleSheet StyleSheet => Widget.StyleSheet ?? TMP_Settings.defaultStyleSheet;
 
@@ -60,7 +60,8 @@ namespace UniMob.UI.Layout
         public string Value => Widget.Value;
         public Color Color => Widget.Color ?? Color.white;
         public int FontSize => Widget.FontSize ?? 14;
-
+        public float? FixedSize => null;
+        
         public TMP_Style Style
         {
             get
@@ -88,12 +89,16 @@ namespace UniMob.UI.Layout
     }
 
 
-    public interface IUniMobTextState : IViewState
+    public interface ITextState : IViewState
     {
         string Value { get; }
         Color Color { get; }
+        
+        float? FixedSize { get; }
         int FontSize { get; }
+        
         TMP_Style Style { get; }
+        
         FontWeight FontWeight { get; }
         HorizontalTextAlignment HorizontalTextAlign { get; }
 

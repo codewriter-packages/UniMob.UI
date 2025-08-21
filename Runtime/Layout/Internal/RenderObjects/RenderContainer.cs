@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
 {
@@ -20,28 +21,32 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
             var widget = Widget;
-
-            var childContraints = new LayoutConstraints(
-                0, // A child can always choose to be smaller.
-                0,
-                widget.Width ?? constraints.MaxWidth, // Use own width if set, otherwise parent's.
-                widget.Height ?? constraints.MaxHeight // Use own height if set, otherwise parent's.
+            
+            // These are the constraints that the Container widget imposes on itself.
+            // They are equivalent to an unbounded constraints if the widget's Width or Height are not set.
+            var selfConstraints = LayoutConstraints.Loose(
+                widget.Width ?? float.PositiveInfinity, 
+                widget.Height ?? float.PositiveInfinity
             );
+            
+            // The child's constraints are the parent's constraints, further restricted
+            // by this container's own rules. We enforce our bounds and then loosen the
+            // result so the child can choose any size up to the determined maximum.
+            var childConstraints = constraints.Enforce(selfConstraints).Loosen();
+            
+            // Measure the child with the loosened constraints to discover its ideal size.
+            ChildSize = LayoutChild(_state.Child, childConstraints);
 
-            // 2. The child's size is now calculated cleanly using the helper,
-            //    but with the CORRECT, TIGHTENED constraints.
-            ChildSize = LayoutChild(_state.Child, childContraints);
-
-            // 2. SIZING PASS: Determine this container's own size.
+            
+            // Now we determine the final size of this Container widget, by applying the
+            // Width and Height properties if they are set, or using the child's size otherwise.
             var finalWidth = widget.Width ??
                              (float.IsInfinity(constraints.MaxWidth) ? ChildSize.x : constraints.MaxWidth);
             var finalHeight = widget.Height ??
                               (float.IsInfinity(constraints.MaxHeight) ? ChildSize.y : constraints.MaxHeight);
-
-            return new Vector2(
-                Mathf.Clamp(finalWidth, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(finalHeight, constraints.MinHeight, constraints.MaxHeight)
-            );
+            
+            // Constrain the final size to the parent's constraints.
+            return constraints.Constrain(new Vector2(finalWidth, finalHeight));
         }
 
         protected override void PerformPositioning()

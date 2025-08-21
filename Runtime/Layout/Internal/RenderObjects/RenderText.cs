@@ -8,17 +8,16 @@ using Object = UnityEngine.Object;
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
 {
-    internal class RenderText : RenderObject
+    public class RenderText : RenderObject
     {
         private static TextMeshProUGUI? s_textMeshProMeasurer;
         private static TMP_StyleSheet? s_styleSheet;
 
         private static readonly Dictionary<PreferredSizeCacheKey, Vector2> s_sizeCache = new();
 
+        private readonly ITextState _state;
 
-        private readonly TextState _state;
-
-        public RenderText(TextState state)
+        public RenderText(ITextState state)
         {
             _state = state;
 
@@ -102,23 +101,21 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
-            var widget = Widget;
+            // If the widget asks for a fixed size we respect that as a square.
+            // This is useful for icons or fixed-size text elements.
+            if (_state.FixedSize is { } fixedSize)
+                return constraints.Constrain(new Vector2(fixedSize, fixedSize));
 
-            var effectiveMaxWidth = Mathf.Min(constraints.MaxWidth, widget.MaxWidth ?? float.PositiveInfinity);
-            var effectiveMaxHeight = Mathf.Min(constraints.MaxHeight, widget.MaxHeight ?? float.PositiveInfinity);
 
-
-            var preferredSize = GetPreferredSize(effectiveMaxWidth, effectiveMaxHeight);
-
-            // The final size is the preferred size, clamped within the original parent constraints.
-            return new Vector2(
-                Mathf.Clamp(preferredSize.x, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(preferredSize.y, constraints.MinHeight, constraints.MaxHeight)
-            );
+            // The text must be sized based on its content, respecting the constraints.
+            var preferredSize = GetPreferredSize(constraints.MaxWidth, constraints.MaxHeight);
+            return constraints.Constrain(preferredSize);
         }
 
         protected override void PerformPositioning()
         {
+            // No positioning needed for text, as it is handled by the TextMeshPro component.
+            // This method is required to be overridden, but does not need to do anything.
         }
 
         public override float GetIntrinsicHeight(float width)

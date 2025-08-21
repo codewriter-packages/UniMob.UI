@@ -8,14 +8,14 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     {
         private readonly List<LayoutData> _childrenLayout = new();
         private readonly ZStackState _state;
+        
+        public IReadOnlyList<LayoutData> ChildrenLayout => _childrenLayout;
 
         public RenderZStack(ZStackState state)
         {
             _state = state;
         }
 
-        public ZStack Widget => (ZStack) _state.RawWidget;
-        public IReadOnlyList<LayoutData> ChildrenLayout => _childrenLayout;
 
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
@@ -35,15 +35,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             // The final size of the ZStack is the size of its largest child,
             // constrained by the parent's limits.
-            return new Vector2(
-                Mathf.Clamp(maxWidth, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(maxHeight, constraints.MinHeight, constraints.MaxHeight)
-            );
+            return constraints.Constrain(new Vector2(maxWidth, maxHeight)); 
         }
 
         protected override void PerformPositioning()
         {
-            var widget = Widget;
+            var widget = _state.RawWidget as ZStack;
 
             for (var i = 0; i < _childrenLayout.Count; i++)
             {

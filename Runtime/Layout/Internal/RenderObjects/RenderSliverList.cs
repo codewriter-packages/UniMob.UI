@@ -68,6 +68,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 // For a vertical list, width is tight, height is loose.
                 childConstraints = new LayoutConstraints(constraints.MaxWidth, 0, constraints.MaxWidth,
                     float.PositiveInfinity);
+            
 
             foreach (var child in _state.AllChildren)
             {

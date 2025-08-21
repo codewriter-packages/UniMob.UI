@@ -51,10 +51,10 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         /// <remarks>
         ///     This method is called after the size has been determined to position the widget.
         ///     Subclasses should implement this to set the position of the widget, accessing, if necessary,
-        ///     the <see cref="Size" /> field that has been calculated in the sizing phase and <see cref="Context" />
-        ///     to retrieve the layout constraints and other contextual information.
+        ///     the <see cref="Size"/> field that has been calculated in the sizing phase.
         ///     <para>
         ///         After this method is called, the positions of the children should be set in such a way that
+        ///         the children's positions are known relative to the parent's top-left corner.
         ///     </para>
         ///     <para>
         ///         In particular:
@@ -103,7 +103,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
 
         /// <summary>
-        ///     Calculates the widget's preferred width given an infinite height.
+        ///     Calculates the widget's preferred width given a specific height.
         /// </summary>
         public abstract float GetIntrinsicWidth(float height);
 
