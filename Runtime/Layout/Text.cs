@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using JetBrains.Annotations;
 using TMPro;
 using UniMob.UI.Layout.Internal.RenderObjects;
 using UnityEngine;
@@ -21,6 +22,8 @@ namespace UniMob.UI.Layout
 
     public class Text : LayoutWidget
     {
+        public WidgetViewReference? ViewReference { get; set; }
+
         public string Value { get; set; } = string.Empty;
         public Color? Color { get; set; }
         public int? FontSize { get; set; }
@@ -80,7 +83,8 @@ namespace UniMob.UI.Layout
         public bool WrappingEnabled => Widget.WrappingEnabled ?? true;
         public TextOverflowModes OverflowMode => Widget.OverflowMode ?? TextOverflowModes.Ellipsis;
 
-        public override WidgetViewReference View => WidgetViewReference.Resource("Layout/UniMob.Text");
+        public override WidgetViewReference View =>
+            Widget.ViewReference ?? WidgetViewReference.Resource("Layout/UniMob.Text");
     }
 
 
