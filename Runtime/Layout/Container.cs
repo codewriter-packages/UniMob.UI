@@ -43,7 +43,7 @@ namespace UniMob.UI.Layout
     }
 
 
-    internal class ContainerState : LayoutState<Container>, IContainerState
+    public class ContainerState : LayoutState<Container>, IContainerState
     {
         private readonly StateHolder _child;
 

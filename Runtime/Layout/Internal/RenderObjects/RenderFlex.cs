@@ -5,8 +5,7 @@ using UnityEngine;
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
 {
-    // The shared interface for Row/Column widgets.
-    public interface IFlexWidget : IMultiChildLayoutWidget
+    internal interface IFlexWidget : IMultiChildLayoutWidget
     {
         CrossAxisAlignment CrossAxisAlignment { get; }
         MainAxisAlignment MainAxisAlignment { get; }

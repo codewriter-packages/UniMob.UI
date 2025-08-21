@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
 {
-    public class RenderText : RenderObject
+    internal class RenderText : RenderObject
     {
         private static TextMeshProUGUI? s_textMeshProMeasurer;
         private static TMP_StyleSheet? s_styleSheet;

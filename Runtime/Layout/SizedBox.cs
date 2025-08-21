@@ -50,14 +50,14 @@ namespace UniMob.UI.Layout
         }
     }
     
-    internal interface ISizedBoxState : ISingleChildLayoutState
+    public interface ISizedBoxState : ISingleChildLayoutState
     {
         float? Width { get; }
         float? Height { get; }
         Alignment Alignment { get; }
     }
     
-    internal class SizedBoxState : LayoutState<SizedBox>, ISizedBoxState
+    public class SizedBoxState : LayoutState<SizedBox>, ISizedBoxState
     {
         public IState Child => _child.Value;
         private readonly StateHolder _child;

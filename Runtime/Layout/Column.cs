@@ -23,7 +23,7 @@ namespace UniMob.UI.Layout
         }
     }
 
-    internal class ColumnState : LayoutState<Column>, IMultiChildLayoutState
+    public class ColumnState : LayoutState<Column>, IMultiChildLayoutState
     {
         private readonly StateCollectionHolder _children;
 

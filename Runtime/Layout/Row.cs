@@ -22,7 +22,7 @@ namespace UniMob.UI.Layout
         }
     }
 
-    internal class RowState : LayoutState<Row>, IMultiChildLayoutState
+    public class RowState : LayoutState<Row>, IMultiChildLayoutState
     {
         private readonly StateCollectionHolder _children;
 
