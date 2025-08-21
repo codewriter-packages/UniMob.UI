@@ -7,10 +7,16 @@ using UnityEngine;
     typeof(RectTransform), typeof(CanvasRenderer), typeof(
         AlignView))]
 
+[assembly: RegisterComponentViewFactory("$$_Layout.SizedBoxView",
+    typeof(RectTransform), typeof(CanvasRenderer), typeof(
+        SizedBoxView))]
 
 namespace UniMob.UI.Layout.Internal.Views
 {
     internal class AlignView : SingleChildLayoutView<AlignState>
+    {
+    }
+    internal class SizedBoxView : SingleChildLayoutView<SizedBoxState>
     {
     }
 
