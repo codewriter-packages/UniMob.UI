@@ -78,14 +78,6 @@ namespace UniMob.UI
             }
         }
 
-        internal virtual void UpdateConstraints(LayoutConstraints constraints)
-        {
-            using (Atom.NoWatch)
-            {
-                _explicitConstraints.Value = constraints;
-            }
-        }
-
         internal void Mount(BuildContext context)
         {
             if (Context.Parent != null)

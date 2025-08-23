@@ -8,7 +8,7 @@ using Vector2 = UnityEngine.Vector2;
 
 namespace UniMob.UI.Layout
 {
-    public class ScrollList : LayoutWidget
+    public class ScrollList : StatefulWidget
     {
         public List<Widget> Children { get; set; } = new();
         public Axis Axis { get; set; } = Axis.Vertical;
@@ -29,7 +29,7 @@ namespace UniMob.UI.Layout
             return new ScrollListState();
         }
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderSliverList((ISliverState) state);
         }
@@ -40,7 +40,7 @@ namespace UniMob.UI.Layout
     // and our specific interface for the RenderObject (IScrollingListState).
     // The reason is that the RenderObject needs the entire children collection (visible AND invisible) to correctly
     // compute the layout, while the View only needs the visible children to render the UI.
-    public class ScrollListState : LayoutState<ScrollList>, ISliverState, IScrollingListState
+    public class ScrollListState : ViewState<ScrollList>, ISliverState, IScrollingListState
     {
         private readonly StateCollectionHolder _allChildren;
         private readonly Dictionary<Key, int> _childKeyToIndexMap = new();

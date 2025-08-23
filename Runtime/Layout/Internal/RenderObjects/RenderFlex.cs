@@ -59,11 +59,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                     isFlexible = true;
                     flexFactor = expanded.Flex;
                 }
-                else if (childState.AsLayoutState(out var layoutState)) // check for layout widgets, e.g another row 
+                else // check for layout widgets, e.g another row 
                 {
                     var intrinsicSize = isHorizontal
-                        ? layoutState.RenderObject.GetIntrinsicWidth(maxCrossAxis)
-                        : layoutState.RenderObject.GetIntrinsicHeight(maxCrossAxis);
+                        ? childState.RenderObject.GetIntrinsicWidth(maxCrossAxis)
+                        : childState.RenderObject.GetIntrinsicHeight(maxCrossAxis);
 
                     if (float.IsInfinity(intrinsicSize))
                     {
@@ -71,12 +71,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                         flexFactor = 1; // Default flex factor for layout widgets
                     }
                 }
-                else if (childWidget is not LayoutWidget) // check for legacy widgets...
-                {
-                    var legacySize = childState.Size;
-                    if (isHorizontal ? float.IsInfinity(legacySize.MaxWidth) : float.IsInfinity(legacySize.MaxHeight))
-                        isFlexible = true;
-                }
+
 
                 if (isFlexible)
                 {
@@ -250,10 +245,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 // An Expanded widget has infinite intrinsic width in a Row.
                 return _axis == Axis.Horizontal ? float.PositiveInfinity : 0;
 
-            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicWidth(height);
-
-            // Legacy sizing fallback -- it's a best guess
-            return child.Size.GetSizeUnbounded().x;
+            return child.RenderObject.GetIntrinsicWidth(height);
         }
 
         private float GetChildIntrinsicHeight(IState child, float width)
@@ -262,10 +254,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 // An Expanded widget has infinite intrinsic height in a Column.
                 return _axis == Axis.Vertical ? float.PositiveInfinity : 0;
 
-            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicHeight(width);
-
-            // Legacy sizing fallback -- it's a best guess
-            return child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y;
+            return child.RenderObject.GetIntrinsicHeight(width);
         }
     }
 }

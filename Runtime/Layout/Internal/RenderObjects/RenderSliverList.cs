@@ -12,7 +12,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         public LayoutData Layout;
     }
 
-    internal interface ISliverState : ILayoutState
+    internal interface ISliverState : IState
     {
         IState[] AllChildren { get; }
         Axis Axis { get; }
@@ -68,7 +68,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 // For a vertical list, width is tight, height is loose.
                 childConstraints = new LayoutConstraints(constraints.MaxWidth, 0, constraints.MaxWidth,
                     float.PositiveInfinity);
-            
+
 
             foreach (var child in _state.AllChildren)
             {
@@ -158,14 +158,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         private static float GetChildIntrinsicWidth(IState child, float height)
         {
-            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicWidth(height);
-            return child.Size.GetSizeUnbounded().x;
+            return child.RenderObject.GetIntrinsicWidth(height);
         }
 
         private static float GetChildIntrinsicHeight(IState child, float width)
         {
-            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicHeight(width);
-            return child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y;
+            return child.RenderObject.GetIntrinsicHeight(width);
         }
 
         public float CalculateNormalizedOffset(int index, ScrollToPosition position)

@@ -2,7 +2,6 @@
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
 {
-
     /// <summary>
     ///     A render object that implements the layout logic for any widget that constrains and/or align its child's size
     ///     to a specific width and/or height.
@@ -83,23 +82,13 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         public sealed override float GetIntrinsicWidth(float height)
         {
             if (_state.Width.HasValue) return _state.Width.Value;
-
-            if (_state.Child.AsLayoutState(out var childLayoutState))
-                return childLayoutState.RenderObject.GetIntrinsicWidth(height);
-
-            // Fallback for legacy widgets
-            return _state.Child?.Size.GetSizeUnbounded().x ?? 0;
+            return _state.Child.RenderObject.GetIntrinsicWidth(height);
         }
 
         public sealed override float GetIntrinsicHeight(float width)
         {
             if (_state.Height.HasValue) return _state.Height.Value;
-
-            if (_state.Child.AsLayoutState(out var childLayoutState))
-                return childLayoutState.RenderObject.GetIntrinsicHeight(width);
-
-            // Fallback for legacy widgets
-            return _state.Child?.Size.GetSizeUnbounded().y ?? 0;
+            return _state.Child.RenderObject.GetIntrinsicHeight(width);
         }
     }
 }

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace UniMob.UI.Layout.Internal.Views
 {
-    public interface IMultiChildLayoutState : ILayoutState
+    public interface IMultiChildLayoutState : IState
     {
         IState[] Children { get; }
     }

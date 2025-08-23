@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UniMob.UI.Widgets;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     {
         private readonly List<LayoutData> _childrenLayout = new();
         private readonly ZStackState _state;
-        
+
         public IReadOnlyList<LayoutData> ChildrenLayout => _childrenLayout;
 
         public RenderZStack(ZStackState state)
@@ -35,7 +36,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             // The final size of the ZStack is the size of its largest child,
             // constrained by the parent's limits.
-            return constraints.Constrain(new Vector2(maxWidth, maxHeight)); 
+            return constraints.Constrain(new Vector2(maxWidth, maxHeight));
         }
 
         protected override void PerformPositioning()
@@ -58,26 +59,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicWidth(float height)
         {
-            float maxWidth = 0;
-            foreach (var child in _state.Children)
-                if (child.AsLayoutState(out var childLayoutState))
-                    maxWidth = Mathf.Max(maxWidth, childLayoutState.RenderObject.GetIntrinsicWidth(height));
-                else
-                    maxWidth = Mathf.Max(maxWidth, child.Size.GetSizeUnbounded().x);
-
-            return maxWidth;
+            return _state.Children.Max(child => child.RenderObject.GetIntrinsicWidth(height));
         }
 
         public override float GetIntrinsicHeight(float width)
         {
-            float maxHeight = 0;
-            foreach (var child in _state.Children)
-                if (child.AsLayoutState(out var childLayoutState))
-                    maxHeight = Mathf.Max(maxHeight, childLayoutState.RenderObject.GetIntrinsicHeight(width));
-                else
-                    maxHeight = Mathf.Max(maxHeight, child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y);
-
-            return maxHeight;
+            return _state.Children.Max(child => child.RenderObject.GetIntrinsicHeight(width));
         }
     }
 }

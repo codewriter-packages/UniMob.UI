@@ -2,7 +2,7 @@
 
 namespace UniMob.UI.Layout
 {
-    public class Align : LayoutWidget
+    public class Align : StatefulWidget
     {
         public Widget Child { get; set; }
         public Alignment Alignment { get; set; } = Alignment.Center;
@@ -12,13 +12,13 @@ namespace UniMob.UI.Layout
             return new AlignState();
         }
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderSizedBox((AlignState) state);
         }
     }
     
-    public class AlignState : LayoutState<Align>, ISizedBoxState
+    public class AlignState : ViewState<Align>, ISizedBoxState
     {
         private readonly StateHolder _child;
 

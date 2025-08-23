@@ -51,14 +51,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         
         private float GetChildIntrinsicWidth(IState child, float height)
         {
-            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicWidth(height);
-            return child.Size.GetSizeUnbounded().x;
+            return child.RenderObject.GetIntrinsicWidth(height);
         }
 
         private float GetChildIntrinsicHeight(IState child, float width)
         {
-            if (child.AsLayoutState(out var cls)) return cls.RenderObject.GetIntrinsicHeight(width);
-            return child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y;
+            return child.RenderObject.GetIntrinsicHeight(width);
         }
     }
 }

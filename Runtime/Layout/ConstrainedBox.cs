@@ -3,7 +3,7 @@ using UniMob.UI.Layout.Internal.RenderObjects;
 
 namespace UniMob.UI.Layout
 {
-    public class ConstrainedBox : LayoutWidget
+    public class ConstrainedBox : StatefulWidget
     {
         public Widget Child { get; set; }
         public LayoutConstraints BoxConstraints { get; set; }
@@ -13,7 +13,7 @@ namespace UniMob.UI.Layout
             return new ConstrainedBoxState();
         }
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderConstrainedBox((ConstrainedBoxState) state);
         }
@@ -25,7 +25,7 @@ namespace UniMob.UI.Layout
         LayoutConstraints BoxConstraints { get; }
     }
 
-    public class ConstrainedBoxState : LayoutState<ConstrainedBox>, IConstrainedBoxState
+    public class ConstrainedBoxState : ViewState<ConstrainedBox>, IConstrainedBoxState
     {
         private readonly StateHolder _child;
         public IState Child => _child.Value;

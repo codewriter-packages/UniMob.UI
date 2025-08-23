@@ -1,5 +1,7 @@
 using System;
 using JetBrains.Annotations;
+using UniMob.UI.Layout;
+using UniMob.UI.Layout.Internal.RenderObjects;
 
 namespace UniMob.UI
 {
@@ -16,9 +18,15 @@ namespace UniMob.UI
 
         public abstract Widget Build(BuildContext context);
 
+
+        public virtual RenderObject CreateRenderObject(BuildContext context, IState state)
+        {
+            return state.InnerViewState.RenderObject;
+        }
+
+
         [CanBeNull]
         public virtual State CreateState(StateProvider provider) => null;
-
 
         [NotNull]
         public virtual State CreateState()
@@ -34,14 +42,14 @@ namespace UniMob.UI
     /// </summary>
     internal sealed class StatelessElement : State
     {
-        private StateHolder _child;
+        private StateHolder _stateHolder;
 
-        public override IViewState InnerViewState => _child.Value.InnerViewState;
-        public override WidgetSize Size => _child.Value.Size;
+        public override IViewState InnerViewState => _stateHolder.Value.InnerViewState;
+        public override WidgetSize Size => _stateHolder.Value.Size;
 
         public StatelessElement(StatelessWidget widget)
         {
-            _child = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), widget.Build);
+            _stateHolder = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), widget.Build);
         }
 
         internal override void Update(Widget widget)
@@ -50,13 +58,13 @@ namespace UniMob.UI
 
             if (widget is StatelessWidget statelessWidget)
             {
-                _child = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), statelessWidget.Build);
+                _stateHolder = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context),
+                    statelessWidget.Build);
             }
             else
             {
                 throw new InvalidOperationException("StatelessElement can only update with a StatelessWidget");
             }
-
         }
     }
 }

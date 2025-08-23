@@ -6,7 +6,7 @@ namespace UniMob.UI.Layout
     /// <summary>
     /// Represents a widget that constrains its child's size to a specific width and/or height.
     /// </summary>
-    public class SizedBox : LayoutWidget
+    public class SizedBox : StatefulWidget
     {
         public Widget? Child { get; set; }
         public float? Width { get; set; }
@@ -24,7 +24,7 @@ namespace UniMob.UI.Layout
             return new SizedBoxState();
         }
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderSizedBox((ISizedBoxState) state);
         }
@@ -62,7 +62,7 @@ namespace UniMob.UI.Layout
         Alignment Alignment { get; }
     }
 
-    public class SizedBoxState : LayoutState<SizedBox>, ISizedBoxState
+    public class SizedBoxState : ViewState<SizedBox>, ISizedBoxState
     {
         public IState Child => _child.Value;
         private readonly StateHolder _child;

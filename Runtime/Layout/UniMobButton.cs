@@ -6,7 +6,7 @@ namespace UniMob.UI.Layout
     /// <summary>
     /// A widget that detects click interactions.
     /// </summary>
-    public class UniMobButton : LayoutWidget
+    public class UniMobButton : StatefulWidget
     {
         public bool Interactable { get; set; } = true;
         public Action? OnClick { get; set; }
@@ -14,7 +14,7 @@ namespace UniMob.UI.Layout
 
         public override State CreateState() => new UniMobButtonState();
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderProxy((UniMobButtonState) state);
         }
@@ -22,7 +22,7 @@ namespace UniMob.UI.Layout
 
     // The State now implements the contract for RenderAlign (IAlignState)
     // and the contract for its View (IUniMobButtonState).
-    internal class UniMobButtonState : LayoutState<UniMobButton>, 
+    internal class UniMobButtonState : ViewState<UniMobButton>, 
         Widgets.IUniMobButtonState, ISingleChildLayoutState
     {
         private readonly StateHolder _child;

@@ -19,7 +19,7 @@ namespace UniMob.UI.Layout
             return new ZStackState();
         }
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderZStack((ZStackState) state);
         }

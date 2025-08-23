@@ -8,7 +8,7 @@ namespace UniMob.UI.Layout
     /// <summary>
     /// A widget that insets its child by the given padding.
     /// </summary>
-    public class PaddingBox : LayoutWidget
+    public class PaddingBox : StatefulWidget
     {
         public Widget Child { get; set; }
         public RectPadding Padding { get; set; }
@@ -20,7 +20,7 @@ namespace UniMob.UI.Layout
         
         public override State CreateState() => new PaddingBoxState();
         
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderPadding((IPaddingState) state);
         }
@@ -32,7 +32,7 @@ namespace UniMob.UI.Layout
         RectPadding Padding { get; }
     }
 
-    public class PaddingBoxState : LayoutState<PaddingBox>, IPaddingState
+    public class PaddingBoxState : ViewState<PaddingBox>, IPaddingState
     {
         private readonly StateHolder _child;
 
