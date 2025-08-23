@@ -68,13 +68,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             if (widget.Width.HasValue) return widget.Width.Value;
 
-            if (_state.Child is ILayoutState childLayoutState)
-            {
-                return childLayoutState.RenderObject.GetIntrinsicWidth(height);
-            }
-            
-            // Fallback for legacy widgets
-            return _state.Child?.Size.GetSizeUnbounded().x ?? 0;
+            return _state.Child.RenderObject.GetIntrinsicWidth(height);
         }
 
         public override float GetIntrinsicHeight(float width)
@@ -83,13 +77,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             if (widget.Height.HasValue) return widget.Height.Value;
 
-            if (_state.Child is ILayoutState childLayoutState)
-            {
-                return childLayoutState.RenderObject.GetIntrinsicHeight(width);
-            }
-
-            // Fallback for legacy widgets
-            return _state.Child?.Size.GetSizeUnbounded().y ?? 0;
+            return _state.Child.RenderObject.GetIntrinsicHeight(width);
         }
     }
 }

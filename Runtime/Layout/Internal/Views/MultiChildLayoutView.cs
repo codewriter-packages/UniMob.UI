@@ -12,7 +12,7 @@ using UniMob.UI.Widgets;
 
 namespace UniMob.UI.Layout.Views
 {
-    public interface IMultiChildLayoutState : ILayoutState
+    public interface IMultiChildLayoutState : IState
     {
         IState[] Children { get; }
     }
@@ -39,11 +39,6 @@ namespace UniMob.UI.Layout.Views
             for (var i = 0; i < State.Children.Length; i++)
             {
                 var child = State.Children[i];
-                if (child is ExpandedState expandedState)
-                {
-                    child = expandedState.Child;
-                }
-                
                 
                 var layoutData = childrenLayout[i];
                 

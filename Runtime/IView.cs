@@ -12,7 +12,7 @@ namespace UniMob.UI
 
         bool IsDestroyed { get; }
 
-        void SetSource(IViewState source, bool link);
+        void SetSource(IState source, bool link);
         void ResetSource();
     }
 }

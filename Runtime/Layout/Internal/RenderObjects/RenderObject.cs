@@ -76,27 +76,16 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         /// <param name="child">The child state to layout.</param>
         /// <param name="constraints">The constraints to apply to the child.</param>
         /// <returns>The final size of the child after layout.</returns>
-
-// Replace the entire LayoutChild method with this version.
         protected Vector2 LayoutChild(IState child, LayoutConstraints constraints)
         {
             if (child is null)
                 return Vector2.zero;
 
-            if (child is ILayoutState childLayoutState && childLayoutState.RenderObject != null)
-            {
-                childLayoutState.UpdateConstraints(constraints);
+            child.UpdateConstraints(constraints);
 
-                var childSize = childLayoutState.WatchedPerformLayout();
+            var childSize = child.WatchedPerformLayout();
 
-                return childSize;
-            }
-
-            // Legacy Widget Fallback:
-            // The constraints from the parent are the absolute source of truth.
-            // This correctly handles both fixed-size legacy widgets and those being
-            // stretched by a parent (which will pass tight constraints).
-            return child.Size.GetSize(new Vector2(constraints.MaxWidth, constraints.MaxHeight));
+            return childSize;
         }
 
 

@@ -62,7 +62,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 }
 
                 // This is the key: if it's NOT a new layout widget, check if it's stretched.
-                if (childWidget is not LayoutWidget)
+                if (childState.RenderObject is RenderLegacy)
                 {
                     var legacySize = childState.Size;
                     if (isHorizontal ? float.IsInfinity(legacySize.MaxWidth) : float.IsInfinity(legacySize.MaxHeight))
@@ -108,13 +108,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                         ? LayoutConstraints.Tight(flexSpace, maxCrossAxis)
                         : LayoutConstraints.Tight(maxCrossAxis, flexSpace);
 
-                    var stateToLayout = _state.Children[i];
-                    if ((stateToLayout as State)?.RawWidget is Expanded)
-                    {
-                        stateToLayout = ((ExpandedState) stateToLayout).Child;
-                    }
-
-                    var childSize = LayoutChild(stateToLayout, flexConstraints);
+                    var childSize = LayoutChild(_state.Children[i], flexConstraints);
                     _childrenLayout[i] = new LayoutData {Size = childSize};
                     crossAxisMaxSize = Mathf.Max(crossAxisMaxSize, isHorizontal ? childSize.y : childSize.x);
                 }
@@ -263,14 +257,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         private float GetChildIntrinsicWidth(IState child, float height)
         {
-            if (child is ILayoutState cls) return cls.RenderObject.GetIntrinsicWidth(height);
-            return child.Size.GetSizeUnbounded().x;
+            return child.RenderObject.GetIntrinsicWidth(height);
         }
 
         private float GetChildIntrinsicHeight(IState child, float width)
         {
-            if (child is ILayoutState cls) return cls.RenderObject.GetIntrinsicHeight(width);
-            return child.Size.GetSize(new Vector2(width, float.PositiveInfinity)).y;
+            return child.RenderObject.GetIntrinsicHeight(width);
         }
     }
 }

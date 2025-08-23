@@ -11,7 +11,7 @@ namespace UniMob.UI
 {
     [RequireComponent(typeof(RectTransform))]
     public abstract class View<TState> : UIBehaviour, IView, IViewTreeElement
-        where TState : class, IViewState
+        where TState : class, IState
     {
         [NotNull] private readonly ViewRenderScope _renderScope = new ViewRenderScope();
         [NotNull] private readonly List<IViewTreeElement> _children = new List<IViewTreeElement>();
@@ -81,7 +81,7 @@ namespace UniMob.UI
             self.SetSource(state, link);
         }
 
-        void IView.SetSource(IViewState newSource, bool link)
+        void IView.SetSource(IState newSource, bool link)
         {
             if (_doRebind == null)
             {
@@ -131,9 +131,9 @@ namespace UniMob.UI
                 {
                     try
                     {
-                        if (TriggerViewMountEvents)
+                        if (TriggerViewMountEvents && _currentState is IViewState viewState)
                         {
-                            _currentState.DidViewUnmount(this);
+                            viewState.DidViewUnmount(this);
                         }
                     }
                     catch (Exception ex)
@@ -190,9 +190,9 @@ namespace UniMob.UI
                 {
                     try
                     {
-                        if (TriggerViewMountEvents)
+                        if (TriggerViewMountEvents && _currentState is IViewState viewState)
                         {
-                            _currentState.DidViewUnmount(this);
+                            viewState.DidViewUnmount(this);
                         }
                     }
                     catch (Exception ex)
@@ -229,9 +229,9 @@ namespace UniMob.UI
             {
                 try
                 {
-                    if (TriggerViewMountEvents)
+                    if (TriggerViewMountEvents && _currentState is IViewState viewState)
                     {
-                        _currentState.DidViewMount(this);
+                        viewState.DidViewMount(this);
                     }
                 }
                 catch (Exception ex)
@@ -252,20 +252,17 @@ namespace UniMob.UI
                 return null;
             }
 
-            if (currentState is ILayoutState layoutState)
+            try
             {
-                try
-                {
-                    // We MUST perform layout here so that the inheritors in the Render() method
-                    // receive a fully up-to-date RenderObject and can use its properties, even non-reactive ones.
-                    //
-                    // Also we MUST do a DoRender() if the layout is recomputed, so subscribe to it.
-                    layoutState.WatchedPerformLayout();
-                }
-                catch (Exception ex)
-                {
-                    Zone.Current.HandleUncaughtException(ex);
-                }
+                // We MUST perform layout here so that the inheritors in the Render() method
+                // receive a fully up-to-date RenderObject and can use its properties, even non-reactive ones.
+                //
+                // Also we MUST do a DoRender() if the layout is recomputed, so subscribe to it.
+                currentState.WatchedPerformLayout();
+            }
+            catch (Exception ex)
+            {
+                Zone.Current.HandleUncaughtException(ex);
             }
 
             using (_renderScope.Enter(this))
