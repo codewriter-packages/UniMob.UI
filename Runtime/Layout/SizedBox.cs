@@ -8,7 +8,7 @@ namespace UniMob.UI.Layout
     /// </summary>
     public class SizedBox : LayoutWidget
     {
-        [CanBeNull] public Widget Child { get; set; }
+        public Widget? Child { get; set; }
         public float? Width { get; set; }
         public float? Height { get; set; }
 
@@ -17,46 +17,51 @@ namespace UniMob.UI.Layout
             this.Width = width;
             this.Height = height;
         }
-        
+
         // Factory methods
         public override State CreateState()
         {
             return new SizedBoxState();
         }
+
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderContainer((ISizedBoxState) state);
+            return new RenderSizedBox((ISizedBoxState) state);
         }
-        
-        public static SizedBox FromWidth(float width)
+
+        public static SizedBox FromWidth(float width, Widget? child = null)
         {
-            return new SizedBox(width, null);
+            return new SizedBox(width, null) {Child = child};
         }
-        public static SizedBox FromHeight(float height)
+
+        public static SizedBox FromHeight(float height, Widget? child = null)
         {
             return new SizedBox(null, height);
         }
-        public static SizedBox Square(float size)
+
+        public static SizedBox Square(float size, Widget? child = null)
         {
-            return new SizedBox(size, size);
+            return new SizedBox(size, size) {Child = child};
         }
+
         public static SizedBox Shrink()
         {
             return new SizedBox(0, 0);
         }
-        public static SizedBox Expand()
+        
+        public static SizedBox Expand(Widget? child = null)
         {
-            return new SizedBox(float.PositiveInfinity, float.PositiveInfinity);
+            return new SizedBox(float.PositiveInfinity, float.PositiveInfinity) {Child = child};
         }
     }
-    
+
     public interface ISizedBoxState : ISingleChildLayoutState
     {
         float? Width { get; }
         float? Height { get; }
         Alignment Alignment { get; }
     }
-    
+
     public class SizedBoxState : LayoutState<SizedBox>, ISizedBoxState
     {
         public IState Child => _child.Value;
@@ -64,7 +69,7 @@ namespace UniMob.UI.Layout
 
         public SizedBoxState()
         {
-            _child = CreateChild(context => Widget.Child ?? SizedBox.Shrink());
+            _child = CreateChild(context => Widget.Child ?? new Widgets.Empty());
         }
 
         public float? Width => Widget.Width;
