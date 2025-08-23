@@ -34,6 +34,7 @@ namespace UniMob.UI.Layout
             return new LayoutConstraints(0, 0, width, height);
         }
 
+        
         /// <summary>
         ///     Creates a set of unbounded constraints, allowing any size.
         /// </summary>
@@ -75,6 +76,25 @@ namespace UniMob.UI.Layout
             );
         }
 
+        /// <summary>
+        ///     Returns a new set of constraints that is deflated by the given padding.
+        ///     The minimums will never go below zero.
+        /// </summary>
+        public LayoutConstraints Deflate(RectPadding padding)
+        {
+            var horizontal = padding.Horizontal;
+            var vertical = padding.Vertical;
+            var deflatedMinWidth = Mathf.Max(0, MinWidth - horizontal);
+            var deflatedMinHeight = Mathf.Max(0, MinHeight - vertical);
+
+            return new LayoutConstraints(
+                deflatedMinWidth,
+                deflatedMinHeight,
+                Mathf.Max(deflatedMinWidth, MaxWidth - horizontal),
+                Mathf.Max(deflatedMinHeight, MaxHeight - vertical)
+            );
+        }
+        
         /// <summary>
         ///     Creates a new set of constraints by tightening the minimums.
         /// </summary>
@@ -121,5 +141,7 @@ namespace UniMob.UI.Layout
         {
             return HashCode.Combine(MinWidth, MinHeight, MaxWidth, MaxHeight);
         }
+
+        
     }
 }

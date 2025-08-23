@@ -38,7 +38,7 @@ namespace UniMob.UI.Layout
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            return new RenderContainer((ISizedBoxState) state);
+            return new RenderSizedBox((ISizedBoxState) state);
         }
     }
 

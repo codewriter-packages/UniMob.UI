@@ -14,14 +14,17 @@ namespace UniMob.UI.Layout
 
         public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
         {
-            // THIS IS THE FIX: It now creates its own, correct RenderObject.
-            return new RenderAlign((AlignState) state);
+            return new RenderSizedBox((AlignState) state);
         }
     }
-
-    public class AlignState : LayoutState<Align>, ISingleChildLayoutState
+    
+    public class AlignState : LayoutState<Align>, ISizedBoxState
     {
         private readonly StateHolder _child;
+
+        public float? Width => null;
+        public float? Height => null;
+        public Alignment Alignment => Widget.Alignment;
 
         public AlignState()
         {
@@ -30,7 +33,6 @@ namespace UniMob.UI.Layout
 
         public IState Child => _child.Value;
 
-        // The View can still be a simple container that just hosts the child.
         public override WidgetViewReference View => WidgetViewReference.Resource("$$_Layout.AlignView");
     }
 }

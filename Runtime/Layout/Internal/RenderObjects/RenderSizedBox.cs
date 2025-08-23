@@ -1,51 +1,69 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace UniMob.UI.Layout.Internal.RenderObjects
 {
-    internal class RenderContainer : RenderObject, ISingleChildRenderObject
+
+    /// <summary>
+    ///     A render object that implements the layout logic for any widget that constrains and/or align its child's size
+    ///     to a specific width and/or height.
+    /// </summary>
+    /// <example>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <see cref="SizedBox" /> for a widget that only constrains its child's size.
+    ///         </item>
+    ///         <item>
+    ///             <see cref="Container" /> for a widget that constrains its child's size and can also apply background
+    ///             color/image.
+    ///         </item>
+    ///         <item>
+    ///             <see cref="Align" /> for a widget that only aligns its child without constraining its size.
+    ///         </item>
+    ///     </list>
+    /// </example>
+    public class RenderSizedBox : RenderObject, ISingleChildRenderObject
     {
         private readonly ISizedBoxState _state;
 
-        public RenderContainer(ISizedBoxState state)
+        public RenderSizedBox(ISizedBoxState state)
         {
             _state = state;
         }
-        
+
         // ADD THIS: A place to store the final result of the positioning pass.
         public Vector2 ChildPosition { get; private set; }
         public Vector2 ChildSize { get; private set; }
 
-        protected override Vector2 PerformSizing(LayoutConstraints constraints)
+        protected sealed override Vector2 PerformSizing(LayoutConstraints constraints)
         {
             // These are the constraints that the Container widget imposes on itself.
             // They are equivalent to an unbounded constraints if the widget's Width or Height are not set.
             var selfConstraints = LayoutConstraints.Loose(
-                _state.Width ?? float.PositiveInfinity, 
+                _state.Width ?? float.PositiveInfinity,
                 _state.Height ?? float.PositiveInfinity
             );
-            
+
             // The child's constraints are the parent's constraints, further restricted
             // by this container's own rules. We enforce our bounds and then loosen the
             // result so the child can choose any size up to the determined maximum.
             var childConstraints = constraints.Enforce(selfConstraints).Loosen();
-            
+
             // Measure the child with the loosened constraints to discover its ideal size.
             ChildSize = LayoutChild(_state.Child, childConstraints);
 
-            
+
             // Now we determine the final size of this Container widget, by applying the
             // Width and Height properties if they are set, or using the child's size otherwise.
             var finalWidth = _state.Width ??
                              (float.IsInfinity(constraints.MaxWidth) ? ChildSize.x : constraints.MaxWidth);
             var finalHeight = _state.Height ??
                               (float.IsInfinity(constraints.MaxHeight) ? ChildSize.y : constraints.MaxHeight);
-            
+
             // Constrain the final size to the parent's constraints.
             return constraints.Constrain(new Vector2(finalWidth, finalHeight));
         }
 
-        protected override void PerformPositioning()
+        protected sealed override void PerformPositioning()
         {
             var child = _state.Child;
             var alignment = _state.Alignment;
@@ -62,7 +80,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             ChildPosition = new Vector2(x, y);
         }
 
-        public override float GetIntrinsicWidth(float height)
+        public sealed override float GetIntrinsicWidth(float height)
         {
             if (_state.Width.HasValue) return _state.Width.Value;
 
@@ -73,7 +91,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             return _state.Child?.Size.GetSizeUnbounded().x ?? 0;
         }
 
-        public override float GetIntrinsicHeight(float width)
+        public sealed override float GetIntrinsicHeight(float width)
         {
             if (_state.Height.HasValue) return _state.Height.Value;
 

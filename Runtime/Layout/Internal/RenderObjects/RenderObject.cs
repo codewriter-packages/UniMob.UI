@@ -41,9 +41,9 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         ///     Compute the size of the widget based on the provided layout constraints.
         ///     This method is called during the layout pass to determine the size of the widget.
         /// </summary>
-        /// <param name="contextConstraints"> The constraints imposed by the parent</param>
+        /// <param name="constraints"> The constraints imposed by the parent</param>
         /// <returns> A <see cref="Vector2" /> containing <c>(width, height)</c> </returns>
-        protected abstract Vector2 PerformSizing(LayoutConstraints contextConstraints);
+        protected abstract Vector2 PerformSizing(LayoutConstraints constraints);
 
         /// <summary>
         ///     Performs the positioning of the widget and its children.
