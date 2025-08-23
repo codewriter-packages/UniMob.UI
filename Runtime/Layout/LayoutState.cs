@@ -1,4 +1,5 @@
 ﻿using UniMob.UI.Layout.Internal.RenderObjects;
+using UnityEngine;
 
 namespace UniMob.UI.Layout
 {
@@ -15,7 +16,8 @@ namespace UniMob.UI.Layout
         /// This method can be safely called multiple times because
         /// it will not cause the layout to be recalculated every time.
         /// </remarks>
-        void WatchedPerformLayout();
+        /// <returns>Final render size of the widget.</returns>
+        Vector2 WatchedPerformLayout();
     }
 
     /// <summary>
@@ -24,7 +26,7 @@ namespace UniMob.UI.Layout
     public abstract class LayoutState<TWidget> : ViewState<TWidget>, ILayoutState where TWidget : LayoutWidget, Widget
     {
         private int _renderVersion = int.MinValue;
-        private Atom<int> _trackedLayoutPerformer;
+        private Atom<(Vector2 renderSize, int version)> _trackedLayoutPerformer;
 
         private RenderObject _renderObject;
 
@@ -36,6 +38,7 @@ namespace UniMob.UI.Layout
                 {
                     _renderObject = Widget.CreateRenderObject(Context, this);
                 }
+
                 return _renderObject;
             }
         }
@@ -54,13 +57,16 @@ namespace UniMob.UI.Layout
             return WidgetSize.Fixed(intrinsicWidth, intrinsicHeight);
         }
 
-        void ILayoutState.WatchedPerformLayout()
+        Vector2 ILayoutState.WatchedPerformLayout()
         {
             _trackedLayoutPerformer ??= CreateTrackedLayout();
-            _trackedLayoutPerformer.Get();
+
+            var renderData = _trackedLayoutPerformer.Get();
+
+            return renderData.renderSize;
         }
 
-        private Atom<int> CreateTrackedLayout()
+        private Atom<(Vector2 renderSize, int version)> CreateTrackedLayout()
         {
             return Atom.Computed(StateLifetime, () =>
             {
@@ -71,9 +77,11 @@ namespace UniMob.UI.Layout
                 _ = Widget;
                 _ = Constraints;
 
+                var renderSize = RenderObject.Size;
+
                 // The PerformLayout() was done and we need all subscribers to be invalidated,
                 // so we always return a new number.
-                return _renderVersion = ((_renderVersion + 1) % int.MaxValue);
+                return (renderSize, _renderVersion = ((_renderVersion + 1) % int.MaxValue));
             });
         }
     }

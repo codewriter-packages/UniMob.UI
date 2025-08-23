@@ -87,12 +87,9 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             {
                 childLayoutState.UpdateConstraints(constraints);
 
-                childLayoutState.WatchedPerformLayout();
+                var childSize = childLayoutState.WatchedPerformLayout();
 
-                // After WatchedPerformLayout() RenderObject's state is up-do-date,
-                // so we can safely use Size here.
-                var childRenderObject = childLayoutState.RenderObject;
-                return childRenderObject.Size;
+                return childSize;
             }
 
             // Legacy Widget Fallback:
