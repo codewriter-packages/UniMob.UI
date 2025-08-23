@@ -20,6 +20,8 @@ namespace UniMob.UI
 
         public sealed override IViewState InnerViewState => _child.Value.InnerViewState;
 
+        public IState Child => _child.Value;
+
         protected HocState()
         {
             _child = Create<Widget, IState>(StateLifetime, new BuildContext(this, Context), Build);
