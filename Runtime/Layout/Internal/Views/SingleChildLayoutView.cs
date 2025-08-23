@@ -11,6 +11,9 @@ using UnityEngine;
     typeof(RectTransform), typeof(CanvasRenderer), typeof(
         SizedBoxView))]
 
+[assembly: RegisterComponentViewFactory("$$_Layout.PaddingBoxView",
+    typeof(RectTransform), typeof(CanvasRenderer), typeof(
+        UniMob.UI.Layout.Internal.Views.PaddingBoxView))]
 namespace UniMob.UI.Layout.Internal.Views
 {
     internal class AlignView : SingleChildLayoutView<AlignState>
@@ -20,6 +23,9 @@ namespace UniMob.UI.Layout.Internal.Views
     {
     }
 
+    internal class PaddingBoxView : SingleChildLayoutView<PaddingBoxState>
+    {
+    }
 
     [RequireComponent(typeof(RectTransform), typeof(CanvasRenderer))]
     public abstract class SingleChildLayoutView<TState> : View<TState>
