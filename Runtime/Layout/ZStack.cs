@@ -4,7 +4,7 @@ using UniMob.UI.Layout.Internal.Views;
 
 namespace UniMob.UI.Layout
 {
-    public class ZStack : LayoutWidget, IMultiChildLayoutWidget // Reuse IFlexWidget for convenience
+    public class ZStack : StatefulWidget, IMultiChildLayoutWidget // Reuse IFlexWidget for convenience
     {
         public Alignment Alignment { get; set; } = Alignment.Center;
 
@@ -25,7 +25,7 @@ namespace UniMob.UI.Layout
         }
     }
 
-    public class ZStackState : LayoutState<ZStack>, IMultiChildLayoutState
+    public class ZStackState : ViewState<ZStack>, IMultiChildLayoutState
     {
         private readonly StateCollectionHolder _children;
 

@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using UniMob.UI.Layout.Internal.RenderObjects;
 
 namespace UniMob.UI
 {
@@ -21,6 +22,19 @@ namespace UniMob.UI
         public virtual State CreateState()
         {
             return null;
+        }
+
+        /// <summary>
+        /// Creates the lightweight RenderObject responsible for layout calculations.
+        /// </summary>
+        public virtual RenderObject CreateRenderObject(BuildContext context, IState state)
+        {
+            if (state is IViewState viewState)
+            {
+                return new RenderLegacy(viewState);
+            }
+
+            return state.InnerViewState.RenderObject;
         }
     }
 }

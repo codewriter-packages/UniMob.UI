@@ -1,37 +1,35 @@
 ﻿using System.Collections.Generic;
+
 using UniMob.UI.Layout.Internal.RenderObjects;
-using UniMob.UI.Layout.Internal.Views;
+using UniMob.UI.Layout.Views;
 
 namespace UniMob.UI.Layout
 {
-    public class Row : LayoutWidget, IFlexWidget
+    public class Row : StatefulWidget, IFlexWidget
     {
-        public List<Widget> Children { get; set; } = new();
+        public List<Widget> Children { get; set; } = new List<Widget>();
         public CrossAxisAlignment CrossAxisAlignment { get; set; }
-        public MainAxisAlignment MainAxisAlignment { get; set; }
+        public MainAxisAlignment MainAxisAlignment { get; set; } 
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
 
-        public override State CreateState()
-        {
-            return new RowState();
-        }
+        public override State CreateState() => new RowState();
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderFlex((RowState) state, Axis.Horizontal);
         }
     }
-
-    public class RowState : LayoutState<Row>, IMultiChildLayoutState
+    
+    internal class RowState : ViewState<Row>, IMultiChildLayoutState
     {
+        public IState[] Children => _children.Value;
+
         private readonly StateCollectionHolder _children;
 
         public RowState()
         {
             _children = CreateChildren(context => Widget.Children);
         }
-
-        public IState[] Children => _children.Value;
 
         public override WidgetViewReference View => WidgetViewReference.Resource("$$_Layout.MultiChildLayoutView");
     }

@@ -20,7 +20,7 @@ namespace UniMob.UI.Layout
     }
 
 
-    public class Text : LayoutWidget
+    public class Text : StatefulWidget
     {
         public WidgetViewReference? ViewReference { get; set; }
 
@@ -55,7 +55,7 @@ namespace UniMob.UI.Layout
         }
     }
 
-    public class TextState : LayoutState<Text>, ITextState
+    public class TextState : ViewState<Text>, ITextState
     {
         private TMP_StyleSheet StyleSheet => Widget.StyleSheet ?? TMP_Settings.defaultStyleSheet;
 

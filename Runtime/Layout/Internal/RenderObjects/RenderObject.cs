@@ -82,23 +82,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             if (child is null)
                 return Vector2.zero;
 
-            if (child.AsLayoutState(out var childLayoutState) && childLayoutState.RenderObject != null)
-            {
-                childLayoutState.UpdateConstraints(constraints);
+            child.UpdateConstraints(constraints);
 
-                childLayoutState.WatchedPerformLayout();
+            var childSize = child.WatchedPerformLayout();
 
-                // After WatchedPerformLayout() RenderObject's state is up-do-date,
-                // so we can safely use Size here.
-                var childRenderObject = childLayoutState.RenderObject;
-                return childRenderObject.Size;
-            }
-
-            // Legacy Widget Fallback:
-            // The constraints from the parent are the absolute source of truth.
-            // This correctly handles both fixed-size legacy widgets and those being
-            // stretched by a parent (which will pass tight constraints).
-            return child.Size.GetSize(new Vector2(constraints.MaxWidth, constraints.MaxHeight));
+            return childSize;
         }
 
 

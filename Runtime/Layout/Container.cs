@@ -16,7 +16,7 @@ namespace UniMob.UI.Layout
     /// A container widget that can hold a single child widget and provides layout options such as alignment,
     /// background color, and size.
     /// </summary>
-    public class Container : LayoutWidget
+    public class Container : StatefulWidget
     {
         [CanBeNull] public Widget Child { get; set; }
         public Color BackgroundColor { get; set; } = Color.clear;
@@ -43,7 +43,7 @@ namespace UniMob.UI.Layout
     }
 
 
-    public class ContainerState : LayoutState<Container>, IContainerState
+    public class ContainerState : ViewState<Container>, IContainerState
     {
         private readonly StateHolder _child;
 
