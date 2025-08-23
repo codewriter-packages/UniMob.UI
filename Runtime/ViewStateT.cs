@@ -14,18 +14,16 @@ namespace UniMob.UI
 
         internal override void Update(Widget widget)
         {
-            base.Update(widget);
-
-            var oldWidget = Widget;
-
-            if (widget is TWidget typedWidget)
-            {
-                _widget.Value = typedWidget;
-            }
-            else
+            if (widget is not TWidget typedWidget)
             {
                 throw new WrongStateTypeException(GetType(), typeof(TWidget), widget.GetType());
             }
+
+            var oldWidget = Widget;
+
+            _widget.Value = typedWidget;
+
+            base.Update(widget);
 
             if (oldWidget != null)
             {

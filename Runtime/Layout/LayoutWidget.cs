@@ -7,9 +7,11 @@ namespace UniMob.UI.Layout
     /// </summary>
     public abstract class LayoutWidget : StatefulWidget
     {
-        /// <summary>
-        /// Creates the lightweight RenderObject responsible for layout calculations.
-        /// </summary>
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
+        {
+            return CreateRenderObject(context, (ILayoutState) state);
+        }
+
         public abstract RenderObject CreateRenderObject(BuildContext context, ILayoutState state);
     }
 }

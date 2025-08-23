@@ -4,7 +4,11 @@ using UnityEngine.Assertions;
 
 namespace UniMob.UI
 {
-    public abstract class HocState<TWidget> : State
+    public interface IHocState : IState
+    {
+    }
+
+    public abstract class HocState<TWidget> : State, IHocState
         where TWidget : Widget
     {
         private readonly StateHolder _child;
@@ -23,18 +27,16 @@ namespace UniMob.UI
 
         internal sealed override void Update(Widget widget)
         {
-            base.Update(widget);
-
-            var oldWidget = Widget;
-
-            if (widget is TWidget typedWidget)
-            {
-                _widget.Value = typedWidget;
-            }
-            else
+            if (widget is not TWidget typedWidget)
             {
                 throw new WrongStateTypeException(GetType(), typeof(TWidget), widget.GetType());
             }
+
+            var oldWidget = Widget;
+
+            _widget.Value = typedWidget;
+
+            base.Update(widget);
 
             if (oldWidget != null)
             {
