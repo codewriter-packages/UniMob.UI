@@ -62,8 +62,6 @@ namespace UniMob.UI
 
         internal virtual void Update(Widget widget)
         {
-            _renderObject ??= widget.CreateRenderObject(Context, this);
-
             RawWidget = widget;
 
             // Force recompute layout on Widget modifications.
@@ -84,6 +82,11 @@ namespace UniMob.UI
                 throw new InvalidOperationException("State already mounted");
 
             _context.SetParent(context);
+        }
+
+        internal void InitRenderObject()
+        {
+            _renderObject = RawWidget.CreateRenderObject(Context, this);
         }
 
         public virtual void InitState()

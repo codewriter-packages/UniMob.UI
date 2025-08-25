@@ -203,6 +203,7 @@ namespace UniMob.UI.Internal
             }
 
             newChild.InitState();
+            newChild.InitRenderObject();
             return newChild;
         }
     }
