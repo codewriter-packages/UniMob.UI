@@ -4,14 +4,11 @@ using UniMob.UI.Layout.Internal.Views;
 
 namespace UniMob.UI.Layout
 {
-    public class ZStack : StatefulWidget, IMultiChildLayoutWidget // Reuse IFlexWidget for convenience
+    public class ZStack : StatefulWidget, IMultiChildLayoutWidget
     {
         public Alignment Alignment { get; set; } = Alignment.Center;
 
         // Not used by ZStack, but part of the interface
-        public MainAxisAlignment MainAxisAlignment => MainAxisAlignment.Start;
-        public CrossAxisAlignment CrossAxisAlignment => CrossAxisAlignment.Start;
-        public AxisSize MainAxisSize => AxisSize.Min;
         public List<Widget> Children { get; set; } = new();
 
         public override State CreateState()
@@ -25,9 +22,16 @@ namespace UniMob.UI.Layout
         }
     }
 
-    public class ZStackState : ViewState<ZStack>, IMultiChildLayoutState
+    public interface IZStackState : IMultiChildLayoutState
+    {
+        Alignment Alignment { get; }
+    }
+    
+    public class ZStackState : ViewState<ZStack>, IZStackState
     {
         private readonly StateCollectionHolder _children;
+        
+        public Alignment Alignment => Widget.Alignment;
 
         public ZStackState()
         {

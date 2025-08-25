@@ -8,11 +8,11 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     internal class RenderZStack : RenderObject, IMultiChildRenderObject
     {
         private readonly List<LayoutData> _childrenLayout = new();
-        private readonly ZStackState _state;
+        private readonly IZStackState _state;
 
         public IReadOnlyList<LayoutData> ChildrenLayout => _childrenLayout;
 
-        public RenderZStack(ZStackState state)
+        public RenderZStack(IZStackState state)
         {
             _state = state;
         }
@@ -41,12 +41,10 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         protected override void PerformPositioning()
         {
-            var widget = _state.RawWidget as ZStack;
-
             for (var i = 0; i < _childrenLayout.Count; i++)
             {
                 var layout = _childrenLayout[i];
-                var alignment = widget.Alignment;
+                var alignment = _state.Alignment;
 
                 var x = (Size.x - layout.Size.x) * (alignment.X * 0.5f + 0.5f);
                 var y = (Size.y - layout.Size.y) * (alignment.Y * 0.5f + 0.5f);
