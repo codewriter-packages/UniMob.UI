@@ -21,7 +21,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
-            var widget = this.Widget;
+            var widget = Widget;
 
             var childContraints  = new LayoutConstraints(
                 0, // A child can always choose to be smaller.
@@ -30,9 +30,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 widget.Height ?? constraints.MaxHeight  // Use own height if set, otherwise parent's.
             );
 
-            // 2. The child's size is now calculated cleanly using the helper,
-            //    but with the CORRECT, TIGHTENED constraints.
-            this.ChildSize = LayoutChild(_state.Child, childContraints);
+            ChildSize = LayoutChild(_state.Child, childContraints);
 
             // 2. SIZING PASS: Determine this container's own size.
             float finalWidth = widget.Width ?? (float.IsInfinity(constraints.MaxWidth) ? this.ChildSize.x : constraints.MaxWidth);
