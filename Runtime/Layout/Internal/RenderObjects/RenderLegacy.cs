@@ -27,12 +27,12 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
         public override float GetIntrinsicWidth(float height)
         {
-            return _state.ViewMaxSize.x;
+            return _state.Size.MaxWidth;
         }
 
         public override float GetIntrinsicHeight(float width)
         {
-            return _state.ViewMaxSize.y;
+            return _state.Size.MaxHeight;
         }
     }
 }

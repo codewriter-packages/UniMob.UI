@@ -1,3 +1,4 @@
+using UniMob.UI.Layout.Internal.RenderObjects;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -8,28 +9,6 @@ namespace UniMob.UI
         private LifetimeController _mountLifetimeController;
 
         [Atom] public override WidgetSize Size => CalculateSize();
-
-        Vector2 IViewState.ViewMaxSize => ViewMaxSize;
-
-        [Atom] private Vector2 ViewMaxSize
-        {
-            get
-            {
-                var prefab = UniMobViewContext.Loader.LoadViewPrefab(View);
-                var size = Vector2.Max(prefab.rectTransform.sizeDelta, Vector2.zero);
-
-                var (width, height) = (size.x, size.y);
-
-                // zero size is definitely a stretched widget here
-                var isWidthStretched = Mathf.Approximately(width, 0f);
-                var isHeightStretched = Mathf.Approximately(height, 0f);
-
-                return new Vector2(
-                    x: isWidthStretched ? float.PositiveInfinity : width,
-                    y: isHeightStretched ? float.PositiveInfinity : height
-                );
-            }
-        }
 
         public abstract WidgetViewReference View { get; }
 
@@ -65,6 +44,19 @@ namespace UniMob.UI
         public virtual WidgetSize CalculateSize()
         {
             var ro = RenderObject;
+
+            if (RenderObject is RenderLegacy)
+            {
+                var prefab = UniMobViewContext.Loader.LoadViewPrefab(View);
+                var size = prefab.rectTransform.sizeDelta;
+
+                return new WidgetSize(
+                    size.x > 0 ? size.x : 0,
+                    size.y > 0 ? size.y : 0,
+                    size.x > 0 ? size.x : float.PositiveInfinity,
+                    size.y > 0 ? size.y : float.PositiveInfinity
+                );
+            }
 
             // For legacy parents, report the unconstrained intrinsic size.
             // This is a "best guess" since no constraints are provided.
