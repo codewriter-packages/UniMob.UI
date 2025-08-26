@@ -103,8 +103,8 @@ namespace UniMob.UI.Layout
             return new LayoutConstraints(
                 width.HasValue ? Mathf.Clamp(width.Value, MinWidth, MaxWidth) : MinWidth,
                 height.HasValue ? Mathf.Clamp(height.Value, MinHeight, MaxHeight) : MinHeight,
-                MaxWidth,
-                MaxHeight
+                width.HasValue ? Mathf.Clamp(width.Value, MinWidth, MaxWidth) : MaxWidth,
+                height.HasValue ? Mathf.Clamp(height.Value, MinHeight, MaxHeight) : MaxHeight
             );
         }
 
