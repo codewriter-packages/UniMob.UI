@@ -5,7 +5,7 @@ using UniMob.UI.Layout.Views;
 
 namespace UniMob.UI.Layout
 {
-    public class Row : LayoutWidget, IFlexWidget
+    public class Row : StatefulWidget, IFlexWidget
     {
         public List<Widget> Children { get; set; } = new List<Widget>();
         public CrossAxisAlignment CrossAxisAlignment { get; set; }
@@ -14,13 +14,13 @@ namespace UniMob.UI.Layout
 
         public override State CreateState() => new RowState();
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderFlex((RowState) state, Axis.Horizontal);
         }
     }
     
-    internal class RowState : LayoutState<Row>, IMultiChildLayoutState
+    internal class RowState : ViewState<Row>, IMultiChildLayoutState
     {
         public IState[] Children => _children.Value;
 

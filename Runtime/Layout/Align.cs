@@ -5,21 +5,21 @@ using UniMob.UI.Layout.Internal.RenderObjects;
 
 namespace UniMob.UI.Layout
 {
-    public class Align : LayoutWidget
+    public class Align : StatefulWidget
     {
         public Widget Child { get; set; }
         public Alignment Alignment { get; set; } = Alignment.Center;
 
         public override State CreateState() => new AlignState();
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             // THIS IS THE FIX: It now creates its own, correct RenderObject.
             return new RenderAlign((AlignState) state);
         }
     }
 
-    public class AlignState : LayoutState<Align>, ISingleChildLayoutState
+    public class AlignState : ViewState<Align>, ISingleChildLayoutState
     {
         private readonly StateHolder _child;
         public AlignState() { _child = CreateChild(c => Widget.Child); }

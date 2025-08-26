@@ -1,3 +1,5 @@
+using UniMob.UI.Layout.Internal.RenderObjects;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace UniMob.UI
@@ -37,16 +39,38 @@ namespace UniMob.UI
             _mountLifetimeController?.Dispose();
         }
 
+        // This method provides the bridge TO the old layout system.
+        // When a legacy widget contains a new layout-aware widget, this is called.
         public virtual WidgetSize CalculateSize()
         {
-            var prefab = UniMobViewContext.Loader.LoadViewPrefab(View);
-            var size = prefab.rectTransform.sizeDelta;
+            var ro = RenderObject;
+
+            if (RenderObject is RenderLegacy)
+            {
+                var prefab = UniMobViewContext.Loader.LoadViewPrefab(View);
+                var size = prefab.rectTransform.sizeDelta;
+
+                return new WidgetSize(
+                    size.x > 0 ? size.x : 0,
+                    size.y > 0 ? size.y : 0,
+                    size.x > 0 ? size.x : float.PositiveInfinity,
+                    size.y > 0 ? size.y : float.PositiveInfinity
+                );
+            }
+
+            // For legacy parents, report the unconstrained intrinsic size.
+            // This is a "best guess" since no constraints are provided.
+            var intrinsicWidth = ro.GetIntrinsicWidth(float.PositiveInfinity);
+            var intrinsicHeight = ro.GetIntrinsicHeight(intrinsicWidth);
+
+            var isWidthStretched = float.IsInfinity(intrinsicWidth);
+            var isHeightStretched = float.IsInfinity(intrinsicHeight);
 
             return new WidgetSize(
-                size.x > 0 ? size.x : 0,
-                size.y > 0 ? size.y : 0,
-                size.x > 0 ? size.x : float.PositiveInfinity,
-                size.y > 0 ? size.y : float.PositiveInfinity
+                minWidth: isWidthStretched ? 0 : intrinsicWidth,
+                minHeight: isHeightStretched ? 0 : intrinsicHeight,
+                maxWidth: isWidthStretched ? float.PositiveInfinity : intrinsicWidth,
+                maxHeight: isHeightStretched ? float.PositiveInfinity : intrinsicHeight
             );
         }
     }

@@ -20,7 +20,7 @@ namespace UniMob.UI.Layout
     }
 
 
-    public class Text : LayoutWidget
+    public class Text : StatefulWidget
     {
         public string Value { get; set; } = string.Empty;
         public Color? Color { get; set; }
@@ -41,13 +41,13 @@ namespace UniMob.UI.Layout
 
         public override State CreateState() => new TextState();
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderText((TextState) state);
         }
     }
 
-    public class TextState : LayoutState<Text>, IUniMobTextState
+    public class TextState : ViewState<Text>, IUniMobTextState
     {
         // Exposing all properties for the View, resolving defaults from context.
         public string Value => Widget.Value; 

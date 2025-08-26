@@ -7,17 +7,24 @@ using System.Collections.Generic;
 using System.Linq;
 using UniMob.UI.Internal;
 using UniMob.UI.Layout;
+using UniMob.UI.Layout.Internal.RenderObjects;
+using UnityEngine;
 
 namespace UniMob.UI
 {
     public abstract class State : IState, IDisposable, ILifetimeScope
     {
         private readonly MutableAtom<LayoutConstraints?> _explicitConstraints = Atom.Value(default(LayoutConstraints?));
-        
+        private readonly Atom<(Vector2 renderSize, int version)> _trackedLayoutPerformer;
+
         private readonly MutableBuildContext _context;
 
         private LifetimeController _stateLifetimeController;
+        private RenderObject _renderObject;
 
+        private int _renderVersion = int.MinValue;
+
+        public RenderObject RenderObject => _renderObject;
         public BuildContext Context => _context;
 
         internal Widget RawWidget { get; private set; }
@@ -50,11 +57,15 @@ namespace UniMob.UI
         protected State()
         {
             _context = new MutableBuildContext(this, null);
+            _trackedLayoutPerformer = CreateTrackedLayout();
         }
 
         internal virtual void Update(Widget widget)
         {
             RawWidget = widget;
+
+            // Force recompute layout on Widget modifications.
+            _trackedLayoutPerformer.Invalidate();
         }
 
         internal virtual void UpdateConstraints(LayoutConstraints constraints)
@@ -73,6 +84,11 @@ namespace UniMob.UI
             _context.SetParent(context);
         }
 
+        internal void InitRenderObject()
+        {
+            _renderObject = RawWidget.CreateRenderObject(Context, this);
+        }
+
         public virtual void InitState()
         {
         }
@@ -83,6 +99,30 @@ namespace UniMob.UI
         }
 
         void IState.UpdateConstraints(LayoutConstraints constraints) => UpdateConstraints(constraints);
+
+        Vector2 IState.WatchedPerformLayout()
+        {
+            var renderData = _trackedLayoutPerformer.Get();
+            return renderData.renderSize;
+        }
+
+        private Atom<(Vector2 renderSize, int version)> CreateTrackedLayout()
+        {
+            return Atom.Computed(StateLifetime, () =>
+            {
+                // PerformLayout() implicitly uses many [Atom] so trackedLayoutPerformer will be auto recomputed.
+                RenderObject.PerformLayoutImmediate(Constraints);
+
+                // Also recompute layout on Constraints modifications.
+                _ = Constraints;
+
+                var renderSize = RenderObject.Size;
+
+                // The PerformLayout() was done and we need all subscribers to be invalidated,
+                // so we always return a new number.
+                return (renderSize, _renderVersion = ((_renderVersion + 1) % int.MaxValue));
+            });
+        }
 
         internal static StateHolder<TState> Create<TWidget, TState>(
             Lifetime lifetime,

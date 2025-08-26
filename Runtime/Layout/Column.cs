@@ -4,7 +4,7 @@ using UniMob.UI.Layout.Views;
 
 namespace UniMob.UI.Layout
 {
-    public class Column : LayoutWidget, IFlexWidget
+    public class Column : StatefulWidget, IFlexWidget
     {
         public List<Widget> Children { get; set; } = new ();
         public CrossAxisAlignment CrossAxisAlignment { get; set; }
@@ -13,13 +13,13 @@ namespace UniMob.UI.Layout
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
 
         public override State CreateState() => new ColumnState();
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderFlex((ColumnState) state, Axis.Vertical);
         }
     }
     
-    internal class ColumnState : LayoutState<Column>, IMultiChildLayoutState
+    internal class ColumnState : ViewState<Column>, IMultiChildLayoutState
     {
     private readonly StateCollectionHolder _children;
 

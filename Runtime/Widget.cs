@@ -1,4 +1,5 @@
 using System;
+using UniMob.UI.Layout.Internal.RenderObjects;
 
 namespace UniMob.UI
 {
@@ -11,5 +12,10 @@ namespace UniMob.UI
 
         State CreateState(StateProvider provider);
         State CreateState();
+
+        /// <summary>
+        /// Creates the lightweight RenderObject responsible for layout calculations.
+        /// </summary>
+        RenderObject CreateRenderObject(BuildContext context, IState state);
     }
 }

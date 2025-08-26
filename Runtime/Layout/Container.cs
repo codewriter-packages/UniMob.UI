@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UniMob.UI.Layout
 {
-    public class Container : LayoutWidget
+    public class Container : StatefulWidget
     {
         public Widget Child { get; set; }
         public Color BackgroundColor { get; set; } = Color.clear;
@@ -14,7 +14,7 @@ namespace UniMob.UI.Layout
 
         public override State CreateState() => new ContainerState();
 
-        public override RenderObject CreateRenderObject(BuildContext context, ILayoutState state)
+        public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
             return new RenderContainer((ContainerState) state);
         }
@@ -27,7 +27,7 @@ namespace UniMob.UI.Layout
         Sprite BackgroundImage { get; }
     }
     
-    public class ContainerState : LayoutState<Container>, IContainerState
+    public class ContainerState : ViewState<Container>, IContainerState
     {
         private readonly StateHolder _child;
 
