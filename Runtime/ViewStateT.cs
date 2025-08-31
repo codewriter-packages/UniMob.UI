@@ -52,8 +52,6 @@ namespace UniMob.UI
             [CallerMemberName] string cacheKey = "")
             where TChildWidget : Widget
         {
-            _renderChildCache ??= new Dictionary<string, StateHolder>();
-
             return new RenderChildBuilder<TChildWidget>(this, cacheKey, builder);
         }
 
