@@ -34,6 +34,16 @@ namespace UniMob.UI.Layout
             return new LayoutConstraints(0, 0, width, height);
         }
 
+        public static LayoutConstraints TightFor(float? width = null, float? height = null)
+        {
+            return new LayoutConstraints(
+                width ?? 0,
+                height ?? 0,
+                width ?? float.PositiveInfinity,
+                height ?? float.PositiveInfinity
+            );
+        }
+        
         
         /// <summary>
         ///     Creates a set of unbounded constraints, allowing any size.
@@ -117,6 +127,23 @@ namespace UniMob.UI.Layout
                 Mathf.Clamp(size.x, MinWidth, MaxWidth),
                 Mathf.Clamp(size.y, MinHeight, MaxHeight)
             );
+        }
+        
+        /// <summary>
+        /// Constrain  that respects these constraints.
+        /// </summary>
+        public float ConstrainWidth(float width)
+        {
+            return Mathf.Clamp(width, MinWidth, MaxWidth);
+        }
+        /// <summary>
+        /// Returns a height that respects these constraints.
+        /// </summary>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public float ConstrainHeight(float height)
+        {
+            return Mathf.Clamp(height, MinHeight, MaxHeight);
         }
 
         public override string ToString()
