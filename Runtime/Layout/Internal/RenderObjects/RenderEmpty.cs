@@ -6,9 +6,9 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
     {
         public static readonly RenderEmpty Shared = new RenderEmpty();
 
-        protected override Vector2 PerformSizing(LayoutConstraints contextConstraints)
+        protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
-            return Vector2.zero;
+            return constraints.Constrain(Vector2.zero);
         }
 
         protected override void PerformPositioning()
