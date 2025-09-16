@@ -1,70 +1,64 @@
-﻿using JetBrains.Annotations;
-using UniMob.UI.Layout.Internal.RenderObjects;
+#nullable enable
+using JetBrains.Annotations;
 using UniMob.UI.Widgets;
 using UnityEngine;
 
 namespace UniMob.UI.Layout
 {
-    internal interface IContainerState : ISizedBoxState
-    {
-        Color BackgroundColor { get; }
-        Sprite BackgroundImage { get; }
-    }
-
-    
     /// <summary>
-    /// A container widget that can hold a single child widget and provides layout options such as alignment,
-    /// background color, and size.
+    /// A container widget that can hold a single child widget and provides layout and painting options.
     /// </summary>
     public class Container : StatefulWidget
     {
-        [CanBeNull] public Widget Child { get; set; }
+        [CanBeNull]
+        public Widget? Child { get; set; }
         public Color BackgroundColor { get; set; } = Color.clear;
-        public Sprite BackgroundImage { get; set; } = null;
-        public Alignment Alignment { get; set; } = Alignment.Center;
+        public Sprite? BackgroundImage { get; set; } = null;
+        public Alignment? Alignment { get; set; } = null;
         public float? Width { get; set; }
         public float? Height { get; set; }
 
         public Container(float? width = null, float? height = null)
         {
-            this.Width = width;
-            this.Height = height;
+            Width = width;
+            Height = height;
         }
 
         public override State CreateState()
         {
             return new ContainerState();
         }
-
-        public override RenderObject CreateRenderObject(BuildContext context, IState state)
-        {
-            return new RenderSizedBox((ISizedBoxState) state);
-        }
     }
 
-
-    public class ContainerState : ViewState<Container>, IContainerState
+    public class ContainerState : HocState<Container>
     {
-        private readonly StateHolder _child;
-
-        public ContainerState()
+        public override Widget Build(BuildContext context)
         {
-            _child = CreateChild(context => Widget.Child ?? new Empty());
+            var current = Widget.Child;
+
+            if (Widget.Alignment is Alignment alignment)
+            {
+                current = new Align { Alignment = alignment, Child = current };
+            }
+
+            // Wrap with a painting box if color/image is set.
+            if (Widget.BackgroundColor != Color.clear || Widget.BackgroundImage != null)
+            {
+                current = new ColoredImageBox
+                {
+                    Color = Widget.BackgroundColor,
+                    Image = Widget.BackgroundImage,
+                    Child = current,
+                };
+            }
+
+            // Wrap with a sizing widget if width/height is set.
+            if (Widget.Width != null || Widget.Height != null)
+            {
+                current = new SizedBox(child: current, width: Widget.Width, height: Widget.Height);
+            }
+
+            return current ?? new Empty();
         }
-
-        public Alignment Alignment => Widget.Alignment;
-
-        public float? Width => Widget.Width;
-        public float? Height => Widget.Height;
-
-        public IState Child => _child.Value;
-        public Color BackgroundColor => Widget.BackgroundColor;
-
-        public Sprite BackgroundImage => Widget.BackgroundImage != null
-            ? Widget.BackgroundImage
-            : UniMobViewContext.DefaultWhiteImage;
-
-        public override WidgetViewReference View =>
-            WidgetViewReference.Resource("$$_Layout.ContainerView");
     }
 }
