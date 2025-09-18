@@ -27,10 +27,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             var childSize = LayoutChild(_state.Child, childConstraints);
 
-            return new Vector2(
-                Mathf.Clamp(childSize.x, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(childSize.y, constraints.MinHeight, constraints.MaxHeight)
-            );
+            return constraints.Constrain(childSize);
         }
 
         protected override void PerformPositioning()

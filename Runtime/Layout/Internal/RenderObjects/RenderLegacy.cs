@@ -15,10 +15,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         {
             var legacySize = _state.Size;
 
-            return new Vector2(
-                Mathf.Clamp(legacySize.MaxWidth, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(legacySize.MaxHeight, constraints.MinHeight, constraints.MaxHeight)
-            );
+            return constraints.Constrain(legacySize.GetSizeUnbounded());
         }
 
         protected override void PerformPositioning()

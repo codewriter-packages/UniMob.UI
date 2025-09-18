@@ -148,10 +148,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             var preferredSize = GetPreferredSize(effectiveMaxWidth, effectiveMaxHeight);
 
             // The final size is the preferred size, clamped within the original parent constraints.
-            return new Vector2(
-                Mathf.Clamp(preferredSize.x, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(preferredSize.y, constraints.MinHeight, constraints.MaxHeight)
-            );
+            return constraints.Constrain(preferredSize);
         }
 
         protected override void PerformPositioning()
