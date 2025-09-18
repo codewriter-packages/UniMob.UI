@@ -20,7 +20,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         protected override Vector2 PerformSizing(LayoutConstraints constraints)
         {
             var selfConstraints = _state.BoxConstraints;
-            var childConstraints = constraints.Enforce(selfConstraints);
+            var childConstraints = selfConstraints.Enforce(constraints);
 
             if (_state.Child == null)
                 return childConstraints.Constrain(Vector2.zero);
