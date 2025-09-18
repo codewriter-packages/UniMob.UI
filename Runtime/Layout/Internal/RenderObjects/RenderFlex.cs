@@ -92,7 +92,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
             {
                 nonFlexConstraints = isHorizontal
                     ? nonFlexConstraints.Tighten(height: maxCrossAxis)
-                    : nonFlexConstraints.Tighten(width: maxMainAxis);
+                    : nonFlexConstraints.Tighten(width: maxCrossAxis);
             }
 
             foreach (var i in nonFlexChildrenIndices)
