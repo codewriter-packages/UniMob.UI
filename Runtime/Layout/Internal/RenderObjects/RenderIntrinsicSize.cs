@@ -18,36 +18,15 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         {
             var widget = this.Widget;
 
-            var size = ComputeIntrinsicSize(widget.Axis);
+            var childConstraints = widget.Axis == Axis.Horizontal
+                ? constraints.Tighten(width: GetIntrinsicWidth(float.PositiveInfinity))
+                : constraints.Tighten(height: GetIntrinsicHeight(float.PositiveInfinity));
 
-            var childConstraints = LayoutConstraints.Tight(
-                Mathf.Clamp(size.x, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(size.y, constraints.MinHeight, constraints.MaxHeight)
-            );
-
-            var childSize = LayoutChild(_state.Child, childConstraints);
-
-            return constraints.Constrain(childSize);
+            return LayoutChild(_state.Child, childConstraints);
         }
 
         protected override void PerformPositioning()
         {
-        }
-
-        private Vector2 ComputeIntrinsicSize(Axis axis)
-        {
-            if (axis == Axis.Horizontal)
-            {
-                var width = GetIntrinsicWidth(float.PositiveInfinity);
-                var height = GetIntrinsicHeight(width);
-                return new Vector2(width, height);
-            }
-            else
-            {
-                var height = GetIntrinsicHeight(float.PositiveInfinity);
-                var width = GetIntrinsicWidth(height);
-                return new Vector2(width, height);
-            }
         }
 
         public override float GetIntrinsicWidth(float height)
