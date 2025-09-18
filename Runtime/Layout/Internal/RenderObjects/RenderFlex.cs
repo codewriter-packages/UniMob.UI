@@ -88,6 +88,13 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 ? new LayoutConstraints(0, 0, float.PositiveInfinity, maxCrossAxis)
                 : new LayoutConstraints(0, 0, maxCrossAxis, float.PositiveInfinity);
 
+            if (widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
+            {
+                nonFlexConstraints = isHorizontal
+                    ? nonFlexConstraints.Tighten(height: maxCrossAxis)
+                    : nonFlexConstraints.Tighten(width: maxMainAxis);
+            }
+
             foreach (var i in nonFlexChildrenIndices)
             {
                 var childSize = LayoutChild(_state.Children[i], nonFlexConstraints);
@@ -106,8 +113,8 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 {
                     var flexSpace = freeSpace * (flex / (float) totalFlexFactor);
                     var flexConstraints = isHorizontal
-                        ? LayoutConstraints.Tight(flexSpace, maxCrossAxis)
-                        : LayoutConstraints.Tight(maxCrossAxis, flexSpace);
+                        ? nonFlexConstraints.Tighten(width: flexSpace)
+                        : nonFlexConstraints.Tighten(height: flexSpace);
 
                     var childSize = LayoutChild(_state.Children[i], flexConstraints);
                     _childrenLayout[i] = new LayoutData {Size = childSize};
