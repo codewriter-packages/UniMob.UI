@@ -11,6 +11,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
         CrossAxisAlignment CrossAxisAlignment { get; }
         MainAxisAlignment MainAxisAlignment { get; }
         AxisSize MainAxisSize { get; }
+        AxisSize CrossAxisSize { get; }
     }
 
     internal class RenderFlex : RenderObject, IMultiChildRenderObject
@@ -116,7 +117,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             _unconstrainedMainAxisSize = mainAxisTotalSize + (totalFlexFactor > 0 ? freeSpace : 0);
 
-            if (widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
+            if (widget.CrossAxisSize == AxisSize.Max)
             {
                 crossAxisMaxSize = maxCrossAxis;
             }
@@ -127,10 +128,7 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
                 ? new Vector2(finalMainAxisSize, crossAxisMaxSize)
                 : new Vector2(crossAxisMaxSize, finalMainAxisSize);
 
-            return new Vector2(
-                Mathf.Clamp(finalSize.x, constraints.MinWidth, constraints.MaxWidth),
-                Mathf.Clamp(finalSize.y, constraints.MinHeight, constraints.MaxHeight)
-            );
+            return constraints.Constrain(finalSize);
         }
 
         protected override void PerformPositioning()

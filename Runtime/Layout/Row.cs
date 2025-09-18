@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using UniMob.UI.Layout.Internal.RenderObjects;
 using UniMob.UI.Layout.Views;
 
@@ -9,8 +8,9 @@ namespace UniMob.UI.Layout
     {
         public List<Widget> Children { get; set; } = new List<Widget>();
         public CrossAxisAlignment CrossAxisAlignment { get; set; }
-        public MainAxisAlignment MainAxisAlignment { get; set; } 
+        public MainAxisAlignment MainAxisAlignment { get; set; }
         public AxisSize MainAxisSize { get; set; } = AxisSize.Min;
+        public AxisSize CrossAxisSize { get; set; } = AxisSize.Min;
 
         public override State CreateState() => new RowState();
 
@@ -19,7 +19,7 @@ namespace UniMob.UI.Layout
             return new RenderFlex((RowState) state, Axis.Horizontal);
         }
     }
-    
+
     internal class RowState : ViewState<Row>, IMultiChildLayoutState
     {
         public IState[] Children => _children.Value;
