@@ -85,8 +85,8 @@ namespace UniMob.UI.Layout.Internal.RenderObjects
 
             // --- Second Pass: Measure non-flexible children ---
             var nonFlexConstraints = isHorizontal
-                ? new LayoutConstraints(0, 0, float.PositiveInfinity, maxCrossAxis)
-                : new LayoutConstraints(0, 0, maxCrossAxis, float.PositiveInfinity);
+                ? new LayoutConstraints(0, constraints.MinHeight, float.PositiveInfinity, maxCrossAxis)
+                : new LayoutConstraints(constraints.MinWidth, 0, maxCrossAxis, float.PositiveInfinity);
 
             if (widget.CrossAxisAlignment == CrossAxisAlignment.Stretch)
             {
