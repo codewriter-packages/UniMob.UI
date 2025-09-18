@@ -1,14 +1,14 @@
-﻿using UniMob.UI.Internal;
+using UniMob.UI.Internal;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: RegisterComponentViewFactory("$$_Layout.ContainerView",
-    typeof(UniMob.UI.Layout.Internal.Views.LayoutContainerView))]
+[assembly: RegisterComponentViewFactory("$$_Layout.ColoredImageBoxView",
+    typeof(UniMob.UI.Layout.Internal.Views.ColoredImageBoxView))]
 
 namespace UniMob.UI.Layout.Internal.Views
 {
     [RequireComponent(typeof(RectTransform), typeof(CanvasRenderer), typeof(Image))]
-    internal class LayoutContainerView : SingleChildLayoutView<IContainerState>
+    internal class ColoredImageBoxView : SingleChildLayoutView<IColoredImageBoxState>
     {
         private Image _backgroundImage;
 

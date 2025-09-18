@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace UniMob.UI.Layout
 {
@@ -18,13 +19,132 @@ namespace UniMob.UI.Layout
         }
 
         /// <summary>
-        /// Creates a set of tight constraints, forcing an exact size.
+        ///     Creates a set of tight constraints, forcing an exact size.
         /// </summary>
         public static LayoutConstraints Tight(float width, float height)
         {
             return new LayoutConstraints(width, height, width, height);
         }
 
+        /// <summary>
+        ///     Creates a set of loose constraints, allowing any size up to the specified maximum.
+        /// </summary>
+        public static LayoutConstraints Loose(float width, float height)
+        {
+            return new LayoutConstraints(0, 0, width, height);
+        }
+
+        public static LayoutConstraints TightFor(float? width = null, float? height = null)
+        {
+            return new LayoutConstraints(
+                width ?? 0,
+                height ?? 0,
+                width ?? float.PositiveInfinity,
+                height ?? float.PositiveInfinity
+            );
+        }
+        
+        
+        /// <summary>
+        ///     Creates a set of unbounded constraints, allowing any size.
+        /// </summary>
+        public static LayoutConstraints Unbounded()
+        {
+            return new LayoutConstraints(0, 0, float.PositiveInfinity, float.PositiveInfinity);
+        }
+
+
+        public bool HasTightWidth => MinWidth >= MaxWidth;
+        public bool HasTightHeight => MinHeight >= MaxHeight;
+        public bool IsTight => HasTightWidth && HasTightHeight;
+        public bool HasBoundedWidth => float.IsFinite(MaxWidth);
+        public bool HasBoundedHeight => float.IsFinite(MaxHeight);
+
+        /// <summary>
+        ///     Creates a new set of constraints with the minimums removed.
+        /// </summary>
+        public LayoutConstraints Loosen()
+        {
+            return new LayoutConstraints(0, 0, MaxWidth, MaxHeight);
+        }
+
+        /// <summary>
+        ///     Creates a new set of constraints by enforcing the bounds of another.
+        ///     The final constraints will be within the bounds of both.
+        /// </summary>
+        /// <remarks>
+        ///     This operation is <i>not</i> commutative, i.e. <c>a.Enforce(b)</c>
+        ///     is not the same as <c>b.Enforce(a)</c>.
+        /// </remarks>
+        public LayoutConstraints Enforce(LayoutConstraints other)
+        {
+            return new LayoutConstraints(
+                Mathf.Clamp(MinWidth, other.MinWidth, other.MaxWidth),
+                Mathf.Clamp(MinHeight, other.MinHeight, other.MaxHeight),
+                Mathf.Clamp(MaxWidth, other.MinWidth, other.MaxWidth),
+                Mathf.Clamp(MaxHeight, other.MinHeight, other.MaxHeight)
+            );
+        }
+
+        /// <summary>
+        ///     Returns a new set of constraints that is deflated by the given padding.
+        ///     The minimums will never go below zero.
+        /// </summary>
+        public LayoutConstraints Deflate(RectPadding padding)
+        {
+            var horizontal = padding.Horizontal;
+            var vertical = padding.Vertical;
+            var deflatedMinWidth = Mathf.Max(0, MinWidth - horizontal);
+            var deflatedMinHeight = Mathf.Max(0, MinHeight - vertical);
+
+            return new LayoutConstraints(
+                deflatedMinWidth,
+                deflatedMinHeight,
+                Mathf.Max(deflatedMinWidth, MaxWidth - horizontal),
+                Mathf.Max(deflatedMinHeight, MaxHeight - vertical)
+            );
+        }
+        
+        /// <summary>
+        ///     Creates a new set of constraints by tightening the minimums.
+        /// </summary>
+        public LayoutConstraints Tighten(float? width = null, float? height = null)
+        {
+            return new LayoutConstraints(
+                width.HasValue ? Mathf.Clamp(width.Value, MinWidth, MaxWidth) : MinWidth,
+                height.HasValue ? Mathf.Clamp(height.Value, MinHeight, MaxHeight) : MinHeight,
+                width.HasValue ? Mathf.Clamp(width.Value, MinWidth, MaxWidth) : MaxWidth,
+                height.HasValue ? Mathf.Clamp(height.Value, MinHeight, MaxHeight) : MaxHeight
+            );
+        }
+
+        /// <summary>
+        ///     Returns a size that respects these constraints.
+        /// </summary>
+        public Vector2 Constrain(Vector2 size)
+        {
+            return new Vector2(
+                Mathf.Clamp(size.x, MinWidth, MaxWidth),
+                Mathf.Clamp(size.y, MinHeight, MaxHeight)
+            );
+        }
+        
+        /// <summary>
+        /// Constrain  that respects these constraints.
+        /// </summary>
+        public float ConstrainWidth(float width)
+        {
+            return Mathf.Clamp(width, MinWidth, MaxWidth);
+        }
+        /// <summary>
+        /// Returns a height that respects these constraints.
+        /// </summary>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public float ConstrainHeight(float height)
+        {
+            return Mathf.Clamp(height, MinHeight, MaxHeight);
+        }
 
         public override string ToString()
         {
@@ -48,5 +168,7 @@ namespace UniMob.UI.Layout
         {
             return HashCode.Combine(MinWidth, MinHeight, MaxWidth, MaxHeight);
         }
+
+        
     }
 }

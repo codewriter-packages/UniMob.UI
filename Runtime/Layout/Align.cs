@@ -1,33 +1,31 @@
-﻿using UniMob.UI.Internal;
 using UniMob.UI.Layout.Internal.RenderObjects;
-
-
 
 namespace UniMob.UI.Layout
 {
-    public class Align : StatefulWidget
+    public class Align : SingleChildLayoutWidget
     {
-        public Widget Child { get; set; }
         public Alignment Alignment { get; set; } = Alignment.Center;
 
-        public override State CreateState() => new AlignState();
+        public float? WidthFactor { get; set; }
+        public float? HeightFactor { get; set; }
+
+        public override State CreateState()
+        {
+            return new AlignState();
+        }
 
         public override RenderObject CreateRenderObject(BuildContext context, IState state)
         {
-            // THIS IS THE FIX: It now creates its own, correct RenderObject.
-            return new RenderAlign((AlignState) state);
+            return new RenderPositionedBox((AlignState) state);
         }
     }
 
-    public class AlignState : ViewState<Align>, ISingleChildLayoutState
+    public class AlignState : SingleChildLayoutState<Align>, IPositionedBoxState
     {
-        private readonly StateHolder _child;
-        public AlignState() { _child = CreateChild(c => Widget.Child); }
-        public IState Child => _child.Value;
+        public float? WidthFactor => Widget.WidthFactor;
 
-        // The View can still be a simple container that just hosts the child.
-        public override WidgetViewReference View => WidgetViewReference.Resource("$$_Layout.AlignView");
+        public float? HeightFactor => Widget.HeightFactor;
+
+        public Alignment Alignment => Widget.Alignment;
     }
 }
-
-
