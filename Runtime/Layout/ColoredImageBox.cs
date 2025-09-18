@@ -31,11 +31,11 @@ namespace UniMob.UI.Layout
 
     internal class ColoredImageBoxState : SingleChildLayoutState<ColoredImageBox>, IColoredImageBoxState
     {
-        public override WidgetViewReference View => 
-            WidgetViewReference.Resource("$$_Layout.ColoredImageBoxView");
-
         public Color BackgroundColor => Widget.Color;
 
         public Sprite BackgroundImage => Widget.Image != null ? Widget.Image : UniMobViewContext.DefaultWhiteImage;
+
+        public override WidgetViewReference View =>
+            WidgetViewReference.Resource("$$_Layout.ColoredImageBoxView");
     }
 }

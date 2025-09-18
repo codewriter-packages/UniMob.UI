@@ -11,6 +11,10 @@ namespace UniMob.UI.Layout
         public float? Width { get; set; }
         public float? Height { get; set; }
 
+        public SizedBox()
+        {
+        }
+
         public SizedBox([CanBeNull] Widget child, float? width = null, float? height = null)
         {
             Width = width;
@@ -48,7 +52,7 @@ namespace UniMob.UI.Layout
         {
             return new SizedBox(null, 0, 0);
         }
-        
+
         public static SizedBox Expand([CanBeNull] Widget child = null)
         {
             return new SizedBox(child, float.PositiveInfinity, float.PositiveInfinity);
@@ -60,10 +64,5 @@ namespace UniMob.UI.Layout
         public float? Width => Widget.Width;
         public float? Height => Widget.Height;
         public LayoutConstraints BoxConstraints => LayoutConstraints.TightFor(Width, Height);
-
-
-        public override WidgetViewReference View =>
-            WidgetViewReference.Resource("$$_Layout.SingleChildLayoutView");
-
     }
 }

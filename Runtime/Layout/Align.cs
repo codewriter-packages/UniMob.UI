@@ -27,9 +27,5 @@ namespace UniMob.UI.Layout
         public float? HeightFactor => Widget.HeightFactor;
 
         public Alignment Alignment => Widget.Alignment;
-
-        public override WidgetViewReference View => WidgetViewReference.Resource("$$_Layout.SingleChildLayoutView");
-
-
     }
 }
